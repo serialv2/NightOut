@@ -22,15 +22,18 @@ public partial class MapPage : ContentPage
 
 #if ANDROID
         MapWebView.HandlerChanged += OnWebViewHandlerChanged;
-        MapWebView.Navigating      += OnMapWebViewNavigating;
-        _ = LoadMapAsync();
 #endif
+
+        // Important : la WebView existe aussi sur iOS.
+        // Le fichier map.html doit donc être chargé sur Android ET sur iPhone.
+        MapWebView.Navigating += OnMapWebViewNavigating;
+        _ = LoadMapAsync();
     }
 
     // Intercepte les URLs custom émises par le HTML (ex: nightout://navigate?tab=profile).
     private void OnMapWebViewNavigating(object? sender, WebNavigatingEventArgs e)
     {
-        if (!e.Url.StartsWith("nightout://")) return;
+        if (string.IsNullOrWhiteSpace(e.Url) || !e.Url.StartsWith("nightout://", StringComparison.OrdinalIgnoreCase)) return;
         e.Cancel = true;
 
         // Parse manuel : "nightout://navigate?tab=profile" → tab = "profile"
@@ -68,7 +71,6 @@ public partial class MapPage : ContentPage
         });
         */
     }
-#if ANDROID
     private async Task LoadMapAsync()
     {
         try
@@ -92,6 +94,7 @@ public partial class MapPage : ContentPage
         }
     }
 
+#if ANDROID
     private void OnWebViewHandlerChanged(object? sender, EventArgs e)
     {
         if (MapWebView.Handler?.PlatformView is not Android.Webkit.WebView webView)

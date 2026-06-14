@@ -38,6 +38,11 @@
 	<key>NSMicrophoneUsageDescription</key>
 	<string>NightOut utilise le micro lors de l'enregistrement d'une vidéo.</string>
 
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>NightOut utilise votre position pour afficher les bars et événements proches de vous.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>NightOut utilise votre position pour afficher les bars et événements proches de vous.</string>
+
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
