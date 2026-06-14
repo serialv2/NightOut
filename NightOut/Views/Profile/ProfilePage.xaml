@@ -1,0 +1,370 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="NightOut.Views.Profile.ProfilePage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:NightOut.ViewModels"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    xmlns:controls="clr-namespace:NightOut.Views.Controls"
+    x:DataType="vm:ProfileViewModel"
+    Shell.NavBarIsVisible="False"
+    BackgroundColor="#0A1018">
+
+    <ContentPage.Resources>
+        <toolkit:InvertedBoolConverter x:Key="InvertedBoolConverter"/>
+        <Style x:Key="SectionLabel" TargetType="Label">
+            <Setter Property="FontFamily"  Value="DMSans-SemiBold"/>
+            <Setter Property="FontSize"    Value="11"/>
+            <Setter Property="TextColor"   Value="#3D5068"/>
+            <Setter Property="Margin"      Value="0,20,0,8"/>
+            <Setter Property="Text"        Value="—"/>
+        </Style>
+        <Style x:Key="FieldEntry" TargetType="Entry">
+            <Setter Property="TextColor"        Value="#F2E8D5"/>
+            <Setter Property="PlaceholderColor" Value="#3D5068"/>
+            <Setter Property="FontFamily"       Value="DMSans-Regular"/>
+            <Setter Property="FontSize"         Value="14"/>
+            <Setter Property="BackgroundColor"  Value="Transparent"/>
+        </Style>
+        <Style x:Key="FieldBorder" TargetType="Border">
+            <Setter Property="BackgroundColor" Value="#131C28"/>
+            <Setter Property="StrokeShape"     Value="RoundRectangle 12"/>
+            <Setter Property="Stroke"          Value="#1F2D3D"/>
+            <Setter Property="StrokeThickness" Value="1"/>
+            <Setter Property="Padding"         Value="14,0"/>
+        </Style>
+        <Style x:Key="RowBorder" TargetType="Border">
+            <Setter Property="BackgroundColor" Value="#131C28"/>
+            <Setter Property="StrokeShape"     Value="RoundRectangle 12"/>
+            <Setter Property="Stroke"          Value="#1F2D3D"/>
+            <Setter Property="StrokeThickness" Value="1"/>
+            <Setter Property="Padding"         Value="14,14"/>
+            <Setter Property="Margin"          Value="0,4,0,0"/>
+        </Style>
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="Auto,*,Auto,Auto">
+
+        <!-- ══ HEADER ══ -->
+        <Grid Grid.Row="0" BackgroundColor="#0D1520" Padding="20,50,20,24">
+            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="16">
+
+                <!-- Avatar -->
+                <Grid Grid.Column="0" WidthRequest="80" HeightRequest="80">
+                    <Border StrokeShape="RoundRectangle 40" StrokeThickness="0" WidthRequest="80" HeightRequest="80">
+                        <Image Source="{Binding AvatarUrl}" Aspect="AspectFill"
+                               IsVisible="{Binding HasAvatarUrl}"/>
+                    </Border>
+                    <!-- Fallback avatar initiales -->
+                    <Border StrokeShape="RoundRectangle 40" BackgroundColor="#1A2535"
+                            WidthRequest="80" HeightRequest="80" StrokeThickness="0"
+                            IsVisible="{Binding HasAvatarUrl, Converter={StaticResource InvertedBoolConverter}}">
+                        <Label Text="👤" FontSize="32" HorizontalOptions="Center" VerticalOptions="Center"/>
+                    </Border>
+                    <!-- Bouton modifier avatar -->
+                    <Border StrokeShape="RoundRectangle 14" BackgroundColor="#FFB627"
+                            WidthRequest="28" HeightRequest="28" StrokeThickness="0"
+                            HorizontalOptions="End" VerticalOptions="End">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding PickAvatarCommand}"/>
+                        </Border.GestureRecognizers>
+                        <Label Text="📷" FontSize="13" HorizontalOptions="Center" VerticalOptions="Center"/>
+                    </Border>
+                    <!-- Spinner pendant l'upload -->
+                    <ActivityIndicator IsRunning="{Binding IsBusy}" Color="#FFB627"
+                                       HorizontalOptions="Center" VerticalOptions="Center"/>
+                </Grid>
+
+                <!-- Nom + stats -->
+                <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="4">
+                    <Label Text="{Binding DisplayName}" FontFamily="DMSans-SemiBold"
+                           FontSize="18" TextColor="#F2E8D5"/>
+                    <Label Text="{Binding Username, StringFormat='@{0}'}"
+                           FontFamily="DMSans-Regular" FontSize="13" TextColor="#3D5068"/>
+                    <Grid ColumnDefinitions="Auto,Auto" ColumnSpacing="12" Margin="0,6,0,0">
+                        <Border Grid.Column="0" BackgroundColor="#1A2535" StrokeShape="RoundRectangle 10"
+                                Stroke="#1FFFB627" StrokeThickness="1" Padding="10,5">
+                            <VerticalStackLayout Spacing="0">
+                                <Label Text="{Binding NightsOut}" FontFamily="DMSans-SemiBold"
+                                       FontSize="16" TextColor="#FFB627" HorizontalOptions="Center"/>
+                                <Label Text="soirées" FontFamily="DMSans-Regular"
+                                       FontSize="9" TextColor="#3D5068" HorizontalOptions="Center"/>
+                            </VerticalStackLayout>
+                        </Border>
+                        <Border Grid.Column="1" BackgroundColor="#1A2535" StrokeShape="RoundRectangle 10"
+                                Stroke="#1FFF627" StrokeThickness="1" Padding="10,5"
+                                IsVisible="{Binding HasBirthdate}">
+                            <VerticalStackLayout Spacing="0">
+                                <Label Text="{Binding Age}" FontFamily="DMSans-SemiBold"
+                                       FontSize="16" TextColor="#FFB627" HorizontalOptions="Center"/>
+                                <Label Text="ans" FontFamily="DMSans-Regular"
+                                       FontSize="9" TextColor="#3D5068" HorizontalOptions="Center"/>
+                            </VerticalStackLayout>
+                        </Border>
+                    </Grid>
+                </VerticalStackLayout>
+            </Grid>
+        </Grid>
+
+        <!-- ══ FORMULAIRE ══ -->
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Padding="20,8,20,16" Spacing="0">
+
+                <!-- Section : Mon profil -->
+                <Label Style="{StaticResource SectionLabel}" Text="MON PROFIL"/>
+
+                <!-- Nom affiché -->
+                <Border Style="{StaticResource FieldBorder}" HeightRequest="52">
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                        <Label Grid.Column="0" Text="✨" FontSize="16" VerticalOptions="Center"/>
+                        <Entry Grid.Column="1" Style="{StaticResource FieldEntry}"
+                               Text="{Binding DisplayName}" Placeholder="Nom affiché"
+                               ReturnType="Next"/>
+                    </Grid>
+                </Border>
+
+                <!-- Pseudo -->
+                <Border Style="{StaticResource FieldBorder}" HeightRequest="52" Margin="0,8,0,0">
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                        <Label Grid.Column="0" Text="@" FontSize="14" TextColor="#3D5068"
+                               FontFamily="DMSans-SemiBold" VerticalOptions="Center"/>
+                        <Entry Grid.Column="1" Style="{StaticResource FieldEntry}"
+                               Text="{Binding Username}" Placeholder="Pseudo"
+                               ReturnType="Next"/>
+                    </Grid>
+                </Border>
+
+                <!-- Bio -->
+                <Border BackgroundColor="#131C28" StrokeShape="RoundRectangle 12"
+                        Stroke="#1F2D3D" StrokeThickness="1" Padding="14,10" Margin="0,8,0,0">
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                        <Label Grid.Column="0" Text="📝" FontSize="16" VerticalOptions="Start" Margin="0,2,0,0"/>
+                        <Editor Grid.Column="1" Text="{Binding Bio}"
+                                Placeholder="Bio (courte description...)"
+                                PlaceholderColor="#3D5068" TextColor="#F2E8D5"
+                                FontFamily="DMSans-Regular" FontSize="14"
+                                BackgroundColor="Transparent" AutoSize="TextChanges"
+                                MinimumHeightRequest="60"/>
+                    </Grid>
+                </Border>
+
+                <!-- Section : Informations -->
+                <Label Style="{StaticResource SectionLabel}" Text="INFORMATIONS"/>
+
+                <!-- Date de naissance -->
+                <Border Style="{StaticResource RowBorder}">
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
+                        <Label Grid.Column="0" Text="🎂" FontSize="16" VerticalOptions="Center"/>
+                        <Label Grid.Column="1" Text="Date de naissance"
+                               FontFamily="DMSans-Regular" FontSize="14" TextColor="#F2E8D5"
+                               VerticalOptions="Center"/>
+                        <DatePicker Grid.Column="2" Date="{Binding Birthdate}"
+                                    TextColor="#FFB627" FontFamily="DMSans-Regular" FontSize="13"
+                                    Format="dd/MM/yyyy"
+                                    VerticalOptions="Center"/>
+                    </Grid>
+                </Border>
+
+                <!-- Genre -->
+                <Border Style="{StaticResource RowBorder}">
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
+                        <Label Grid.Column="0" Text="🏳️‍🌈" FontSize="16" VerticalOptions="Center"/>
+                        <Label Grid.Column="1" Text="Genre"
+                               FontFamily="DMSans-Regular" FontSize="14" TextColor="#F2E8D5"
+                               VerticalOptions="Center"/>
+                        <Picker Grid.Column="2"
+                                ItemsSource="{Binding GenderLabels}"
+                                SelectedIndex="{Binding GenderIndex}"
+                                TextColor="#FFB627" FontFamily="DMSans-Regular" FontSize="13"
+                                TitleColor="#3D5068" BackgroundColor="Transparent"
+                                VerticalOptions="Center" WidthRequest="170"/>
+                    </Grid>
+                </Border>
+
+                <!-- Ville -->
+                <Border Style="{StaticResource RowBorder}">
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
+                        <Label Grid.Column="0" Text="📍" FontSize="16" VerticalOptions="Center"/>
+                        <Label Grid.Column="1" Text="Ville"
+                               FontFamily="DMSans-Regular" FontSize="14" TextColor="#F2E8D5"
+                               VerticalOptions="Center"/>
+                        <Picker Grid.Column="2"
+                                ItemsSource="{Binding Cities}"
+                                ItemDisplayBinding="{Binding Name}"
+                                SelectedIndex="{Binding CityIndex}"
+                                SelectedItem="{Binding SelectedCity}"
+                                TextColor="#FFB627" FontFamily="DMSans-Regular" FontSize="13"
+                                TitleColor="#3D5068" BackgroundColor="Transparent"
+                                VerticalOptions="Center" WidthRequest="140"/>
+                    </Grid>
+                </Border>
+
+                <!-- Langue -->
+                <Border Style="{StaticResource RowBorder}">
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
+                        <Label Grid.Column="0" Text="🌐" FontSize="16" VerticalOptions="Center"/>
+                        <Label Grid.Column="1" Text="Langue"
+                               FontFamily="DMSans-Regular" FontSize="14" TextColor="#F2E8D5"
+                               VerticalOptions="Center"/>
+                        <Picker Grid.Column="2"
+                                ItemsSource="{Binding LanguageLabels}"
+                                SelectedIndex="{Binding LanguageIndex}"
+                                TextColor="#FFB627" FontFamily="DMSans-Regular" FontSize="13"
+                                BackgroundColor="Transparent" VerticalOptions="Center"
+                                WidthRequest="120"/>
+                    </Grid>
+                </Border>
+
+                <!-- Section : NightOut -->
+                <Label Style="{StaticResource SectionLabel}" Text="NIGHTOUT"/>
+
+                <!-- Score de fiabilité sorties -->
+                <Border BackgroundColor="#131C28" StrokeShape="RoundRectangle 16"
+                        Stroke="#1F2D3D" StrokeThickness="1" Padding="16" Margin="0,4,0,8">
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                        <Border Grid.Column="0" WidthRequest="46" HeightRequest="46"
+                                StrokeShape="RoundRectangle 23" BackgroundColor="#1A2535" StrokeThickness="0">
+                            <Label Text="⭐" FontSize="22" HorizontalOptions="Center" VerticalOptions="Center"/>
+                        </Border>
+
+                        <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                            <Label Text="Fiabilité sorties" FontFamily="DMSans-SemiBold"
+                                   FontSize="14" TextColor="#F2E8D5"/>
+                            <Label Text="{Binding EventReliabilityBadge}" FontFamily="DMSans-SemiBold"
+                                   FontSize="12" TextColor="{Binding EventReliabilityColor}"/>
+                            <Label Text="{Binding EventReliabilitySummary}" FontFamily="DMSans-Regular"
+                                   FontSize="11" TextColor="#7E8CA0" LineBreakMode="TailTruncation"/>
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Grid.Column="2" Spacing="0" VerticalOptions="Center">
+                            <Label Text="{Binding EventReliabilityScore, StringFormat='{0}%'}"
+                                   FontFamily="DMSans-SemiBold" FontSize="20"
+                                   TextColor="{Binding EventReliabilityColor}" HorizontalTextAlignment="End"/>
+                            <Label Text="score" FontFamily="DMSans-Regular" FontSize="10"
+                                   TextColor="#3D5068" HorizontalTextAlignment="End"/>
+                        </VerticalStackLayout>
+                    </Grid>
+                </Border>
+
+                <Border Style="{StaticResource RowBorder}" IsVisible="{Binding ShowProSpace}">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding OpenProDashboardCommand}"/>
+                    </Border.GestureRecognizers>
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
+                        <Label Grid.Column="0" Text="🏢" FontSize="16" VerticalOptions="Center"/>
+                        <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                            <Label Text="Espace Pro" FontFamily="DMSans-SemiBold"
+                                   FontSize="14" TextColor="#F2E8D5"/>
+                            <Label Text="{Binding ProfessionalStatusLabel, StringFormat='{0}'}"
+                                   FontFamily="DMSans-Regular" FontSize="11" TextColor="#FFB627"/>
+                            <Label Text="{Binding ProfessionalKindLabel}"
+                                   FontFamily="DMSans-Regular" FontSize="11" TextColor="#3D5068"/>
+                        </VerticalStackLayout>
+                        <Label Grid.Column="2" Text="›" TextColor="#FFB627" FontSize="22" VerticalOptions="Center"/>
+                    </Grid>
+                </Border>
+
+                <Border Style="{StaticResource RowBorder}">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding OpenNotificationsCommand}"/>
+                    </Border.GestureRecognizers>
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
+                        <Label Grid.Column="0" Text="🔔" FontSize="16" VerticalOptions="Center"/>
+                        <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                            <Label Text="Notifications" FontFamily="DMSans-SemiBold"
+                                   FontSize="14" TextColor="#F2E8D5"/>
+                            <Label Text="Demandes d'amis, groupes et sorties"
+                                   FontFamily="DMSans-Regular" FontSize="11" TextColor="#3D5068"/>
+                        </VerticalStackLayout>
+                        <Label Grid.Column="2" Text="›" TextColor="#FFB627" FontSize="22" VerticalOptions="Center"/>
+                    </Grid>
+                </Border>
+
+                <!-- Section : Confidentialité -->
+                <Label Style="{StaticResource SectionLabel}" Text="CONFIDENTIALITÉ"/>
+
+                <!-- Mode incognito -->
+                <Border Style="{StaticResource RowBorder}">
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
+                        <Label Grid.Column="0" Text="🥷" FontSize="16" VerticalOptions="Center"/>
+                        <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                            <Label Text="Mode incognito" FontFamily="DMSans-SemiBold"
+                                   FontSize="14" TextColor="#F2E8D5"/>
+                            <Label Text="Tu n'apparais pas sur la carte de tes amis"
+                                   FontFamily="DMSans-Regular" FontSize="11" TextColor="#3D5068"/>
+                        </VerticalStackLayout>
+                        <Switch Grid.Column="2" IsToggled="{Binding SecretMode}"
+                                OnColor="#FFB627" VerticalOptions="Center"/>
+                    </Grid>
+                </Border>
+
+                <!-- Compte privé -->
+                <Border Style="{StaticResource RowBorder}">
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
+                        <Label Grid.Column="0" Text="🔒" FontSize="16" VerticalOptions="Center"/>
+                        <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                            <Label Text="Compte privé" FontFamily="DMSans-SemiBold"
+                                   FontSize="14" TextColor="#F2E8D5"/>
+                            <Label Text="Seuls tes amis voient ton activité"
+                                   FontFamily="DMSans-Regular" FontSize="11" TextColor="#3D5068"/>
+                        </VerticalStackLayout>
+                        <Switch Grid.Column="2" IsToggled="{Binding IsPrivate}"
+                                OnColor="#FFB627" VerticalOptions="Center"/>
+                    </Grid>
+                </Border>
+                <!-- Ouvert aux rencontres -->
+                <Border Style="{StaticResource RowBorder}">
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
+                        <Label Grid.Column="0" Text="🤝" FontSize="16" VerticalOptions="Center"/>
+                        <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                            <Label Text="Ouvert aux rencontres" FontFamily="DMSans-SemiBold"
+                   FontSize="14" TextColor="#F2E8D5"/>
+                            <Label Text="Les autres peuvent t'ajouter depuis le fil d'un bar"
+                   FontFamily="DMSans-Regular" FontSize="11" TextColor="#3D5068"/>
+                        </VerticalStackLayout>
+                        <Switch Grid.Column="2" IsToggled="{Binding OpenToMeet}"
+                OnColor="#FFB627" VerticalOptions="Center"/>
+                    </Grid>
+                </Border>
+                <!-- Espace bas -->
+                <BoxView HeightRequest="16" Color="Transparent"/>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- ══ BOUTONS BAS ══ -->
+        <Grid Grid.Row="2" RowDefinitions="Auto,Auto"
+              BackgroundColor="#0D1520" Padding="20,12,20,28">
+
+            <!-- Enregistrer -->
+            <Border Grid.Row="0" BackgroundColor="#FFB627" StrokeShape="RoundRectangle 16"
+                    StrokeThickness="0" HeightRequest="52">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding SaveCommand}"/>
+                </Border.GestureRecognizers>
+                <Grid>
+                    <Label Text="Enregistrer" FontFamily="DMSans-SemiBold" FontSize="16"
+                           TextColor="#0A1018" HorizontalOptions="Center" VerticalOptions="Center"
+                           IsVisible="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}"/>
+                    <ActivityIndicator IsRunning="{Binding IsBusy}" Color="#0A1018"
+                                       HorizontalOptions="Center" VerticalOptions="Center"
+                                       IsVisible="{Binding IsBusy}"/>
+                </Grid>
+            </Border>
+
+            <!-- Se déconnecter -->
+            <Border Grid.Row="1" BackgroundColor="Transparent" StrokeShape="RoundRectangle 16"
+                    Stroke="#3D5068" StrokeThickness="1" HeightRequest="48" Margin="0,8,0,0">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding SignOutCommand}"/>
+                </Border.GestureRecognizers>
+                <Label Text="Se déconnecter" FontFamily="DMSans-Regular" FontSize="14"
+                       TextColor="#3D5068" HorizontalOptions="Center" VerticalOptions="Center"/>
+            </Border>
+
+        </Grid>
+
+        <controls:BottomNavBar Grid.Row="3" ActiveTab="Profile"/>
+
+    </Grid>
+</ContentPage>

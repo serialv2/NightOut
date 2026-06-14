@@ -1,0 +1,596 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="NightOut.Views.Bar.BarDetailPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:NightOut.ViewModels"
+    xmlns:models="clr-namespace:NightOut.Models"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    x:DataType="vm:BarDetailViewModel"
+    x:Name="PageRoot"
+    Shell.NavBarIsVisible="False"
+    BackgroundColor="#0A1018">
+
+    <ContentPage.Resources>
+        <toolkit:InvertedBoolConverter x:Key="Inv"/>
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="Auto,*">
+
+        <!-- HEADER -->
+        <Grid Grid.Row="0" BackgroundColor="#0D1520" Padding="16,50,16,14">
+            <Grid ColumnDefinitions="44,*,44">
+                <Border Grid.Column="0" BackgroundColor="#1A2535" StrokeShape="RoundRectangle 12"
+                        StrokeThickness="0" WidthRequest="40" HeightRequest="40">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding GoBackCommand}"/>
+                    </Border.GestureRecognizers>
+                    <Label Text="←" FontSize="18" TextColor="#F2E8D5"
+                           HorizontalOptions="Center" VerticalOptions="Center"/>
+                </Border>
+                <VerticalStackLayout Grid.Column="1" HorizontalOptions="Center" VerticalOptions="Center" Spacing="2">
+                    <Label Text="{Binding BarName}" FontFamily="DMSans-SemiBold"
+                           FontSize="17" TextColor="#F2E8D5" HorizontalOptions="Center"/>
+                    <Label Text="{Binding BarType}" FontFamily="DMSans-Regular"
+                           FontSize="11" TextColor="#3D5068" HorizontalOptions="Center"/>
+                </VerticalStackLayout>
+                <Border Grid.Column="2" BackgroundColor="#1A2535" StrokeShape="RoundRectangle 12"
+                        StrokeThickness="0" WidthRequest="40" HeightRequest="40">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding RefreshCommand}"/>
+                    </Border.GestureRecognizers>
+                    <Label Text="↻" FontSize="18" TextColor="#3D5068"
+                           HorizontalOptions="Center" VerticalOptions="Center"/>
+                </Border>
+            </Grid>
+        </Grid>
+
+        <!-- CONTENU -->
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Spacing="0" Padding="16,16,16,30">
+
+                <ActivityIndicator IsRunning="{Binding IsBusy}" Color="#FFB627"
+                                   HorizontalOptions="Center" Margin="0,20,0,0"
+                                   IsVisible="{Binding IsBusy}"/>
+
+                <!-- HERO PREMIUM BAR : bannière + logo -->
+                <Border HeightRequest="230"
+                        StrokeThickness="0"
+                        StrokeShape="RoundRectangle 26"
+                        Margin="0,0,0,16"
+                        IsVisible="{Binding IsBusy, Converter={StaticResource Inv}}">
+                    <Grid>
+                        <Grid.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                <GradientStop Color="#1A2535" Offset="0" />
+                                <GradientStop Color="#0A1018" Offset="1" />
+                            </LinearGradientBrush>
+                        </Grid.Background>
+
+                        <Image Source="{Binding CoverUrl}"
+                               Aspect="AspectFill"
+                               IsVisible="{Binding HasCover}" />
+
+                        <BoxView>
+                            <BoxView.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                    <GradientStop Color="#22000000" Offset="0" />
+                                    <GradientStop Color="#CC0A1018" Offset="1" />
+                                </LinearGradientBrush>
+                            </BoxView.Background>
+                        </BoxView>
+
+                        <VerticalStackLayout Spacing="8"
+                                             Padding="18"
+                                             VerticalOptions="End">
+                            <Border WidthRequest="86"
+                                    HeightRequest="86"
+                                    StrokeShape="RoundRectangle 43"
+                                    Stroke="#FFB627"
+                                    StrokeThickness="2"
+                                    BackgroundColor="#131C28"
+                                    HorizontalOptions="Center">
+                                <Grid>
+                                    <Image Source="{Binding LogoUrl}"
+                                           Aspect="AspectFill"
+                                           IsVisible="{Binding HasLogo}" />
+                                    <Label Text="🍺"
+                                           FontSize="34"
+                                           HorizontalOptions="Center"
+                                           VerticalOptions="Center"
+                                           IsVisible="{Binding HasLogo, Converter={StaticResource Inv}}" />
+                                </Grid>
+                            </Border>
+
+                            <Label Text="{Binding BarName}"
+                                   FontFamily="DMSans-SemiBold"
+                                   FontSize="24"
+                                   TextColor="#F2E8D5"
+                                   HorizontalOptions="Center"
+                                   HorizontalTextAlignment="Center"
+                                   MaxLines="1" />
+
+                            <Label Text="{Binding BarType}"
+                                   FontFamily="DMSans-Regular"
+                                   FontSize="12"
+                                   TextColor="#AEBED0"
+                                   HorizontalOptions="Center"
+                                   HorizontalTextAlignment="Center"
+                                   MaxLines="1" />
+
+                            <HorizontalStackLayout Spacing="8" HorizontalOptions="Center">
+                                <Border BackgroundColor="#CC0A1018"
+                                        Stroke="#33FFB627"
+                                        StrokeThickness="1"
+                                        StrokeShape="RoundRectangle 14"
+                                        Padding="10,4">
+                                    <Label Text="{Binding FollowersCount, StringFormat='👥 {0} abonnés'}"
+                                           FontFamily="DMSans-SemiBold"
+                                           FontSize="11"
+                                           TextColor="#F2E8D5" />
+                                </Border>
+
+                                <Border BackgroundColor="#CC0A1018"
+                                        Stroke="#33FFB627"
+                                        StrokeThickness="1"
+                                        StrokeShape="RoundRectangle 14"
+                                        Padding="10,4"
+                                        IsVisible="{Binding HasAnyOfficialEvents}">
+                                    <Label Text="🎉 Événements"
+                                           FontFamily="DMSans-SemiBold"
+                                           FontSize="11"
+                                           TextColor="#FFB627" />
+                                </Border>
+                            </HorizontalStackLayout>
+                        </VerticalStackLayout>
+                    </Grid>
+                </Border>
+
+                <!-- STATS 4 cases -->
+                <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="8" Margin="0,0,0,14"
+                      IsVisible="{Binding IsBusy, Converter={StaticResource Inv}}">
+
+                    <Border Grid.Column="0" BackgroundColor="#131C28" StrokeShape="RoundRectangle 14"
+                            Stroke="#55FFB627" StrokeThickness="1" Padding="6,10">
+                        <VerticalStackLayout Spacing="3" HorizontalOptions="Center">
+                            <Label Text="👥" FontSize="15" HorizontalOptions="Center"/>
+                            <Label Text="{Binding PresentCount}" FontFamily="DMSans-SemiBold"
+                                   FontSize="22" TextColor="#FFB627" HorizontalOptions="Center"/>
+                            <Label Text="présents" FontSize="11" FontFamily="DMSans-SemiBold"
+                                   TextColor="#EAF1FA" HorizontalOptions="Center"/>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <Border Grid.Column="1" BackgroundColor="#131C28" StrokeShape="RoundRectangle 14"
+                            Stroke="#5522C55E" StrokeThickness="1" Padding="6,10">
+                        <VerticalStackLayout Spacing="3" HorizontalOptions="Center">
+                            <Label Text="👥" FontSize="15" HorizontalOptions="Center"/>
+                            <Label Text="{Binding FriendsCount}" FontFamily="DMSans-SemiBold"
+                                   FontSize="22" TextColor="#22C55E" HorizontalOptions="Center"/>
+                            <Label Text="amis" FontSize="11" FontFamily="DMSans-SemiBold"
+                                   TextColor="#EAF1FA" HorizontalOptions="Center"/>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <Border Grid.Column="2" BackgroundColor="#131C28" StrokeShape="RoundRectangle 14"
+                            Stroke="#557BA4CC" StrokeThickness="1" Padding="6,10">
+                        <VerticalStackLayout Spacing="3" HorizontalOptions="Center">
+                            <Label Text="🖼️" FontSize="15" HorizontalOptions="Center"/>
+                            <Label Text="{Binding MediaCount}" FontFamily="DMSans-SemiBold"
+                                   FontSize="22" TextColor="#5B9DFF" HorizontalOptions="Center"/>
+                            <Label Text="médias" FontSize="11" FontFamily="DMSans-SemiBold"
+                                   TextColor="#EAF1FA" HorizontalOptions="Center"/>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <Border Grid.Column="3" BackgroundColor="#131C28" StrokeShape="RoundRectangle 14"
+                            Stroke="#558B5CF6" StrokeThickness="1" Padding="6,10">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding GoToMapsCommand}"/>
+                        </Border.GestureRecognizers>
+                        <VerticalStackLayout Spacing="3" HorizontalOptions="Center">
+                            <Label Text="🗺️" FontSize="18" HorizontalOptions="Center"/>
+                            <Label Text="Y aller" FontSize="11" FontFamily="DMSans-SemiBold"
+                                   TextColor="#EAF1FA" HorizontalOptions="Center"/>
+                        </VerticalStackLayout>
+                    </Border>
+                </Grid>
+
+                <!-- ABONNEMENT AU BAR -->
+                <Border BackgroundColor="#131C28"
+                        Stroke="#1F3D5068"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 18"
+                        Padding="14"
+                        Margin="0,0,0,14"
+                        IsVisible="{Binding IsBusy, Converter={StaticResource Inv}}">
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                        <VerticalStackLayout Spacing="3">
+                            <Label Text="Abonnés au bar"
+                                   FontFamily="DMSans-SemiBold"
+                                   FontSize="12"
+                                   TextColor="#F2E8D5" />
+                            <Label Text="{Binding FollowersCount, StringFormat='{0} abonné(s)'}"
+                                   FontSize="12"
+                                   TextColor="#7A8FA6" />
+                            <Label Text="Tu recevras une notification quand ce bar publie un nouvel événement."
+                                   FontSize="11"
+                                   TextColor="#3D5068"
+                                   LineBreakMode="WordWrap" />
+                        </VerticalStackLayout>
+
+                        <Button Grid.Column="1"
+                                Text="{Binding FollowButtonText}"
+                                Command="{Binding ToggleFollowBarCommand}"
+                                IsEnabled="{Binding IsTogglingFollow, Converter={StaticResource Inv}}"
+                                BackgroundColor="{Binding FollowButtonBackgroundColor}"
+                                TextColor="{Binding FollowButtonTextColor}"
+                                FontFamily="DMSans-SemiBold"
+                                FontSize="12"
+                                CornerRadius="18"
+                                Padding="14,8"
+                                VerticalOptions="Center" />
+                    </Grid>
+                </Border>
+
+
+                <!-- ÉVÉNEMENTS DU BAR -->
+                <VerticalStackLayout Spacing="12"
+                                     Margin="0,0,0,16"
+                                     IsVisible="{Binding HasAnyOfficialEvents}">
+
+                    <!-- Événement en cours -->
+                    <VerticalStackLayout Spacing="8" IsVisible="{Binding HasCurrentOfficialEvent}">
+                        <HorizontalStackLayout Spacing="6">
+                            <Label Text="🔥" FontSize="14" VerticalOptions="Center"/>
+                            <Label Text="ÉVÉNEMENT EN COURS"
+                                   FontFamily="DMSans-SemiBold"
+                                   FontSize="12"
+                                   TextColor="#F2E8D5"
+                                   VerticalOptions="Center"/>
+                        </HorizontalStackLayout>
+
+                        <Border BackgroundColor="#131C28"
+                                Stroke="#55FFB627"
+                                StrokeThickness="1"
+                                StrokeShape="RoundRectangle 18"
+                                Padding="12">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding OpenOfficialEventCommand}"
+                                                      CommandParameter="{Binding CurrentOfficialEvent}"/>
+                            </Border.GestureRecognizers>
+                            <Grid ColumnDefinitions="88,*" ColumnSpacing="12">
+                                <Border Grid.Column="0"
+                                        WidthRequest="88"
+                                        HeightRequest="88"
+                                        StrokeThickness="0"
+                                        StrokeShape="RoundRectangle 14"
+                                        BackgroundColor="#0D1520">
+                                    <Image Source="{Binding CurrentOfficialEvent.FlyerUrl}"
+                                           Aspect="AspectFill"/>
+                                </Border>
+
+                                <VerticalStackLayout Grid.Column="1" Spacing="5" VerticalOptions="Center">
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <Label Text="{Binding CurrentOfficialEvent.Title}"
+                                               FontFamily="DMSans-SemiBold"
+                                               FontSize="16"
+                                               TextColor="#F2E8D5"
+                                               MaxLines="1"/>
+                                        <Border Grid.Column="1"
+                                                BackgroundColor="#8B5CF6"
+                                                StrokeThickness="0"
+                                                StrokeShape="RoundRectangle 12"
+                                                Padding="8,3">
+                                            <Label Text="EN COURS"
+                                                   FontSize="10"
+                                                   FontFamily="DMSans-SemiBold"
+                                                   TextColor="White"/>
+                                        </Border>
+                                    </Grid>
+                                    <Label Text="{Binding CurrentOfficialEvent.ShortDateLabel}"
+                                           FontSize="12"
+                                           TextColor="#AEBED0"/>
+                                    <HorizontalStackLayout Spacing="16">
+                                        <Label Text="{Binding CurrentOfficialEvent.CheckedInCount, StringFormat='🟢 {0} présents'}"
+                                               FontSize="12"
+                                               TextColor="#22C55E"/>
+                                        <Label Text="{Binding CurrentOfficialEvent.GoingCount, StringFormat='🎉 {0} y vont'}"
+                                               FontSize="12"
+                                               TextColor="#FFB627"/>
+                                    </HorizontalStackLayout>
+                                    <Label Text="Voir l'événement →"
+                                           FontSize="12"
+                                           FontFamily="DMSans-SemiBold"
+                                           TextColor="#FFB627"/>
+                                </VerticalStackLayout>
+                            </Grid>
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <!-- Événements à venir -->
+                    <VerticalStackLayout Spacing="8" IsVisible="{Binding HasUpcomingOfficialEvents}">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <HorizontalStackLayout Spacing="6">
+                                <Label Text="🎉" FontSize="14" VerticalOptions="Center"/>
+                                <Label Text="ÉVÉNEMENTS À VENIR"
+                                       FontFamily="DMSans-SemiBold"
+                                       FontSize="12"
+                                       TextColor="#F2E8D5"
+                                       VerticalOptions="Center"/>
+                            </HorizontalStackLayout>
+                            <Label Grid.Column="1"
+                                   Text="Voir tout"
+                                   FontFamily="DMSans-SemiBold"
+                                   FontSize="12"
+                                   TextColor="#FFB627"/>
+                        </Grid>
+
+                        <VerticalStackLayout Spacing="8"
+                                             BindableLayout.ItemsSource="{Binding UpcomingOfficialEvents}">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="models:OfficialEvent">
+                                    <Border BackgroundColor="#131C28"
+                                            Stroke="#1F3D5068"
+                                            StrokeThickness="1"
+                                            StrokeShape="RoundRectangle 16"
+                                            Padding="10">
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.OpenOfficialEventCommand}"
+                                                                  CommandParameter="{Binding .}"/>
+                                        </Border.GestureRecognizers>
+                                        <Grid ColumnDefinitions="64,*,Auto" ColumnSpacing="10">
+                                            <Border Grid.Column="0"
+                                                    WidthRequest="64"
+                                                    HeightRequest="64"
+                                                    StrokeThickness="0"
+                                                    StrokeShape="RoundRectangle 12"
+                                                    BackgroundColor="#0D1520">
+                                                <Image Source="{Binding FlyerUrl}"
+                                                       Aspect="AspectFill"/>
+                                            </Border>
+
+                                            <VerticalStackLayout Grid.Column="1" Spacing="3" VerticalOptions="Center">
+                                                <Label Text="{Binding Title}"
+                                                       FontFamily="DMSans-SemiBold"
+                                                       FontSize="14"
+                                                       TextColor="#F2E8D5"
+                                                       MaxLines="1"/>
+                                                <Label Text="{Binding ShortDateLabel}"
+                                                       FontSize="11"
+                                                       TextColor="#AEBED0"/>
+                                                <Label Text="{Binding GoingCount, StringFormat='🎉 {0} y vont'}"
+                                                       FontSize="11"
+                                                       TextColor="#FFB627"/>
+                                            </VerticalStackLayout>
+
+                                            <Label Grid.Column="2"
+                                                   Text="›"
+                                                   FontSize="28"
+                                                   TextColor="#AEBED0"
+                                                   VerticalOptions="Center"/>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+
+
+                <!-- AMIS PRÉSENTS -->
+                <Label Text="AMIS ICI" FontFamily="DMSans-SemiBold" FontSize="10"
+                       TextColor="#7A8FA6" Margin="0,0,0,8"
+                       IsVisible="{Binding IsBusy, Converter={StaticResource Inv}}"/>
+
+                <StackLayout Orientation="Horizontal" Spacing="8" Margin="0,0,0,14"
+                             IsVisible="{Binding IsBusy, Converter={StaticResource Inv}}">
+                    <BindableLayout.ItemsSource>
+                        <Binding Path="FriendsHere"/>
+                    </BindableLayout.ItemsSource>
+                    <BindableLayout.EmptyView>
+                        <Label Text="Aucun ami ici pour l'instant"
+                               FontSize="12" TextColor="#7A8FA6"/>
+                    </BindableLayout.EmptyView>
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="models:Profile">
+                            <VerticalStackLayout WidthRequest="46" Spacing="3">
+                                <Border StrokeShape="RoundRectangle 20"
+                                        Stroke="#FFB627" StrokeThickness="1.5"
+                                        WidthRequest="40" HeightRequest="40"
+                                        BackgroundColor="#1A2535"
+                                        HorizontalOptions="Center">
+                                    <Label Text="{Binding Username[0]}"
+                                           FontFamily="DMSans-SemiBold" FontSize="15"
+                                           TextColor="#FFB627" HorizontalOptions="Center"
+                                           VerticalOptions="Center"/>
+                                </Border>
+                                <Label Text="{Binding Username}"
+                                       FontSize="9" TextColor="#7A8FA6"
+                                       HorizontalOptions="Center" MaxLines="1"/>
+                            </VerticalStackLayout>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </StackLayout>
+
+                <!-- SÉPARATEUR -->
+                <BoxView HeightRequest="1" Color="#1FFFB627" Margin="0,0,0,14"/>
+
+                <!-- INPUT MESSAGE — toujours visible, même pendant le chargement du fil -->
+                <Border BackgroundColor="#131C28" StrokeShape="RoundRectangle 14"
+                        Stroke="#1FFFB627" StrokeThickness="1" Padding="10,8"
+                        Margin="0,0,0,10">
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                        <Entry Grid.Column="0"
+                               Text="{Binding MessageText}"
+                               Placeholder="Laisser un message dans ce bar..."
+                               PlaceholderColor="#3D5068"
+                               TextColor="#F2E8D5"
+                               FontFamily="DMSans-Regular" FontSize="13"
+                               BackgroundColor="Transparent"
+                               ReturnType="Send"
+                               ReturnCommand="{Binding PostMessageCommand}"/>
+                        <Border Grid.Column="1"
+                                StrokeShape="RoundRectangle 10" StrokeThickness="0"
+                                BackgroundColor="#FFB627"
+                                WidthRequest="36" HeightRequest="36"
+                                IsEnabled="{Binding CanPost}">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding PostMessageCommand}"/>
+                            </Border.GestureRecognizers>
+                            <Grid>
+                                <Label Text="→" FontSize="16" TextColor="#0A1018"
+                                       HorizontalOptions="Center" VerticalOptions="Center"
+                                       IsVisible="{Binding IsPosting, Converter={StaticResource Inv}}"/>
+                                <ActivityIndicator IsRunning="{Binding IsPosting}"
+                                                   IsVisible="{Binding IsPosting}"
+                                                   Color="#0A1018" WidthRequest="16" HeightRequest="16"
+                                                   HorizontalOptions="Center" VerticalOptions="Center"/>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </Border>
+
+                <!-- TITRE FIL -->
+                <Label Text="FIL D'ACTIVITÉ" FontFamily="DMSans-SemiBold"
+                       FontSize="10" TextColor="#7A8FA6" Margin="0,0,0,10"
+                       IsVisible="{Binding IsBusy, Converter={StaticResource Inv}}"/>
+
+                <!-- VIDE -->
+                <Border BackgroundColor="#131C28" StrokeShape="RoundRectangle 14"
+                        StrokeThickness="0" Padding="20"
+                        IsVisible="{Binding IsEmpty}">
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="📸" FontSize="32" HorizontalOptions="Center"/>
+                        <Label Text="Pas encore de contenu ce soir."
+                               FontSize="13" TextColor="#B0C4D8" HorizontalOptions="Center"/>
+                        <Label Text="Sois le premier à publier !"
+                               FontSize="12" TextColor="#7A8FA6" HorizontalOptions="Center"/>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- FIL D'ACTIVITÉ (BindableLayout) -->
+                <VerticalStackLayout Spacing="10"
+                    BindableLayout.ItemsSource="{Binding Feed}">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="models:BarActivityItem">
+                            <Border BackgroundColor="#131C28" StrokeShape="RoundRectangle 14"
+                                    Stroke="#0A1A2535" StrokeThickness="1" Padding="12,10">
+                                <VerticalStackLayout Spacing="8">
+
+                                    <!-- Auteur -->
+                                    <Grid ColumnDefinitions="36,*" ColumnSpacing="8">
+                                        <Border Grid.Column="0" BackgroundColor="#1A2535"
+                                                StrokeShape="RoundRectangle 18"
+                                                StrokeThickness="0" Padding="0"
+                                                WidthRequest="36" HeightRequest="36">
+                                            <Grid>
+                                                <!-- Photo de profil -->
+                                                <Image Source="{Binding AvatarUrl}"
+                                                       Aspect="AspectFill"
+                                                       IsVisible="{Binding HasAvatarUrl}"/>
+                                                <!-- Initiale si pas de photo -->
+                                                <Label Text="{Binding Initials}"
+                                                       FontFamily="DMSans-SemiBold" FontSize="14"
+                                                       TextColor="#FFB627"
+                                                       HorizontalOptions="Center"
+                                                       VerticalOptions="Center"
+                                                       IsVisible="{Binding HasAvatarUrl,
+                                                           Converter={StaticResource Inv}}"/>
+                                            </Grid>
+                                        </Border>
+                                        <VerticalStackLayout Grid.Column="1"
+                                                              VerticalOptions="Center" Spacing="1">
+                                            <Label Text="{Binding Username}"
+                                                   FontFamily="DMSans-SemiBold" FontSize="13"
+                                                   TextColor="#F2E8D5"/>
+                                            <Label Text="{Binding TimeAgo}"
+                                                   FontFamily="DMSans-Regular" FontSize="10"
+                                                   TextColor="#7A8FA6"/>
+                                        </VerticalStackLayout>
+                                    </Grid>
+                                    <!-- Bouton ajouter ami (open_to_meet) -->
+                                    <Border BackgroundColor="#1AA855F7"
+        StrokeShape="RoundRectangle 8"
+        StrokeThickness="0"
+        Padding="10,6"
+        HorizontalOptions="End"
+        IsVisible="{Binding CanAddAsFriend}">
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer
+            Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.AddFriendCommand}"
+            CommandParameter="{Binding .}"/>
+                                        </Border.GestureRecognizers>
+                                        <HorizontalStackLayout Spacing="5">
+                                            <Label Text="👋" FontSize="12" VerticalOptions="Center"/>
+                                            <Label Text="+ Ajouter" FontSize="11" FontFamily="DMSans-SemiBold"
+               TextColor="#A855F7" VerticalOptions="Center"/>
+                                        </HorizontalStackLayout>
+                                    </Border>
+                                    <!-- Média -->
+                                    <Grid HeightRequest="180" IsVisible="{Binding IsMedia}">
+                                        <Image Source="{Binding Content}" Aspect="AspectFill"/>
+                                        <Border BackgroundColor="#80000000"
+                                                StrokeShape="RoundRectangle 24"
+                                                StrokeThickness="0"
+                                                WidthRequest="48" HeightRequest="48"
+                                                HorizontalOptions="Center"
+                                                VerticalOptions="Center"
+                                                IsVisible="{Binding IsVideo}">
+                                            <Label Text="▶" FontSize="20" TextColor="White"
+                                                   HorizontalOptions="Center"
+                                                   VerticalOptions="Center"/>
+                                        </Border>
+                                    </Grid>
+
+                                    <!-- Message texte (post type=text) -->
+                                    <Border BackgroundColor="#0D1520"
+                                            StrokeShape="RoundRectangle 10"
+                                            StrokeThickness="0" Padding="10,8"
+                                            IsVisible="{Binding IsTextPost}">
+                                        <Label Text="{Binding Content}"
+                                               FontSize="13" TextColor="#F2E8D5"/>
+                                    </Border>
+
+                                    <!-- Vibe check-in -->
+                                    <Border BackgroundColor="#0D1520"
+                                            StrokeShape="RoundRectangle 10"
+                                            StrokeThickness="0" Padding="10,8"
+                                            IsVisible="{Binding HasVibe}">
+                                        <Label Text="{Binding Content}"
+                                               FontSize="13" TextColor="#B0C4D8"/>
+                                    </Border>
+
+                                    <!-- Check-in sans vibe -->
+                                    <Label FontSize="12" TextColor="#3D5068"
+                                           IsVisible="{Binding IsCheckin}">
+                                        <Label.FormattedText>
+                                            <FormattedString>
+                                                <Span Text="{Binding Username}" FontAttributes="Bold" TextColor="#F2E8D5"/>
+                                                <Span Text=" a fait un check-in 📍" TextColor="#B0C4D8"/>
+                                            </FormattedString>
+                                        </Label.FormattedText>
+                                    </Label>
+
+                                    <!-- Réactions (médias seulement) -->
+                                    <Grid ColumnDefinitions="Auto,Auto,*"
+                                          ColumnSpacing="16"
+                                          IsVisible="{Binding IsMedia}">
+                                        <Label Grid.Column="0"
+                                               Text="{Binding LikeLabel}"
+                                               FontSize="12" TextColor="#FFB627"
+                                               IsVisible="{Binding IsMedia}"/>
+                                        <Label Grid.Column="1" Text="🚩"
+                                               FontSize="14" TextColor="#3D5068"/>
+                                    </Grid>
+
+                                </VerticalStackLayout>
+                            </Border>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

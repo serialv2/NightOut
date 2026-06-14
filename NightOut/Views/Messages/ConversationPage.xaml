@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="NightOut.Views.Messages.ConversationPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    Shell.NavBarIsVisible="False"
+    Shell.TabBarIsVisible="False"
+    BackgroundColor="#0A1018">
+
+    <Grid RowDefinitions="Auto,*,Auto">
+
+        <Grid Grid.Row="0"
+              ColumnDefinitions="Auto,*,Auto"
+              Padding="14,44,14,12"
+              ColumnSpacing="12"
+              BackgroundColor="#0A1018">
+
+            <Button Grid.Column="0"
+                    Text="‹"
+                    WidthRequest="42"
+                    HeightRequest="42"
+                    CornerRadius="21"
+                    FontSize="26"
+                    Padding="0,-4,0,0"
+                    BackgroundColor="#162235"
+                    TextColor="#F2E8D5"
+                    Command="{Binding GoBackCommand}" />
+
+            <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                <Label Text="{Binding PartnerName}"
+                       FontSize="20"
+                       FontAttributes="Bold"
+                       TextColor="#F2E8D5" />
+                <Label Text="Message privé"
+                       FontSize="12"
+                       TextColor="#7A8FA6" />
+            </VerticalStackLayout>
+
+            <Label Grid.Column="2"
+                   Text="💬"
+                   FontSize="24"
+                   VerticalOptions="Center" />
+        </Grid>
+
+        <CollectionView Grid.Row="1"
+                        ItemsSource="{Binding Messages}"
+                        SelectionMode="None"
+                        Margin="14,0"
+                        VerticalOptions="Fill">
+            <CollectionView.EmptyView>
+                <VerticalStackLayout Padding="20" Spacing="10" HorizontalOptions="Center" VerticalOptions="Center">
+                    <Label Text="💬" FontSize="42" HorizontalTextAlignment="Center" />
+                    <Label Text="{Binding StatusMessage}" TextColor="#7A8FA6" HorizontalTextAlignment="Center" />
+                </VerticalStackLayout>
+            </CollectionView.EmptyView>
+
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Grid Padding="0,5" HorizontalOptions="Fill">
+                        <Border Padding="12,8"
+                                StrokeThickness="0"
+                                StrokeShape="RoundRectangle 18"
+                                BackgroundColor="#162235"
+                                MaximumWidthRequest="290"
+                                HorizontalOptions="Start">
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="{Binding Content}"
+                                       TextColor="#F2E8D5"
+                                       FontSize="15"
+                                       LineBreakMode="WordWrap" />
+                                <Label Text="{Binding TimeLabel}"
+                                       TextColor="#7A8FA6"
+                                       FontSize="10"
+                                       HorizontalTextAlignment="End" />
+                            </VerticalStackLayout>
+
+                            <Border.Triggers>
+                                <DataTrigger TargetType="Border" Binding="{Binding IsMine}" Value="True">
+                                    <Setter Property="HorizontalOptions" Value="End" />
+                                    <Setter Property="BackgroundColor" Value="#FFB627" />
+                                </DataTrigger>
+                                <DataTrigger TargetType="Border" Binding="{Binding IsMine}" Value="False">
+                                    <Setter Property="HorizontalOptions" Value="Start" />
+                                    <Setter Property="BackgroundColor" Value="#162235" />
+                                </DataTrigger>
+                            </Border.Triggers>
+                        </Border>
+                    </Grid>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <Grid Grid.Row="2"
+              ColumnDefinitions="*,Auto"
+              Padding="12,10,12,14"
+              ColumnSpacing="10"
+              BackgroundColor="#0A1018">
+
+            <Border Grid.Column="0"
+                    BackgroundColor="#111A27"
+                    Stroke="#1F3147"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 22"
+                    Padding="14,0">
+                <Entry Text="{Binding NewMessage}"
+                       Placeholder="Écrire un message..."
+                       PlaceholderColor="#52657D"
+                       TextColor="#F2E8D5"
+                       ReturnType="Send"
+                       ReturnCommand="{Binding SendCommand}" />
+            </Border>
+
+            <Button Grid.Column="1"
+                    Text="➤"
+                    WidthRequest="46"
+                    HeightRequest="46"
+                    CornerRadius="23"
+                    FontSize="18"
+                    BackgroundColor="#FFB627"
+                    TextColor="#0A1018"
+                    Command="{Binding SendCommand}" />
+        </Grid>
+    </Grid>
+</ContentPage>

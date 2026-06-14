@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="NightOut.Views.Events.EventsPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:controls="clr-namespace:NightOut.Views.Controls"
+    xmlns:models="clr-namespace:NightOut.Models"
+    Shell.NavBarIsVisible="False"
+    Shell.TabBarIsVisible="False"
+    BackgroundColor="#0A1018">
+
+    <Grid RowDefinitions="*,Auto">
+
+        <RefreshView Grid.Row="0"
+                     Command="{Binding LoadCommand}"
+                     IsRefreshing="{Binding IsBusy}">
+            <ScrollView>
+                <VerticalStackLayout Padding="20,22,20,24" Spacing="18">
+
+                    <Grid ColumnDefinitions="*,Auto">
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="🎉 Événements"
+                                   FontSize="28"
+                                   FontAttributes="Bold"
+                                   TextColor="#F2E8D5" />
+                            <Label Text="Les soirées officielles des bars NightOut"
+                                   FontSize="13"
+                                   TextColor="#7E8CA0" />
+                        </VerticalStackLayout>
+
+                        <Button Grid.Column="1"
+                                Text="↻"
+                                WidthRequest="44"
+                                HeightRequest="44"
+                                CornerRadius="22"
+                                BackgroundColor="#182536"
+                                TextColor="#F2E8D5"
+                                Command="{Binding LoadCommand}" />
+                    </Grid>
+
+                    <Border Stroke="#23344A"
+                            StrokeThickness="1"
+                            BackgroundColor="#101A27"
+                            Padding="14">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="18" />
+                        </Border.StrokeShape>
+
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="Ville NightOut"
+                                   FontSize="13"
+                                   TextColor="#7E8CA0" />
+
+                            <Picker ItemsSource="{Binding Cities}"
+                                    SelectedItem="{Binding SelectedCity, Mode=TwoWay}"
+                                    ItemDisplayBinding="{Binding Name}"
+                                    Title="Choisir une ville"
+                                    TextColor="#F2E8D5"
+                                    TitleColor="#7E8CA0"
+                                    BackgroundColor="#182536" />
+
+                            <Label Text="Les événements affichés correspondent uniquement à la ville NightOut sélectionnée."
+                                   FontSize="12"
+                                   TextColor="#7E8CA0" />
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <Border IsVisible="{Binding IsEmpty}"
+                            Stroke="#23344A"
+                            StrokeThickness="1"
+                            BackgroundColor="#101A27"
+                            Padding="18">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="18" />
+                        </Border.StrokeShape>
+                        <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
+                            <Label Text="🎉" FontSize="42" HorizontalOptions="Center" />
+                            <Label Text="Aucun événement officiel dans cette ville"
+                                   FontSize="16"
+                                   FontAttributes="Bold"
+                                   TextColor="#F2E8D5"
+                                   HorizontalOptions="Center" />
+                            <Label Text="Change de ville NightOut ou reviens plus tard."
+                                   FontSize="13"
+                                   TextColor="#7E8CA0"
+                                   HorizontalTextAlignment="Center" />
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <CollectionView ItemsSource="{Binding Events}"
+                                    SelectionMode="None">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="models:OfficialEvent">
+                                <Border Margin="0,0,0,14"
+                                        Stroke="#23344A"
+                                        StrokeThickness="1"
+                                        BackgroundColor="#101A27"
+                                        Padding="0">
+                                    <Border.StrokeShape>
+                                        <RoundRectangle CornerRadius="22" />
+                                    </Border.StrokeShape>
+
+                                    <Grid RowDefinitions="210,Auto">
+                                        <Image Grid.Row="0"
+                                               Source="{Binding FlyerUrl}"
+                                               Aspect="AspectFill"
+                                               BackgroundColor="#172234" />
+
+                                        <VerticalStackLayout Grid.Row="1" Padding="16" Spacing="8">
+                                            <Label Text="{Binding Title}"
+                                                   FontSize="20"
+                                                   FontAttributes="Bold"
+                                                   TextColor="#F2E8D5" />
+
+                                            <Label Text="{Binding ShortDateLabel}"
+                                                   FontSize="13"
+                                                   TextColor="#FFB627" />
+
+                                            <Label Text="{Binding BarDisplay}"
+                                                   FontSize="14"
+                                                   TextColor="#F2E8D5" />
+
+                                            <Label Text="{Binding CityDisplay}"
+                                                   FontSize="12"
+                                                   TextColor="#7E8CA0" />
+
+                                            <Grid ColumnDefinitions="*,Auto" Margin="0,6,0,0">
+                                                <Label Text="{Binding GoingCount, StringFormat='✅ {0} participants'}"
+                                                       FontSize="12"
+                                                       TextColor="#7E8CA0"
+                                                       VerticalOptions="Center" />
+
+                                                <Button Grid.Column="1"
+                                                        Text="Voir"
+                                                        HeightRequest="38"
+                                                        Padding="18,0"
+                                                        CornerRadius="19"
+                                                        BackgroundColor="#FFB627"
+                                                        TextColor="#0A1018"
+                                                        FontAttributes="Bold"
+                                                        Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.OpenCommand}"
+                                                        CommandParameter="{Binding .}" />
+                                            </Grid>
+                                        </VerticalStackLayout>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+
+                </VerticalStackLayout>
+            </ScrollView>
+        </RefreshView>
+
+        <controls:BottomNavBar Grid.Row="1" ActiveTab="Events" />
+
+    </Grid>
+</ContentPage>

@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?xaml-comp compile="true" ?>
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <!-- ══════════════════════════════════════════════ -->
+    <!-- BACKGROUNDS                                     -->
+    <!-- ══════════════════════════════════════════════ -->
+    <Color x:Key="BgDeep">#090814</Color>
+    <Color x:Key="BgCard">#121124</Color>
+    <Color x:Key="BgPanel">#191733</Color>
+    <Color x:Key="BgElevated">#211F42</Color>
+    <Color x:Key="BgInput">#29264F</Color>
+
+    <!-- ══════════════════════════════════════════════ -->
+    <!-- ACCENT PRINCIPAL — Violet                      -->
+    <!-- ══════════════════════════════════════════════ -->
+    <Color x:Key="Accent">#A855F7</Color>
+    <Color x:Key="AccentDark">#7E22CE</Color>
+    <Color x:Key="AccentDim">#1AA855F7</Color>
+    <Color x:Key="AccentSoft">#2EA855F7</Color>
+    <Color x:Key="AccentGlow">#4DA855F7</Color>
+
+    <!-- ══════════════════════════════════════════════ -->
+    <!-- SECONDAIRE — Or                                -->
+    <!-- ══════════════════════════════════════════════ -->
+    <Color x:Key="Second">#FFB627</Color>
+    <Color x:Key="SecondDim">#1FFFB627</Color>
+
+    <!-- ══════════════════════════════════════════════ -->
+    <!-- TEXTES                                         -->
+    <!-- ══════════════════════════════════════════════ -->
+    <Color x:Key="TextPrimary">#F4EEFF</Color>
+    <Color x:Key="TextSecondary">#9CA3C7</Color>
+    <Color x:Key="TextMuted">#555B7A</Color>
+
+    <!-- ══════════════════════════════════════════════ -->
+    <!-- BORDURES                                       -->
+    <!-- ══════════════════════════════════════════════ -->
+    <Color x:Key="Border">#1AA855F7</Color>
+    <Color x:Key="BorderMid">#2EA855F7</Color>
+    <Color x:Key="BorderStrong">#4DA855F7</Color>
+
+    <!-- ══════════════════════════════════════════════ -->
+    <!-- JAUGES                                         -->
+    <!-- ══════════════════════════════════════════════ -->
+    <Color x:Key="GaugeLow">#34D399</Color>
+    <Color x:Key="GaugeMid">#FFB627</Color>
+    <Color x:Key="GaugeHot">#FF6B35</Color>
+    <Color x:Key="GaugeFire">#FF2D6B</Color>
+
+    <!-- ══════════════════════════════════════════════ -->
+    <!-- ÉTATS SYSTÈME                                  -->
+    <!-- ══════════════════════════════════════════════ -->
+    <Color x:Key="Success">#34D399</Color>
+    <Color x:Key="Warning">#FFB627</Color>
+    <Color x:Key="Error">#EF4444</Color>
+    <Color x:Key="Info">#60A5FA</Color>
+
+    <!-- ══════════════════════════════════════════════ -->
+    <!-- BRUSHES                                        -->
+    <!-- ══════════════════════════════════════════════ -->
+    <SolidColorBrush x:Key="BgDeepBrush"      Color="{StaticResource BgDeep}"/>
+    <SolidColorBrush x:Key="BgCardBrush"      Color="{StaticResource BgCard}"/>
+    <SolidColorBrush x:Key="BgPanelBrush"     Color="{StaticResource BgPanel}"/>
+    <SolidColorBrush x:Key="BgElevatedBrush"  Color="{StaticResource BgElevated}"/>
+    <SolidColorBrush x:Key="AccentBrush"      Color="{StaticResource Accent}"/>
+    <SolidColorBrush x:Key="SecondBrush"      Color="{StaticResource Second}"/>
+    <SolidColorBrush x:Key="TextPrimaryBrush" Color="{StaticResource TextPrimary}"/>
+
+    <!-- Conservés pour compatibilité MAUI interne -->
+    <Color x:Key="Primary">#A855F7</Color>
+    <Color x:Key="PrimaryDark">#7E22CE</Color>
+    <Color x:Key="Secondary">#FFB627</Color>
+    <Color x:Key="White">White</Color>
+    <Color x:Key="Black">Black</Color>
+    <Color x:Key="Gray100">#E1E1E1</Color>
+    <Color x:Key="Gray200">#C8C8C8</Color>
+    <Color x:Key="Gray300">#ACACAC</Color>
+    <Color x:Key="Gray400">#919191</Color>
+    <Color x:Key="Gray500">#6E6E6E</Color>
+    <Color x:Key="Gray600">#404040</Color>
+    <Color x:Key="Gray900">#212121</Color>
+    <Color x:Key="Gray950">#141414</Color>
+    <SolidColorBrush x:Key="PrimaryBrush"   Color="{StaticResource Primary}"/>
+    <SolidColorBrush x:Key="SecondaryBrush" Color="{StaticResource Secondary}"/>
+    <SolidColorBrush x:Key="WhiteBrush"     Color="{StaticResource White}"/>
+    <SolidColorBrush x:Key="BlackBrush"     Color="{StaticResource Black}"/>
+
+</ResourceDictionary>

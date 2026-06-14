@@ -1,0 +1,573 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="NightOut.Views.Pro.ProDashboardPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:NightOut.ViewModels"
+    x:DataType="vm:ProDashboardViewModel"
+    Shell.NavBarIsVisible="False"
+    BackgroundColor="#0A1018">
+
+    <ContentPage.Resources>
+        <Style x:Key="SectionLabel" TargetType="Label">
+            <Setter Property="FontFamily" Value="DMSans-SemiBold"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="TextColor" Value="#3D5068"/>
+            <Setter Property="Margin" Value="0,20,0,8"/>
+        </Style>
+
+        <Style x:Key="FieldEntry" TargetType="Entry">
+            <Setter Property="TextColor" Value="#F2E8D5"/>
+            <Setter Property="PlaceholderColor" Value="#3D5068"/>
+            <Setter Property="FontFamily" Value="DMSans-Regular"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="BackgroundColor" Value="Transparent"/>
+        </Style>
+
+        <Style x:Key="FieldBorder" TargetType="Border">
+            <Setter Property="BackgroundColor" Value="#131C28"/>
+            <Setter Property="StrokeShape" Value="RoundRectangle 14"/>
+            <Setter Property="Stroke" Value="#1F2D3D"/>
+            <Setter Property="StrokeThickness" Value="1"/>
+            <Setter Property="Padding" Value="14,2"/>
+            <Setter Property="Margin" Value="0,8,0,0"/>
+        </Style>
+
+        <Style x:Key="CardBorder" TargetType="Border">
+            <Setter Property="BackgroundColor" Value="#131C28"/>
+            <Setter Property="StrokeShape" Value="RoundRectangle 18"/>
+            <Setter Property="Stroke" Value="#1F2D3D"/>
+            <Setter Property="StrokeThickness" Value="1"/>
+            <Setter Property="Padding" Value="16"/>
+            <Setter Property="Margin" Value="0,8,0,0"/>
+        </Style>
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="Auto,*,Auto">
+
+        <Grid Grid.Row="0"
+              BackgroundColor="#0D1520"
+              Padding="20,50,20,22"
+              ColumnDefinitions="Auto,*"
+              ColumnSpacing="14">
+
+            <Border Grid.Column="0"
+                    BackgroundColor="#1A2535"
+                    StrokeThickness="0"
+                    StrokeShape="RoundRectangle 22"
+                    WidthRequest="44"
+                    HeightRequest="44">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnBackTapped"/>
+                </Border.GestureRecognizers>
+
+                <Label Text="‹"
+                       FontSize="28"
+                       TextColor="#FFB627"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center"/>
+            </Border>
+
+            <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                <Label Text="Espace Professionnel"
+                       FontFamily="DMSans-SemiBold"
+                       FontSize="22"
+                       TextColor="#F2E8D5"/>
+
+                <Label Text="Tableau de bord NightOut Pro"
+                       FontFamily="DMSans-Regular"
+                       FontSize="13"
+                       TextColor="#3D5068"/>
+            </VerticalStackLayout>
+        </Grid>
+
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Padding="20,12,20,24" Spacing="0">
+
+                <Border BackgroundColor="#181C26"
+                        Stroke="#FFB627"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 22"
+                        Padding="18">
+
+                    <VerticalStackLayout Spacing="8">
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                            <Label Grid.Column="0"
+                                   Text="{Binding StatusIcon}"
+                                   FontSize="28"
+                                   VerticalOptions="Center"/>
+
+                            <VerticalStackLayout Grid.Column="1" Spacing="2">
+                                <Label Text="{Binding StatusLabel}"
+                                       FontFamily="DMSans-SemiBold"
+                                       FontSize="17"
+                                       TextColor="#F2E8D5"/>
+
+                                <Label Text="{Binding KindLabel}"
+                                       FontFamily="DMSans-Regular"
+                                       FontSize="13"
+                                       TextColor="#FFB627"/>
+                            </VerticalStackLayout>
+                        </Grid>
+
+                        <Label Text="Votre compte peut se connecter normalement. Les fonctions professionnelles restent verrouillées tant que la validation NightOut n'est pas terminée."
+                               FontFamily="DMSans-Regular"
+                               FontSize="13"
+                               TextColor="#A8B3C3"
+                               LineBreakMode="WordWrap"
+                               IsVisible="{Binding CannotUseProFeatures}"/>
+
+                        <Label Text="Votre espace professionnel est validé. Vous pouvez préparer vos événements et accéder progressivement aux statistiques."
+                               FontFamily="DMSans-Regular"
+                               FontSize="13"
+                               TextColor="#A8B3C3"
+                               LineBreakMode="WordWrap"
+                               IsVisible="{Binding CanUseProFeatures}"/>
+
+                        <Label Text="{Binding RejectionReason, StringFormat='Motif : {0}'}"
+                               FontFamily="DMSans-Regular"
+                               FontSize="13"
+                               TextColor="#F87171"
+                               IsVisible="{Binding HasRejectionReason}"/>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Label Style="{StaticResource SectionLabel}" Text="IDENTITÉ"/>
+
+                <Border Style="{StaticResource FieldBorder}" HeightRequest="54">
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                        <Label Grid.Column="0" Text="🏷️" FontSize="16" VerticalOptions="Center"/>
+                        <Entry Grid.Column="1"
+                               Style="{StaticResource FieldEntry}"
+                               Text="{Binding DisplayName}"
+                               Placeholder="Nom public"/>
+                    </Grid>
+                </Border>
+
+                <Border Style="{StaticResource FieldBorder}" HeightRequest="54">
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                        <Label Grid.Column="0" Text="📄" FontSize="16" VerticalOptions="Center"/>
+                        <Entry Grid.Column="1"
+                               Style="{StaticResource FieldEntry}"
+                               Text="{Binding LegalName}"
+                               Placeholder="Nom légal / structure"/>
+                    </Grid>
+                </Border>
+
+                <Border BackgroundColor="#131C28"
+                        StrokeShape="RoundRectangle 14"
+                        Stroke="#1F2D3D"
+                        StrokeThickness="1"
+                        Padding="14,10"
+                        Margin="0,8,0,0">
+
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                        <Label Grid.Column="0"
+                               Text="📝"
+                               FontSize="16"
+                               VerticalOptions="Start"
+                               Margin="0,2,0,0"/>
+
+                        <Editor Grid.Column="1"
+                                Text="{Binding Description}"
+                                Placeholder="Décris ton établissement ou ton activité d'organisateur..."
+                                PlaceholderColor="#3D5068"
+                                TextColor="#F2E8D5"
+                                FontFamily="DMSans-Regular"
+                                FontSize="14"
+                                BackgroundColor="Transparent"
+                                AutoSize="TextChanges"
+                                MinimumHeightRequest="90"/>
+                    </Grid>
+                </Border>
+
+
+                <Label Text="Catégorie d'établissement"
+                       FontFamily="DMSans-SemiBold"
+                       FontSize="12"
+                       TextColor="#A8B3C3"
+                       Margin="2,10,0,0"/>
+
+                <Border Style="{StaticResource FieldBorder}" HeightRequest="54">
+                    <Picker ItemsSource="{Binding AvailableCategories}"
+                            SelectedItem="{Binding SelectedCategory}"
+                            ItemDisplayBinding="{Binding DisplayName}"
+                            TextColor="#F2E8D5"
+                            Title="Choisir une catégorie"
+                            TitleColor="#3D5068"
+                            FontFamily="DMSans-Regular"
+                            FontSize="14"/>
+                </Border>
+
+                <Label Text="Cette catégorie alimente les filtres de la carte NightOut. Choisissez celle qui décrit le mieux votre établissement."
+                       FontFamily="DMSans-Regular"
+                       FontSize="12"
+                       TextColor="#A8B3C3"
+                       Margin="2,8,0,0"
+                       LineBreakMode="WordWrap"/>
+
+                <Label Style="{StaticResource SectionLabel}" Text="LOCALISATION"/>
+
+                <Grid ColumnDefinitions="110,*" ColumnSpacing="10">
+                    <Border Grid.Column="0"
+                            Style="{StaticResource FieldBorder}"
+                            HeightRequest="54">
+                        <Entry Style="{StaticResource FieldEntry}"
+                               Text="{Binding StreetNumber}"
+                               Placeholder="N°"
+                               Keyboard="Numeric"/>
+                    </Border>
+
+                    <Border Grid.Column="1"
+                            Style="{StaticResource FieldBorder}"
+                            HeightRequest="54">
+                        <Entry Style="{StaticResource FieldEntry}"
+                               Text="{Binding StreetName}"
+                               Placeholder="Rue"/>
+                    </Border>
+                </Grid>
+
+                <Border Style="{StaticResource FieldBorder}" HeightRequest="54">
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                        <Label Grid.Column="0"
+                               Text="📮"
+                               FontSize="16"
+                               VerticalOptions="Center"/>
+
+                        <Entry Grid.Column="1"
+                               Style="{StaticResource FieldEntry}"
+                               Text="{Binding PostalCode}"
+                               Placeholder="Code postal"
+                               Keyboard="Numeric"/>
+                    </Grid>
+                </Border>
+
+                <Border Style="{StaticResource FieldBorder}" HeightRequest="54">
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                        <Label Grid.Column="0"
+                               Text="🏙️"
+                               FontSize="16"
+                               VerticalOptions="Center"/>
+
+                        <Entry Grid.Column="1"
+                               Style="{StaticResource FieldEntry}"
+                               Text="{Binding AddressCityName}"
+                               Placeholder="Ville réelle de l'adresse"/>
+                    </Grid>
+                </Border>
+
+                <Label Text="Ville NightOut de rattachement"
+                       FontFamily="DMSans-SemiBold"
+                       FontSize="12"
+                       TextColor="#A8B3C3"
+                       Margin="2,10,0,0"/>
+
+                <Border Style="{StaticResource FieldBorder}" HeightRequest="54">
+                    <Picker ItemsSource="{Binding AvailableNightOutCities}"
+                            SelectedItem="{Binding NightOutCityName}"
+                            TextColor="#F2E8D5"
+                            Title="Choisir une ville NightOut"
+                            TitleColor="#3D5068"
+                            FontFamily="DMSans-Regular"
+                            FontSize="14"/>
+                </Border>
+
+                <Border Style="{StaticResource FieldBorder}" HeightRequest="54">
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                        <Label Grid.Column="0"
+                               Text="🌍"
+                               FontSize="16"
+                               VerticalOptions="Center"/>
+
+                        <Entry Grid.Column="1"
+                               Style="{StaticResource FieldEntry}"
+                               Text="{Binding Country}"
+                               Placeholder="Pays"/>
+                    </Grid>
+                </Border>
+
+                <Border BackgroundColor="#1F2D3D"
+                        StrokeThickness="0"
+                        StrokeShape="RoundRectangle 14"
+                        Padding="14,12"
+                        Margin="0,12,0,0">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding ValidateAddressCommand}"/>
+                    </Border.GestureRecognizers>
+
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                        <Label Grid.Column="0"
+                               Text="📍"
+                               FontSize="16"
+                               VerticalOptions="Center"/>
+
+                        <VerticalStackLayout Grid.Column="1" Spacing="2">
+                            <Label Text="Vérifier l'adresse et récupérer les coordonnées GPS"
+                                   FontFamily="DMSans-SemiBold"
+                                   FontSize="13"
+                                   TextColor="#F2E8D5"/>
+
+                            <Label Text="NightOut contrôle l'adresse avec Google avant l'enregistrement."
+                                   FontFamily="DMSans-Regular"
+                                   FontSize="11"
+                                   TextColor="#A8B3C3"/>
+                        </VerticalStackLayout>
+                    </Grid>
+                </Border>
+
+                <Label Text="La ville NightOut sert à savoir sur quelle carte principale afficher ton établissement. Elle peut être différente de la ville réelle de l'adresse."
+                       FontFamily="DMSans-Regular"
+                       FontSize="12"
+                       TextColor="#A8B3C3"
+                       Margin="2,8,0,0"
+                       LineBreakMode="WordWrap"/>
+
+                <Label Text="{Binding AddressValidationMessage}"
+                       FontFamily="DMSans-SemiBold"
+                       FontSize="12"
+                       TextColor="#FFB627"
+                       Margin="2,8,0,0"
+                       LineBreakMode="WordWrap"
+                       IsVisible="{Binding HasAddressValidationMessage}"/>
+
+                <Label Style="{StaticResource SectionLabel}" Text="CONTACT"/>
+
+                <Border Style="{StaticResource FieldBorder}" HeightRequest="54">
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                        <Label Grid.Column="0" Text="☎️" FontSize="16" VerticalOptions="Center"/>
+                        <Entry Grid.Column="1"
+                               Style="{StaticResource FieldEntry}"
+                               Text="{Binding Phone}"
+                               Placeholder="Téléphone"
+                               Keyboard="Telephone"/>
+                    </Grid>
+                </Border>
+
+                <Border Style="{StaticResource FieldBorder}" HeightRequest="54">
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                        <Label Grid.Column="0" Text="✉️" FontSize="16" VerticalOptions="Center"/>
+                        <Entry Grid.Column="1"
+                               Style="{StaticResource FieldEntry}"
+                               Text="{Binding PublicEmail}"
+                               Placeholder="Email public"
+                               Keyboard="Email"/>
+                    </Grid>
+                </Border>
+
+                <Border Style="{StaticResource FieldBorder}" HeightRequest="54">
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                        <Label Grid.Column="0" Text="🌐" FontSize="16" VerticalOptions="Center"/>
+                        <Entry Grid.Column="1"
+                               Style="{StaticResource FieldEntry}"
+                               Text="{Binding Website}"
+                               Placeholder="Site internet"
+                               Keyboard="Url"/>
+                    </Grid>
+                </Border>
+
+                <Label Style="{StaticResource SectionLabel}" Text="RÉSEAUX SOCIAUX"/>
+
+                <Border Style="{StaticResource FieldBorder}" HeightRequest="54">
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                        <Label Grid.Column="0" Text="📘" FontSize="16" VerticalOptions="Center"/>
+                        <Entry Grid.Column="1"
+                               Style="{StaticResource FieldEntry}"
+                               Text="{Binding Facebook}"
+                               Placeholder="Facebook"/>
+                    </Grid>
+                </Border>
+
+                <Border Style="{StaticResource FieldBorder}" HeightRequest="54">
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                        <Label Grid.Column="0" Text="📸" FontSize="16" VerticalOptions="Center"/>
+                        <Entry Grid.Column="1"
+                               Style="{StaticResource FieldEntry}"
+                               Text="{Binding Instagram}"
+                               Placeholder="Instagram"/>
+                    </Grid>
+                </Border>
+
+                <Border Style="{StaticResource FieldBorder}" HeightRequest="54">
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                        <Label Grid.Column="0" Text="🎵" FontSize="16" VerticalOptions="Center"/>
+                        <Entry Grid.Column="1"
+                               Style="{StaticResource FieldEntry}"
+                               Text="{Binding Tiktok}"
+                               Placeholder="TikTok"/>
+                    </Grid>
+                </Border>
+
+                <Label Style="{StaticResource SectionLabel}" Text="VISUELS"/>
+
+                <Border Style="{StaticResource CardBorder}">
+                    <VerticalStackLayout Spacing="12">
+
+                        <Label Text="Logo de l'établissement"
+                               FontFamily="DMSans-SemiBold"
+                               FontSize="15"
+                               TextColor="#F2E8D5"/>
+
+                        <Image Source="{Binding LogoUrl}"
+                               HeightRequest="90"
+                               WidthRequest="90"
+                               Aspect="AspectFill"
+                               HorizontalOptions="Start"/>
+
+                        <Border BackgroundColor="#FFB627"
+                                StrokeThickness="0"
+                                StrokeShape="RoundRectangle 14"
+                                HeightRequest="46">
+
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding UploadLogoCommand}"/>
+                            </Border.GestureRecognizers>
+
+                            <Label Text="Choisir un logo"
+                                   FontFamily="DMSans-SemiBold"
+                                   FontSize="14"
+                                   TextColor="#0A1018"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center"/>
+                        </Border>
+
+                        <Label Text="Format attendu : JPG, PNG ou WEBP. Image carrée conseillée. Minimum 300 × 300 px. Recommandé 1000 × 1000 px. Maximum 5 Mo."
+                               FontFamily="DMSans-Regular"
+                               FontSize="12"
+                               TextColor="#A8B3C3"
+                               LineBreakMode="WordWrap"/>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border Style="{StaticResource CardBorder}" Margin="0,12,0,0">
+                    <VerticalStackLayout Spacing="12">
+
+                        <Label Text="Photo de couverture"
+                               FontFamily="DMSans-SemiBold"
+                               FontSize="15"
+                               TextColor="#F2E8D5"/>
+
+                        <Image Source="{Binding CoverUrl}"
+                               HeightRequest="130"
+                               Aspect="AspectFill"/>
+
+                        <Border BackgroundColor="#FFB627"
+                                StrokeThickness="0"
+                                StrokeShape="RoundRectangle 14"
+                                HeightRequest="46">
+
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding UploadCoverCommand}"/>
+                            </Border.GestureRecognizers>
+
+                            <Label Text="Choisir une couverture"
+                                   FontFamily="DMSans-SemiBold"
+                                   FontSize="14"
+                                   TextColor="#0A1018"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center"/>
+                        </Border>
+
+                        <Label Text="Format attendu : JPG, PNG ou WEBP. Format 16:9 conseillé. Minimum 1200 × 675 px. Recommandé 1920 × 1080 px. Maximum 10 Mo. Évitez les textes trop proches des bords."
+                               FontFamily="DMSans-Regular"
+                               FontSize="12"
+                               TextColor="#A8B3C3"
+                               LineBreakMode="WordWrap"/>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Label Style="{StaticResource SectionLabel}" Text="FONCTIONS PRO"/>
+
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                    <Border Grid.Column="0" Style="{StaticResource CardBorder}">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding OpenEventsCommand}"/>
+                        </Border.GestureRecognizers>
+
+                        <VerticalStackLayout Spacing="6">
+                            <Label Text="📅" FontSize="28"/>
+                            <Label Text="Événements"
+                                   FontFamily="DMSans-SemiBold"
+                                   FontSize="14"
+                                   TextColor="#F2E8D5"/>
+
+                            <Label Text="Après validation"
+                                   FontFamily="DMSans-Regular"
+                                   FontSize="11"
+                                   TextColor="#3D5068"/>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <Border Grid.Column="1" Style="{StaticResource CardBorder}">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding OpenStatsCommand}"/>
+                        </Border.GestureRecognizers>
+
+                        <VerticalStackLayout Spacing="6">
+                            <Label Text="📊" FontSize="28"/>
+                            <Label Text="Statistiques"
+                                   FontFamily="DMSans-SemiBold"
+                                   FontSize="14"
+                                   TextColor="#F2E8D5"/>
+
+                            <Label Text="Affluence"
+                                   FontFamily="DMSans-Regular"
+                                   FontSize="11"
+                                   TextColor="#3D5068"/>
+                        </VerticalStackLayout>
+                    </Border>
+                </Grid>
+
+                <Border BackgroundColor="Transparent"
+                        Stroke="#3D5068"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 16"
+                        HeightRequest="50"
+                        Margin="0,14,0,0">
+
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding ContactNightOutCommand}"/>
+                    </Border.GestureRecognizers>
+
+                    <Label Text="Contacter NightOut"
+                           FontFamily="DMSans-Regular"
+                           FontSize="14"
+                           TextColor="#A8B3C3"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center"/>
+                </Border>
+
+                <BoxView HeightRequest="20" Color="Transparent"/>
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <Grid Grid.Row="2"
+              BackgroundColor="#0D1520"
+              Padding="20,12,20,28">
+
+            <Border BackgroundColor="#FFB627"
+                    StrokeShape="RoundRectangle 16"
+                    StrokeThickness="0"
+                    HeightRequest="52">
+
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding SaveCommand}"/>
+                </Border.GestureRecognizers>
+
+                <Grid>
+                    <Label Text="Enregistrer mon dossier"
+                           FontFamily="DMSans-SemiBold"
+                           FontSize="16"
+                           TextColor="#0A1018"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center"/>
+
+                    <ActivityIndicator IsRunning="{Binding IsBusy}"
+                                       Color="#0A1018"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center"
+                                       IsVisible="{Binding IsBusy}"/>
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
+</ContentPage>

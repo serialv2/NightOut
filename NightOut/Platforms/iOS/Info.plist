@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>LSRequiresIPhoneOS</key>
+	<true/>
+	<key>UIDeviceFamily</key>
+	<array>
+		<integer>1</integer>
+		<integer>2</integer>
+	</array>
+	<key>UIRequiredDeviceCapabilities</key>
+	<array>
+		<string>arm64</string>
+	</array>
+	<key>UISupportedInterfaceOrientations</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
+	<key>UISupportedInterfaceOrientations~ipad</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationPortraitUpsideDown</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
+	<key>XSAppIconAssets</key>
+	<string>Assets.xcassets/appicon.appiconset</string>
+
+	<key>NSCameraUsageDescription</key>
+	<string>NightOut utilise l'appareil photo pour envoyer des photos et vidéos dans les groupes.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>NightOut utilise la galerie pour choisir des photos et vidéos à partager.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>NightOut peut enregistrer des médias dans la galerie.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>NightOut utilise le micro lors de l'enregistrement d'une vidéo.</string>
+
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>nightout</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>nightout</string>
+			</array>
+		</dict>
+	</array>
+</dict>
+</plist>

@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="NightOut.Views.Auth.LoginPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:NightOut.ViewModels"
+    x:DataType="vm:LoginViewModel"
+    Shell.NavBarIsVisible="False"
+    BackgroundColor="#0A1018">
+
+    <ScrollView>
+        <Grid RowDefinitions="Auto,*" MinimumHeightRequest="760">
+
+            <Grid
+                Grid.Row="0"
+                HeightRequest="260"
+                Padding="28,56,28,24">
+
+                <Grid.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="#162235" Offset="0"/>
+                        <GradientStop Color="#0A1018" Offset="1"/>
+                    </LinearGradientBrush>
+                </Grid.Background>
+
+                <VerticalStackLayout
+                    Spacing="10"
+                    VerticalOptions="Center">
+
+                    <Label
+                        Text="NightOut"
+                        FontFamily="PlayfairDisplay-BoldItalic"
+                        FontSize="48"
+                        TextColor="#FFB627"
+                        HorizontalOptions="Center"/>
+
+                    <Label
+                        Text="Tes amis. Tes bars. Tes soirées."
+                        FontFamily="DMSans-SemiBold"
+                        FontSize="17"
+                        TextColor="#F2E8D5"
+                        HorizontalOptions="Center"
+                        HorizontalTextAlignment="Center"/>
+
+                    <Label
+                        Text="{Binding WelcomeText}"
+                        FontFamily="DMSans-Regular"
+                        FontSize="13"
+                        TextColor="#7A8FA6"
+                        HorizontalOptions="Center"
+                        HorizontalTextAlignment="Center"
+                        Margin="0,4,0,0"/>
+
+                </VerticalStackLayout>
+            </Grid>
+
+            <Border
+                Grid.Row="1"
+                Margin="20,-22,20,24"
+                Padding="22"
+                StrokeThickness="1"
+                Stroke="#1F3147"
+                BackgroundColor="#111A27"
+                StrokeShape="RoundRectangle 28">
+
+                <VerticalStackLayout Spacing="14">
+
+                    <Label
+                        Text="Connexion"
+                        FontFamily="DMSans-Bold"
+                        FontSize="24"
+                        TextColor="#F2E8D5"/>
+
+                    <Label
+                        Text="Entre tes identifiants pour continuer."
+                        FontFamily="DMSans-Regular"
+                        FontSize="13"
+                        TextColor="#7A8FA6"
+                        Margin="0,0,0,10"/>
+
+                    <Label
+                        Text="Adresse e-mail"
+                        FontFamily="DMSans-Medium"
+                        FontSize="12"
+                        TextColor="#7A8FA6"/>
+
+                    <Border
+                        Style="{StaticResource InputField}">
+                        <Entry
+                            Text="{Binding Email}"
+                            Placeholder="ton@email.com"
+                            Keyboard="Email"
+                            ReturnType="Next"
+                            AutomationId="EmailEntry"/>
+                    </Border>
+
+                    <Label
+                        Text="Mot de passe"
+                        FontFamily="DMSans-Medium"
+                        FontSize="12"
+                        TextColor="#7A8FA6"
+                        Margin="0,4,0,0"/>
+
+                    <Border
+                        Style="{StaticResource InputField}">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Entry
+                                Grid.Column="0"
+                                Text="{Binding Password}"
+                                Placeholder="••••••••"
+                                IsPassword="{Binding IsPasswordVisible, Converter={StaticResource InvertedBoolConverter}}"
+                                ReturnType="Done"
+                                ReturnCommand="{Binding LoginCommand}"
+                                AutomationId="PasswordEntry"/>
+
+                            <Label
+                                Grid.Column="1"
+                                Text="👁"
+                                FontSize="18"
+                                TextColor="#7A8FA6"
+                                VerticalOptions="Center"
+                                Padding="10,0">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding TogglePasswordVisibilityCommand}"/>
+                                </Label.GestureRecognizers>
+                            </Label>
+                        </Grid>
+                    </Border>
+
+                    <Label
+                        Text="Mot de passe oublié ?"
+                        FontFamily="DMSans-Regular"
+                        FontSize="12"
+                        TextColor="#FFB627"
+                        HorizontalOptions="End">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding GoToForgotPasswordCommand}"/>
+                        </Label.GestureRecognizers>
+                    </Label>
+
+                    <Label
+                        Text="{Binding ErrorMessage}"
+                        FontFamily="DMSans-Regular"
+                        FontSize="12"
+                        TextColor="#E53935"
+                        HorizontalOptions="Center"
+                        HorizontalTextAlignment="Center"
+                        IsVisible="{Binding HasError}"
+                        Margin="0,4,0,0"/>
+
+                    <Border
+                        Style="{StaticResource BtnPrimary}"
+                        Margin="0,8,0,0">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                <GradientStop Color="#FFB627" Offset="0"/>
+                                <GradientStop Color="#FF6B35" Offset="1"/>
+                            </LinearGradientBrush>
+                        </Border.Background>
+
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding LoginCommand}"/>
+                        </Border.GestureRecognizers>
+
+                        <Grid>
+                            <ActivityIndicator
+                                IsRunning="{Binding IsBusy}"
+                                IsVisible="{Binding IsBusy}"
+                                Color="#0A1018"
+                                HorizontalOptions="Center"
+                                VerticalOptions="Center"/>
+
+                            <Label
+                                Text="Se connecter"
+                                FontFamily="DMSans-Bold"
+                                FontSize="15"
+                                TextColor="#0A1018"
+                                HorizontalOptions="Center"
+                                VerticalOptions="Center"
+                                IsVisible="{Binding IsNotBusy}"/>
+                        </Grid>
+                    </Border>
+
+                    <Grid ColumnDefinitions="*,Auto,*" Margin="0,10,0,2">
+                        <BoxView Grid.Column="0" HeightRequest="1" BackgroundColor="#263A55" VerticalOptions="Center"/>
+                        <Label Grid.Column="1" Text="ou" FontSize="12" TextColor="#7A8FA6" Margin="12,0"/>
+                        <BoxView Grid.Column="2" HeightRequest="1" BackgroundColor="#263A55" VerticalOptions="Center"/>
+                    </Grid>
+
+                    <Border
+                        HeightRequest="52"
+                        Stroke="#2D405B"
+                        StrokeThickness="1"
+                        BackgroundColor="#0D1520"
+                        StrokeShape="RoundRectangle 18">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding LoginWithGoogleCommand}"/>
+                        </Border.GestureRecognizers>
+
+                        <Grid ColumnDefinitions="Auto,*" Padding="16,0">
+                            <Label
+                                Grid.Column="0"
+                                Text="G"
+                                FontFamily="DMSans-Bold"
+                                FontSize="20"
+                                TextColor="#F2E8D5"
+                                VerticalOptions="Center"/>
+
+                            <Label
+                                Grid.Column="1"
+                                Text="Continuer avec Google"
+                                FontFamily="DMSans-SemiBold"
+                                FontSize="15"
+                                TextColor="#F2E8D5"
+                                HorizontalOptions="Center"
+                                VerticalOptions="Center"/>
+                        </Grid>
+                    </Border>
+
+                    <Border
+                        Style="{StaticResource BtnSecondary}"
+                        Margin="0,4,0,0">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding GoToRegisterCommand}"/>
+                        </Border.GestureRecognizers>
+
+                        <Label
+                            Text="Créer un compte"
+                            FontFamily="DMSans-SemiBold"
+                            FontSize="15"
+                            TextColor="#FFB627"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Center"/>
+                    </Border>
+
+                </VerticalStackLayout>
+            </Border>
+        </Grid>
+    </ScrollView>
+</ContentPage>

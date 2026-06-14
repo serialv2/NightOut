@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="NightOut.Views.Map.MapPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:NightOut.ViewModels"
+    xmlns:models="clr-namespace:NightOut.Models"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    xmlns:controls="clr-namespace:NightOut.Views.Controls"
+    x:DataType="vm:MapViewModel"
+    Shell.NavBarIsVisible="False"
+    BackgroundColor="#0A1018">
+
+    <ContentPage.Resources>
+        <toolkit:InvertedBoolConverter x:Key="InvertedBoolConverter"/>
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="*,Auto">
+
+        <WebView
+            x:Name="MapWebView"
+            Grid.Row="0"
+            Navigated="OnMapNavigated"
+            BackgroundColor="#0A1018" />
+
+
+        <!-- FAB modération admin (⚙️) — visible uniquement pour les administrateurs -->
+        <Button
+            Grid.Row="0"
+            Text="⚙️"
+            FontSize="18"
+            WidthRequest="44" HeightRequest="44"
+            CornerRadius="22"
+            BackgroundColor="#1A2535"
+            TextColor="#7A8FA6"
+            HorizontalOptions="End"
+            VerticalOptions="End"
+            Margin="0,0,16,20"
+            Clicked="OnModerationClicked"
+            IsVisible="{Binding CanShowModerationButton}" />
+
+        <!-- ══ BOTTOM SHEET (natif MAUI) ══ -->
+        <Border
+            Grid.Row="0"
+            VerticalOptions="End"
+            Margin="10,0,10,10"
+            BackgroundColor="#131F2B"
+            Stroke="#2EFFB627"
+            StrokeThickness="1"
+            StrokeShape="RoundRectangle 26"
+            IsVisible="{Binding IsBottomSheetVisible}">
+            <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto" Padding="16,14,16,16" RowSpacing="12">
+
+                <!-- Poignée + croix de fermeture -->
+                <Grid Grid.Row="0" ColumnDefinitions="*,Auto,*">
+                    <BoxView
+                        Grid.Column="1"
+                        WidthRequest="34" HeightRequest="3"
+                        Color="#2EFFB627"
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center"
+                        CornerRadius="2">
+                        <BoxView.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding CloseBottomSheetCommand}"/>
+                        </BoxView.GestureRecognizers>
+                    </BoxView>
+                    <Button
+                        Grid.Column="2"
+                        Text="✕"
+                        FontSize="16"
+                        FontAttributes="Bold"
+                        BackgroundColor="Transparent"
+                        TextColor="#7A8FA6"
+                        WidthRequest="36" HeightRequest="36"
+                        Padding="0"
+                        HorizontalOptions="End"
+                        VerticalOptions="Center"
+                        Command="{Binding CloseBottomSheetCommand}"/>
+                </Grid>
+
+                <Grid Grid.Row="1" ColumnDefinitions="46,*" ColumnSpacing="12">
+                    <Border Grid.Column="0" WidthRequest="46" HeightRequest="46"
+                            BackgroundColor="#1AFFB627" Stroke="#2EFFB627" StrokeThickness="1" StrokeShape="RoundRectangle 8">
+                        <Label Text="{Binding SelectedBar.PrimaryCategory.Icon}" FontSize="22"
+                               HorizontalOptions="Center" VerticalOptions="Center"/>
+                    </Border>
+                    <Grid Grid.Column="1" RowDefinitions="Auto,Auto,Auto" RowSpacing="3">
+                        <Label Grid.Row="0" Text="{Binding SelectedBar.Name}"
+                               FontFamily="PlayfairDisplay-BoldItalic" FontSize="17"
+                               TextColor="#F2E8D5" LineBreakMode="TailTruncation"/>
+                        <Label Grid.Row="1" Text="{Binding SelectedBar.TonightEvent.Name}"
+                               FontFamily="DMSans-Regular" FontSize="11"
+                               TextColor="#7A8FA6" LineBreakMode="TailTruncation"/>
+                        <HorizontalStackLayout Grid.Row="2" Spacing="5">
+                            <Border BackgroundColor="Transparent" Stroke="#1AFFB627" StrokeThickness="1" StrokeShape="RoundRectangle 999">
+                                <Label Text="{Binding SelectedBar.TonightEvent.EntryLabel}"
+                                       FontSize="10" FontFamily="DMSans-Regular" TextColor="#7A8FA6" Padding="8,2"/>
+                            </Border>
+                        </HorizontalStackLayout>
+                    </Grid>
+                </Grid>
+
+                <Border Grid.Row="2" BackgroundColor="#14FF6B35" Stroke="#40FF6B35"
+                        StrokeThickness="1" StrokeShape="RoundRectangle 8"
+                        IsVisible="{Binding SelectedBar.HasPromo}">
+                    <HorizontalStackLayout Padding="12,8" Spacing="8">
+                        <Label Text="🎁" FontSize="13" VerticalOptions="Center"/>
+                        <Label Text="{Binding SelectedBar.ActivePromo.Text}"
+                               FontSize="11" FontFamily="DMSans-Regular"
+                               TextColor="#FF6B35" VerticalOptions="Center" LineBreakMode="TailTruncation"/>
+                    </HorizontalStackLayout>
+                </Border>
+
+                <Border Grid.Row="3" BackgroundColor="#1A2535" Stroke="Transparent" StrokeShape="RoundRectangle 8">
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12" Padding="14,10">
+                        <StackLayout Grid.Column="0">
+                            <Label Text="{Binding SelectedBar.TotalPresent}"
+                                   FontFamily="PlayfairDisplay-BoldItalic" FontSize="28" TextColor="#FFB627"/>
+                            <Label Text="présents" FontSize="9" FontFamily="DMSans-Regular" TextColor="#3D5068"/>
+                        </StackLayout>
+                        <Grid Grid.Column="1" RowDefinitions="Auto,Auto" RowSpacing="6">
+                            <Grid Grid.Row="0" ColumnDefinitions="*,Auto">
+                                <Label Grid.Column="0" Text="Ambiance" FontSize="10" FontFamily="DMSans-Regular" TextColor="#7A8FA6"/>
+                                <Label Grid.Column="1" Text="{Binding SelectedBar.GaugeLabel}"
+                                       FontSize="10" FontFamily="DMSans-SemiBold" TextColor="#FFB627"/>
+                            </Grid>
+                            <ProgressBar Grid.Row="1" Progress="{Binding SelectedBar.GaugeRatio}" ProgressColor="#FFB627"/>
+                        </Grid>
+                    </Grid>
+                </Border>
+
+                <Grid Grid.Row="4" ColumnDefinitions="*,*,Auto,Auto" ColumnSpacing="8">
+                    <Border Grid.Column="0" StrokeShape="RoundRectangle 14" StrokeThickness="0" HeightRequest="46">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                <GradientStop Color="#FFB627" Offset="0"/>
+                                <GradientStop Color="#FF6B35" Offset="1"/>
+                            </LinearGradientBrush>
+                        </Border.Background>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding ToggleCheckinCommand}"/>
+                        </Border.GestureRecognizers>
+                        <Label Text="Check-in" FontFamily="DMSans-Bold" FontSize="13"
+                               TextColor="#0A1018" HorizontalOptions="Center" VerticalOptions="Center"/>
+                    </Border>
+                    <Border Grid.Column="1" BackgroundColor="#1A2535" Stroke="#2EFFB627"
+                            StrokeThickness="1" StrokeShape="RoundRectangle 14" HeightRequest="46" Padding="8,0">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding GoToBarDetailCommand}"/>
+                        </Border.GestureRecognizers>
+                        <HorizontalStackLayout Spacing="5" VerticalOptions="Center" HorizontalOptions="Center">
+                            <Label Text="📄" FontSize="14" VerticalOptions="Center"/>
+                            <Label Text="Voir la fiche" FontSize="12" FontFamily="DMSans-Medium"
+                                   TextColor="#FFB627" VerticalOptions="Center"/>
+                        </HorizontalStackLayout>
+                    </Border>
+                    <Border Grid.Column="2" BackgroundColor="#1A2535" Stroke="#1AFFB627"
+                            StrokeThickness="1" StrokeShape="RoundRectangle 14" WidthRequest="46" HeightRequest="46"
+                            IsVisible="{Binding CanPostMedia}">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding TakePhotoCommand}"/>
+                        </Border.GestureRecognizers>
+                        <Label Text="📸" FontSize="16" HorizontalOptions="Center" VerticalOptions="Center"/>
+                    </Border>
+                    <Border Grid.Column="3" BackgroundColor="#1A2535" Stroke="#1AFFB627"
+                            StrokeThickness="1" StrokeShape="RoundRectangle 14" WidthRequest="46" HeightRequest="46"
+                            IsVisible="{Binding CanPostMedia}">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding TakeVideoCommand}"/>
+                        </Border.GestureRecognizers>
+                        <Label Text="🎥" FontSize="16" HorizontalOptions="Center" VerticalOptions="Center"/>
+                    </Border>
+                </Grid>
+
+                <!-- ══ GALERIE MÉDIAS (stories 24h) ══ -->
+                <VerticalStackLayout Grid.Row="5" Spacing="8">
+                    <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
+                        <Label Grid.Column="0" Text="📸 En direct" VerticalOptions="Center"
+                               FontFamily="DMSans-SemiBold" FontSize="12" TextColor="#7A8FA6"/>
+                        <Button Grid.Column="1" Text="📷" FontSize="13"
+                                WidthRequest="40" HeightRequest="32" CornerRadius="16" Padding="0"
+                                BackgroundColor="#1AFFB627" TextColor="#FFB627"
+                                IsVisible="{Binding CanPostMedia}"
+                                Command="{Binding TakePhotoCommand}"/>
+                        <Button Grid.Column="2" Text="🎥" FontSize="13"
+                                WidthRequest="40" HeightRequest="32" CornerRadius="16" Padding="0"
+                                BackgroundColor="#1AFFB627" TextColor="#FFB627"
+                                IsVisible="{Binding CanPostMedia}"
+                                Command="{Binding TakeVideoCommand}"/>
+                    </Grid>
+
+                    <CollectionView x:Name="MediaCollection"
+                                    ItemsSource="{Binding BarMedia}"
+                                    HeightRequest="92">
+                        <CollectionView.ItemsLayout>
+                            <LinearItemsLayout Orientation="Horizontal" ItemSpacing="8"/>
+                        </CollectionView.ItemsLayout>
+                        <CollectionView.EmptyView>
+                            <Label Text="Aucun média — publie le premier !"
+                                   FontSize="10" FontFamily="DMSans-Regular" TextColor="#3D5068"
+                                   VerticalOptions="Center"/>
+                        </CollectionView.EmptyView>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="models:BarPhoto">
+                                <Grid WidthRequest="84" HeightRequest="84" IsVisible="{Binding HasPreviewUrl}">
+                                    <Border StrokeShape="RoundRectangle 10" StrokeThickness="0">
+                                        <Image Source="{Binding PreviewUrl}" Aspect="AspectFill"/>
+                                    </Border>
+                                    <Border StrokeShape="RoundRectangle 10" Stroke="#2EFFB627" StrokeThickness="1" BackgroundColor="Transparent"/>
+                                    <Label Text="▶" FontSize="22" TextColor="White"
+                                           HorizontalOptions="Center" VerticalOptions="Center"
+                                           IsVisible="{Binding IsVideo}"/>
+                                    <Label Text="🚩" FontSize="11" HorizontalOptions="End" VerticalOptions="Start" Margin="0,3,3,0">
+                                        <Label.GestureRecognizers>
+                                            <TapGestureRecognizer
+                                                Command="{Binding BindingContext.ReportMediaCommand, Source={x:Reference MediaCollection}}"
+                                                CommandParameter="{Binding .}"/>
+                                        </Label.GestureRecognizers>
+                                    </Label>
+                                    <Grid.GestureRecognizers>
+                                        <TapGestureRecognizer
+                                            Command="{Binding BindingContext.OpenMediaViewerCommand, Source={x:Reference MediaCollection}}"
+                                            CommandParameter="{Binding .}"/>
+                                    </Grid.GestureRecognizers>
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+
+            </Grid>
+        </Border>
+
+        <!-- ══ BOTTOM NAV COMMUNE ══ -->
+        <controls:BottomNavBar Grid.Row="1" ActiveTab="Map"/>
+
+        <!-- ══ VISIONNEUR MÉDIA PLEIN ÉCRAN ══ -->
+        <Grid Grid.Row="0" Grid.RowSpan="2"
+              BackgroundColor="#E60A1018"
+              IsVisible="{Binding IsMediaViewerVisible}">
+            <Grid.GestureRecognizers>
+                <TapGestureRecognizer Command="{Binding CloseMediaViewerCommand}"/>
+            </Grid.GestureRecognizers>
+
+            <Image Source="{Binding ViewerMedia.PhotoUrl}" Aspect="AspectFit"
+                   Margin="12,80,12,40"
+                   IsVisible="{Binding ViewerMedia.IsVideo, Converter={StaticResource InvertedBoolConverter}}"/>
+
+            <WebView x:Name="MediaWebView" Margin="12,80,12,40"
+                     IsVisible="{Binding ViewerMedia.IsVideo}"
+                     BackgroundColor="Transparent"/>
+
+            <Grid VerticalOptions="Start" ColumnDefinitions="Auto,*,Auto,Auto"
+                  Padding="16,50,16,0" ColumnSpacing="10">
+                <Button Grid.Column="0" Text="✕" FontSize="18" FontAttributes="Bold"
+                        WidthRequest="40" HeightRequest="40" CornerRadius="20" Padding="0"
+                        BackgroundColor="#331A2535" TextColor="#F2E8D5"
+                        Command="{Binding CloseMediaViewerCommand}"/>
+                <Button Grid.Column="2" Text="🚩 Signaler" FontSize="12"
+                        HeightRequest="40" CornerRadius="20" Padding="14,0"
+                        BackgroundColor="#33B5482F" TextColor="#FF8A6F"
+                        Command="{Binding ReportMediaCommand}" CommandParameter="{Binding ViewerMedia}"/>
+                <Button Grid.Column="3" Text="🗑" FontSize="14"
+                        WidthRequest="40" HeightRequest="40" CornerRadius="20" Padding="0"
+                        BackgroundColor="#331A2535" TextColor="#F2E8D5"
+                        IsVisible="{Binding ViewerMedia.IsMine}"
+                        Command="{Binding DeleteMediaCommand}" CommandParameter="{Binding ViewerMedia}"/>
+            </Grid>
+        </Grid>
+
+    </Grid>
+</ContentPage>

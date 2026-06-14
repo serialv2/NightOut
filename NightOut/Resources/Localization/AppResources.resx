@@ -1,0 +1,410 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1"/>
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2"/>
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string"/>
+              <xsd:attribute name="type" type="xsd:string"/>
+              <xsd:attribute name="mimetype" type="xsd:string"/>
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter</value></resheader>
+
+  <!-- ══════════════════════════════════════════════
+       GÉNÉRAL
+  ══════════════════════════════════════════════ -->
+  <data name="AppName"><value>NightOut</value></data>
+  <data name="AppTagline"><value>Où sortir ce soir ?</value></data>
+  <data name="Ok"><value>OK</value></data>
+  <data name="Cancel"><value>Annuler</value></data>
+  <data name="Confirm"><value>Confirmer</value></data>
+  <data name="Save"><value>Enregistrer</value></data>
+  <data name="Delete"><value>Supprimer</value></data>
+  <data name="Edit"><value>Modifier</value></data>
+  <data name="Close"><value>Fermer</value></data>
+  <data name="Back"><value>Retour</value></data>
+  <data name="Next"><value>Suivant</value></data>
+  <data name="Done"><value>Terminer</value></data>
+  <data name="Send"><value>Envoyer</value></data>
+  <data name="Share"><value>Partager</value></data>
+  <data name="Report"><value>Signaler</value></data>
+  <data name="Block"><value>Bloquer</value></data>
+  <data name="Yes"><value>Oui</value></data>
+  <data name="No"><value>Non</value></data>
+  <data name="Or"><value>ou</value></data>
+  <data name="Loading"><value>Chargement...</value></data>
+  <data name="Error"><value>Une erreur est survenue</value></data>
+  <data name="Retry"><value>Réessayer</value></data>
+  <data name="NoInternet"><value>Pas de connexion internet</value></data>
+  <data name="NoInternetDesc"><value>Vérifie ta connexion et réessaie</value></data>
+  <data name="Success"><value>Succès</value></data>
+  <data name="RequiredField"><value>Ce champ est obligatoire</value></data>
+  <data name="SeeAll"><value>Voir tout</value></data>
+  <data name="SeeMore"><value>Voir plus</value></data>
+  <data name="ComingSoon"><value>Bientôt disponible</value></data>
+
+  <!-- ══════════════════════════════════════════════
+       NAVIGATION (Bottom Nav)
+  ══════════════════════════════════════════════ -->
+  <data name="NavMap"><value>Carte</value></data>
+  <data name="NavEvents"><value>Events</value></data>
+  <data name="NavFriends"><value>Amis</value></data>
+  <data name="NavMessages"><value>Messages</value></data>
+  <data name="NavProfile"><value>Profil</value></data>
+
+  <!-- ══════════════════════════════════════════════
+       ONBOARDING
+  ══════════════════════════════════════════════ -->
+  <data name="OnboardingStep1Title"><value>Découvre les soirées</value></data>
+  <data name="OnboardingStep1Desc"><value>Trouve les meilleurs bars et événements autour de toi en temps réel</value></data>
+  <data name="OnboardingStep2Title"><value>Vois où sont tes amis</value></data>
+  <data name="OnboardingStep2Desc"><value>Rejoins tes amis dans les bars et crée des soirées inoubliables</value></data>
+  <data name="OnboardingStep3Title"><value>Des offres exclusives</value></data>
+  <data name="OnboardingStep3Desc"><value>Profite de promotions réservées aux utilisateurs NightOut</value></data>
+  <data name="OnboardingStart"><value>Commencer</value></data>
+  <data name="OnboardingSkip"><value>Passer</value></data>
+
+  <!-- ══════════════════════════════════════════════
+       AUTHENTIFICATION
+  ══════════════════════════════════════════════ -->
+  <data name="AuthWelcome"><value>Bonsoir 👋</value></data>
+  <data name="AuthWelcomeDesc"><value>Connecte-toi pour retrouver tes amis ce soir</value></data>
+  <data name="AuthLogin"><value>Se connecter</value></data>
+  <data name="AuthRegister"><value>Créer un compte</value></data>
+  <data name="AuthEmail"><value>Adresse e-mail</value></data>
+  <data name="AuthEmailPlaceholder"><value>ton@email.com</value></data>
+  <data name="AuthPassword"><value>Mot de passe</value></data>
+  <data name="AuthPasswordPlaceholder"><value>••••••••</value></data>
+  <data name="AuthPasswordConfirm"><value>Confirmer le mot de passe</value></data>
+  <data name="AuthForgotPassword"><value>Mot de passe oublié ?</value></data>
+  <data name="AuthForgotPasswordTitle"><value>Réinitialiser le mot de passe</value></data>
+  <data name="AuthForgotPasswordDesc"><value>Entre ton e-mail, on t'envoie un lien de réinitialisation</value></data>
+  <data name="AuthForgotPasswordSent"><value>E-mail envoyé ! Vérifie ta boîte mail</value></data>
+  <data name="AuthNoAccount"><value>Pas encore de compte ?</value></data>
+  <data name="AuthAlreadyAccount"><value>Déjà un compte ?</value></data>
+  <data name="AuthLoginWithGoogle"><value>Continuer avec Google</value></data>
+  <data name="AuthLoginWithApple"><value>Continuer avec Apple</value></data>
+  <data name="AuthUsername"><value>Pseudo</value></data>
+  <data name="AuthUsernamePlaceholder"><value>ton_pseudo</value></data>
+  <data name="AuthUsernameHint"><value>Visible par tes amis sur la carte</value></data>
+  <data name="AuthBirthdate"><value>Date de naissance</value></data>
+  <data name="AuthBirthdateHint"><value>Tu dois avoir 18 ans ou plus</value></data>
+  <data name="AuthUnderageError"><value>Tu dois avoir au moins 18 ans pour utiliser NightOut</value></data>
+  <data name="AuthEmailInvalid"><value>Adresse e-mail invalide</value></data>
+  <data name="AuthPasswordTooShort"><value>Le mot de passe doit contenir au moins 8 caractères</value></data>
+  <data name="AuthPasswordMismatch"><value>Les mots de passe ne correspondent pas</value></data>
+  <data name="AuthEmailAlreadyUsed"><value>Cette adresse e-mail est déjà utilisée</value></data>
+  <data name="AuthInvalidCredentials"><value>E-mail ou mot de passe incorrect</value></data>
+  <data name="AuthTerms"><value>En créant un compte, tu acceptes nos</value></data>
+  <data name="AuthTermsLink"><value>conditions d'utilisation</value></data>
+  <data name="AuthPrivacyLink"><value>politique de confidentialité</value></data>
+  <data name="AuthLogout"><value>Se déconnecter</value></data>
+  <data name="AuthLogoutConfirm"><value>Tu veux vraiment te déconnecter ?</value></data>
+  <data name="AuthDeleteAccount"><value>Supprimer mon compte</value></data>
+  <data name="AuthDeleteAccountConfirm"><value>Cette action est irréversible. Toutes tes données seront supprimées.</value></data>
+
+  <!-- ══════════════════════════════════════════════
+       PERMISSIONS
+  ══════════════════════════════════════════════ -->
+  <data name="PermLocationTitle"><value>Activer la localisation</value></data>
+  <data name="PermLocationDesc"><value>NightOut utilise ta position pour afficher les bars autour de toi et alimenter les jauges de fréquentation. Ta position n'est partagée qu'avec tes amis si tu fais un check-in.</value></data>
+  <data name="PermLocationAllow"><value>Autoriser</value></data>
+  <data name="PermLocationDeny"><value>Pas maintenant</value></data>
+  <data name="PermLocationDenied"><value>Localisation désactivée. Active-la dans les réglages pour profiter de NightOut.</value></data>
+  <data name="PermLocationOpenSettings"><value>Ouvrir les réglages</value></data>
+  <data name="PermCameraTitle"><value>Accès à la caméra</value></data>
+  <data name="PermCameraDesc"><value>Pour prendre des photos de soirée visibles sur la fiche du bar</value></data>
+  <data name="PermNotifTitle"><value>Activer les notifications</value></data>
+  <data name="PermNotifDesc"><value>Reçois des alertes quand tes amis sont dans un bar près de toi</value></data>
+  <data name="PermContactsTitle"><value>Accès aux contacts</value></data>
+  <data name="PermContactsDesc"><value>Retrouve tes amis déjà sur NightOut. Aucun contact n'est ajouté automatiquement.</value></data>
+
+  <!-- ══════════════════════════════════════════════
+       CARTE
+  ══════════════════════════════════════════════ -->
+  <data name="MapTitle"><value>Ce soir à</value></data>
+  <data name="MapNobodyAround"><value>Aucun événement près de toi ce soir</value></data>
+  <data name="MapNobodyAroundDesc"><value>Essaie d'élargir la zone ou de changer de ville</value></data>
+  <data name="MapFilterAll"><value>Tous</value></data>
+  <data name="MapFilterLive"><value>Live</value></data>
+  <data name="MapFilterCocktails"><value>Cocktails</value></data>
+  <data name="MapFilterClub"><value>Club</value></data>
+  <data name="MapFilterGeek"><value>Geek</value></data>
+  <data name="MapFilterRock"><value>Rock</value></data>
+  <data name="MapFilterKaraoke"><value>Karaoké</value></data>
+  <data name="MapFilterWine"><value>Vins</value></data>
+  <data name="MapFilterPub"><value>Pub</value></data>
+  <data name="MapLivePeople"><value>{0} personnes en soirée</value></data>
+  <data name="MapSecretMode"><value>Mode secret</value></data>
+  <data name="MapSecretModeOn"><value>Mode secret activé — tu es invisible</value></data>
+  <data name="MapSecretModeOff"><value>Tu es à nouveau visible sur la carte</value></data>
+  <data name="MapMyPosition"><value>Ma position</value></data>
+  <data name="MapChangeCity"><value>Changer de ville</value></data>
+  <data name="MapCluster"><value>{0} bars</value></data>
+
+  <!-- ══════════════════════════════════════════════
+       FICHE BAR / ÉVÉNEMENT
+  ══════════════════════════════════════════════ -->
+  <data name="BarPresents"><value>{0} présents</value></data>
+  <data name="BarAmbiance"><value>Ambiance</value></data>
+  <data name="BarAmbianceLow"><value>Tranquille</value></data>
+  <data name="BarAmbianceMid"><value>Bonne ambiance</value></data>
+  <data name="BarAmbianceHot"><value>Très animé</value></data>
+  <data name="BarAmbianceFire"><value>En feu 🔥</value></data>
+  <data name="BarCheckin"><value>Check-in</value></data>
+  <data name="BarCheckinDone"><value>✓ Présent</value></data>
+  <data name="BarCheckinSuccess"><value>Tes amis savent que tu es là !</value></data>
+  <data name="BarCheckinCancelled"><value>Check-in annulé</value></data>
+  <data name="BarGoThere"><value>Y aller</value></data>
+  <data name="BarTakePhoto"><value>Photo</value></data>
+  <data name="BarFriendsHere"><value>Amis présents</value></data>
+  <data name="BarNoFriendsHere"><value>Aucun ami ici pour l'instant</value></data>
+  <data name="BarFriendCount"><value>{0} ami(s)</value></data>
+  <data name="BarImComing"><value>J'arrive !</value></data>
+  <data name="BarImComingSent"><value>Message envoyé à tes amis 🏃</value></data>
+  <data name="BarPromo"><value>Promo ce soir</value></data>
+  <data name="BarEventTonight"><value>Ce soir</value></data>
+  <data name="BarNoEventTonight"><value>Pas d'événement ce soir</value></data>
+  <data name="BarFreeEntry"><value>Entrée libre</value></data>
+  <data name="BarPaidEntry"><value>Entrée {0}€</value></data>
+  <data name="BarOpenUntil"><value>Jusqu'à {0}</value></data>
+  <data name="BarPhotos"><value>Photos de soirée</value></data>
+  <data name="BarPhotosEmpty"><value>Sois le premier à poster une photo !</value></data>
+  <data name="BarPhotoEphemeral"><value>Les photos disparaissent après 24h</value></data>
+  <data name="BarPhotoReported"><value>Photo signalée, merci</value></data>
+  <data name="BarSave"><value>Sauvegarder</value></data>
+  <data name="BarSaved"><value>Bar sauvegardé ♥</value></data>
+  <data name="BarUnsaved"><value>Bar retiré des favoris</value></data>
+  <data name="BarAddress"><value>Adresse</value></data>
+  <data name="BarSchedule"><value>Horaires</value></data>
+  <data name="BarMusicStyle"><value>Style musical</value></data>
+  <data name="BarAbout"><value>À propos</value></data>
+
+  <!-- ══════════════════════════════════════════════
+       CATÉGORIES DE LIEUX
+  ══════════════════════════════════════════════ -->
+  <data name="CatBar"><value>Bar</value></data>
+  <data name="CatCocktailBar"><value>Bar à cocktails</value></data>
+  <data name="CatNightclub"><value>Boîte de nuit</value></data>
+  <data name="CatLiveMusic"><value>Bar musique live</value></data>
+  <data name="CatGeekBar"><value>Bar geek</value></data>
+  <data name="CatRockBar"><value>Bar rock</value></data>
+  <data name="CatKaraoke"><value>Karaoké</value></data>
+  <data name="CatWineBar"><value>Bar à vins</value></data>
+  <data name="CatPub"><value>Pub</value></data>
+  <data name="CatEventVenue"><value>Salle événementielle</value></data>
+  <data name="CatLounge"><value>Lounge</value></data>
+
+  <!-- ══════════════════════════════════════════════
+       AMIS
+  ══════════════════════════════════════════════ -->
+  <data name="FriendsTitle"><value>Amis</value></data>
+  <data name="FriendsMyFriends"><value>Mes amis</value></data>
+  <data name="FriendsPending"><value>Demandes reçues</value></data>
+  <data name="FriendsSent"><value>Demandes envoyées</value></data>
+  <data name="FriendsSuggestions"><value>Suggestions</value></data>
+  <data name="FriendsSearch"><value>Rechercher un ami</value></data>
+  <data name="FriendsSearchPlaceholder"><value>Pseudo ou nom...</value></data>
+  <data name="FriendsAdd"><value>Ajouter</value></data>
+  <data name="FriendsAdded"><value>Demande envoyée ✓</value></data>
+  <data name="FriendsAccept"><value>Accepter</value></data>
+  <data name="FriendsDecline"><value>Refuser</value></data>
+  <data name="FriendsRemove"><value>Retirer de mes amis</value></data>
+  <data name="FriendsRemoveConfirm"><value>Retirer {0} de tes amis ?</value></data>
+  <data name="FriendsBlock"><value>Bloquer</value></data>
+  <data name="FriendsBlockConfirm"><value>Bloquer {0} ? Cette personne ne pourra plus te voir sur la carte.</value></data>
+  <data name="FriendsBlocked"><value>{0} a été bloqué</value></data>
+  <data name="FriendsUnblock"><value>Débloquer</value></data>
+  <data name="FriendsEmpty"><value>Tu n'as pas encore d'amis sur NightOut</value></data>
+  <data name="FriendsEmptyDesc"><value>Importe tes contacts pour retrouver des amis</value></data>
+  <data name="FriendsImportContacts"><value>Importer mes contacts</value></data>
+  <data name="FriendsImportDesc"><value>On suggère les personnes déjà inscrites. Aucun contact n'est ajouté automatiquement.</value></data>
+  <data name="FriendsNowOnline"><value>{0} est en soirée ce soir</value></data>
+  <data name="FriendsAt"><value>{0} est au {1}</value></data>
+  <data name="FriendsCount"><value>{0} ami(s)</value></data>
+  <data name="FriendsMutual"><value>{0} ami(s) en commun</value></data>
+  <data name="FriendsNoResults"><value>Aucun résultat pour "{0}"</value></data>
+
+  <!-- ══════════════════════════════════════════════
+       GROUPES
+  ══════════════════════════════════════════════ -->
+  <data name="GroupsTitle"><value>Groupes</value></data>
+  <data name="GroupsMyGroups"><value>Mes groupes</value></data>
+  <data name="GroupsCreate"><value>Créer un groupe</value></data>
+  <data name="GroupsCreateTitle"><value>Nouveau groupe</value></data>
+  <data name="GroupsName"><value>Nom du groupe</value></data>
+  <data name="GroupsNamePlaceholder"><value>Ex : Sortie du vendredi</value></data>
+  <data name="GroupsAddMembers"><value>Ajouter des membres</value></data>
+  <data name="GroupsMembers"><value>{0} membres</value></data>
+  <data name="GroupsEmpty"><value>Pas encore de groupe</value></data>
+  <data name="GroupsEmptyDesc"><value>Crée un groupe pour organiser ta prochaine soirée</value></data>
+  <data name="GroupsLeave"><value>Quitter le groupe</value></data>
+  <data name="GroupsLeaveConfirm"><value>Quitter le groupe "{0}" ?</value></data>
+  <data name="GroupsDelete"><value>Supprimer le groupe</value></data>
+  <data name="GroupsDeleteConfirm"><value>Supprimer définitivement le groupe "{0}" ?</value></data>
+  <data name="GroupsInvite"><value>Inviter dans le groupe</value></data>
+  <data name="GroupsWhereAreThey"><value>Où sont-ils ce soir ?</value></data>
+  <data name="GroupsMembersOnMap"><value>Voir les membres sur la carte</value></data>
+
+  <!-- ══════════════════════════════════════════════
+       MESSAGES
+  ══════════════════════════════════════════════ -->
+  <data name="MessagesTitle"><value>Messages</value></data>
+  <data name="MessagesEmpty"><value>Aucune conversation</value></data>
+  <data name="MessagesEmptyDesc"><value>Dis à tes amis que tu arrives !</value></data>
+  <data name="MessagesPlaceholder"><value>Écris un message...</value></data>
+  <data name="MessagesImComing"><value>J'arrive ! 🏃</value></data>
+  <data name="MessagesWhereAreYou"><value>T'es où ? 📍</value></data>
+  <data name="MessagesComeJoinUs"><value>Viens nous rejoindre !</value></data>
+  <data name="MessagesYesterday"><value>Hier</value></data>
+  <data name="MessagesJustNow"><value>À l'instant</value></data>
+  <data name="MessagesMinutesAgo"><value>Il y a {0} min</value></data>
+  <data name="MessagesHoursAgo"><value>Il y a {0}h</value></data>
+
+  <!-- ══════════════════════════════════════════════
+       PROFIL UTILISATEUR
+  ══════════════════════════════════════════════ -->
+  <data name="ProfileTitle"><value>Mon profil</value></data>
+  <data name="ProfileEdit"><value>Modifier le profil</value></data>
+  <data name="ProfileUsername"><value>Pseudo</value></data>
+  <data name="ProfileBio"><value>Bio</value></data>
+  <data name="ProfileBioPlaceholder"><value>Dis quelque chose sur toi...</value></data>
+  <data name="ProfileCity"><value>Ville</value></data>
+  <data name="ProfileFavoriteBar"><value>Bar préféré</value></data>
+  <data name="ProfileFavoriteMusic"><value>Musique préférée</value></data>
+  <data name="ProfilePhoto"><value>Photo de profil</value></data>
+  <data name="ProfileChangePhoto"><value>Changer la photo</value></data>
+  <data name="ProfileSavedBars"><value>Bars sauvegardés</value></data>
+  <data name="ProfileNightsOut"><value>Soirées</value></data>
+  <data name="ProfileFriendsCount"><value>Amis</value></data>
+  <data name="ProfilePrivate"><value>Profil privé</value></data>
+  <data name="ProfilePrivateDesc"><value>Seuls tes amis peuvent voir ton profil</value></data>
+  <data name="ProfileSettings"><value>Paramètres</value></data>
+  <data name="ProfileNotifications"><value>Notifications</value></data>
+  <data name="ProfilePrivacy"><value>Confidentialité</value></data>
+  <data name="ProfileLanguage"><value>Langue</value></data>
+  <data name="ProfileHelp"><value>Aide et support</value></data>
+  <data name="ProfileAbout"><value>À propos de NightOut</value></data>
+
+  <!-- ══════════════════════════════════════════════
+       CONFIDENTIALITÉ
+  ══════════════════════════════════════════════ -->
+  <data name="PrivacyTitle"><value>Confidentialité</value></data>
+  <data name="PrivacyVisibility"><value>Qui peut me voir sur la carte</value></data>
+  <data name="PrivacyVisibilityAll"><value>Tout le monde</value></data>
+  <data name="PrivacyVisibilityFriends"><value>Mes amis uniquement</value></data>
+  <data name="PrivacyVisibilityNobody"><value>Personne (mode secret permanent)</value></data>
+  <data name="PrivacySecretMode"><value>Mode secret</value></data>
+  <data name="PrivacySecretModeDesc"><value>Quand activé, tu es invisible sur la carte. Tu contribues quand même aux jauges de façon anonyme.</value></data>
+  <data name="PrivacyBlockedUsers"><value>Utilisateurs bloqués</value></data>
+  <data name="PrivacyBlockedEmpty"><value>Aucun utilisateur bloqué</value></data>
+  <data name="PrivacyLocation"><value>Localisation</value></data>
+  <data name="PrivacyLocationDesc"><value>Ta position est utilisée uniquement quand l'app est ouverte.</value></data>
+  <data name="PrivacyDataPolicy"><value>Politique de confidentialité</value></data>
+  <data name="PrivacyDeleteData"><value>Supprimer mes données</value></data>
+
+  <!-- ══════════════════════════════════════════════
+       NOTIFICATIONS
+  ══════════════════════════════════════════════ -->
+  <data name="NotifFriendCheckin"><value>{0} est au {1} ce soir 🎉</value></data>
+  <data name="NotifFriendRequest"><value>{0} veut t'ajouter en ami</value></data>
+  <data name="NotifFriendAccepted"><value>{0} a accepté ta demande d'ami</value></data>
+  <data name="NotifGroupActivity"><value>{0} et {1} autres sont au {2}</value></data>
+  <data name="NotifNewPromo"><value>Promo ce soir au {0} : {1}</value></data>
+  <data name="NotifNewEvent"><value>Nouvel événement au {0} ce soir !</value></data>
+  <data name="NotifMessage"><value>Nouveau message de {0}</value></data>
+  <data name="NotifBarFull"><value>{0} se remplit vite — dépêche-toi ! 🔥</value></data>
+
+  <!-- ══════════════════════════════════════════════
+       ESPACE PROFESSIONNEL — BARS / ORGANISATEURS
+  ══════════════════════════════════════════════ -->
+  <data name="ProTitle"><value>Espace Pro</value></data>
+  <data name="ProDashboard"><value>Tableau de bord</value></data>
+  <data name="ProMyBar"><value>Mon établissement</value></data>
+  <data name="ProEvents"><value>Mes événements</value></data>
+  <data name="ProCreateEvent"><value>Créer un événement</value></data>
+  <data name="ProEventName"><value>Nom de l'événement</value></data>
+  <data name="ProEventDate"><value>Date</value></data>
+  <data name="ProEventStartTime"><value>Heure de début</value></data>
+  <data name="ProEventEndTime"><value>Heure de fin</value></data>
+  <data name="ProEventDescription"><value>Description</value></data>
+  <data name="ProEventMusicStyle"><value>Style musical</value></data>
+  <data name="ProEventEntryFree"><value>Entrée gratuite</value></data>
+  <data name="ProEventEntryPaid"><value>Entrée payante</value></data>
+  <data name="ProEventEntryPrice"><value>Prix d'entrée (€)</value></data>
+  <data name="ProEventPhoto"><value>Photo de l'événement</value></data>
+  <data name="ProEventPublish"><value>Publier l'événement</value></data>
+  <data name="ProEventPublished"><value>Événement publié ✓</value></data>
+  <data name="ProEventEdit"><value>Modifier l'événement</value></data>
+  <data name="ProEventCancel"><value>Annuler l'événement</value></data>
+  <data name="ProEventCancelConfirm"><value>Annuler l'événement "{0}" ? Les participants seront notifiés.</value></data>
+  <data name="ProPromo"><value>Offre promotionnelle</value></data>
+  <data name="ProPromoCreate"><value>Créer une promo</value></data>
+  <data name="ProPromoText"><value>Texte de la promotion</value></data>
+  <data name="ProPromoPlaceholder"><value>Ex : 2 cocktails pour le prix d'1 avant 23h</value></data>
+  <data name="ProPromoEndTime"><value>Valable jusqu'à</value></data>
+  <data name="ProStats"><value>Statistiques</value></data>
+  <data name="ProStatsViews"><value>Vues ce soir</value></data>
+  <data name="ProStatsCheckins"><value>Check-ins</value></data>
+  <data name="ProStatsFrequentation"><value>Fréquentation estimée</value></data>
+  <data name="ProStatsReach"><value>Portée de l'événement</value></data>
+  <data name="ProPhotosManage"><value>Gérer les photos</value></data>
+  <data name="ProPhotoDelete"><value>Supprimer cette photo</value></data>
+  <data name="ProPhotoDeleteConfirm"><value>Supprimer cette photo de ta fiche ?</value></data>
+  <data name="ProBarName"><value>Nom de l'établissement</value></data>
+  <data name="ProBarAddress"><value>Adresse</value></data>
+  <data name="ProBarPhone"><value>Téléphone</value></data>
+  <data name="ProBarWebsite"><value>Site web</value></data>
+  <data name="ProBarCategories"><value>Catégories (max 3)</value></data>
+  <data name="ProBarSchedule"><value>Horaires d'ouverture</value></data>
+  <data name="ProBarDescription"><value>Description de l'établissement</value></data>
+  <data name="ProBarCover"><value>Photo de couverture</value></data>
+  <data name="ProBarLogo"><value>Logo</value></data>
+  <data name="ProBarSave"><value>Enregistrer les modifications</value></data>
+  <data name="ProBarSaved"><value>Établissement mis à jour ✓</value></data>
+  <data name="ProPlanFree"><value>Gratuit</value></data>
+  <data name="ProPlanPremium"><value>Premium</value></data>
+  <data name="ProUpgrade"><value>Passer au Premium</value></data>
+  <data name="ProUpgradeDesc"><value>Mets en avant ton établissement sur la carte et touche plus de clients</value></data>
+
+  <!-- ══════════════════════════════════════════════
+       VILLES
+  ══════════════════════════════════════════════ -->
+  <data name="CitySelect"><value>Choisir une ville</value></data>
+  <data name="CitySearch"><value>Rechercher une ville</value></data>
+  <data name="CitySearchPlaceholder"><value>Ex : Lille, Paris...</value></data>
+  <data name="CityNotAvailable"><value>NightOut n'est pas encore disponible dans cette ville</value></data>
+  <data name="CityNotAvailableDesc"><value>Inscris-toi sur la liste d'attente pour être notifié du lancement !</value></data>
+  <data name="CityWaitlist"><value>Rejoindre la liste d'attente</value></data>
+  <data name="CityWaitlistSuccess"><value>Tu es sur la liste ! On te prévient dès qu'on arrive chez toi 🎉</value></data>
+  <data name="CityLille"><value>Lille</value></data>
+  <data name="CityValenciennes"><value>Valenciennes</value></data>
+
+  <!-- ══════════════════════════════════════════════
+       ERREURS MÉTIER
+  ══════════════════════════════════════════════ -->
+  <data name="ErrorBarNotFound"><value>Bar introuvable</value></data>
+  <data name="ErrorEventNotFound"><value>Événement introuvable</value></data>
+  <data name="ErrorUserNotFound"><value>Utilisateur introuvable</value></data>
+  <data name="ErrorPhotoUpload"><value>Impossible d'envoyer la photo</value></data>
+  <data name="ErrorPhotoSize"><value>La photo est trop lourde (max 5 Mo)</value></data>
+  <data name="ErrorCheckinFailed"><value>Check-in impossible pour l'instant</value></data>
+  <data name="ErrorMessageFailed"><value>Message non envoyé, réessaie</value></data>
+  <data name="ErrorLocationUnavailable"><value>Position indisponible</value></data>
+  <data name="ErrorProNotVerified"><value>Ton compte pro est en cours de vérification</value></data>
+
+</root>
