@@ -3,10 +3,6 @@
   "WorkspaceRootPath": "D:\\Users\\Steen\\source\\repos\\NightOut\\NightOut\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{DE83D055-7200-461F-86BD-CAF22A87FA67}|NightOut\\NightOut.csproj|d:\\users\\steen\\source\\repos\\nightout\\nightout\\nightout\\nightout.csproj||{04B8AB82-A572-4FEF-95CE-5222444B6B64}",
-      "RelativeMoniker": "D:0:0:{DE83D055-7200-461F-86BD-CAF22A87FA67}|NightOut\\NightOut.csproj|solutionrelative:nightout\\nightout.csproj||{04B8AB82-A572-4FEF-95CE-5222444B6B64}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{DE83D055-7200-461F-86BD-CAF22A87FA67}|NightOut\\NightOut.csproj|d:\\users\\steen\\source\\repos\\nightout\\nightout\\nightout\\nightout.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
       "RelativeMoniker": "D:0:0:{DE83D055-7200-461F-86BD-CAF22A87FA67}|NightOut\\NightOut.csproj|solutionrelative:nightout\\nightout.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
     },
@@ -22,36 +18,11 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 1,
+          "SelectedChildIndex": 3,
           "Children": [
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{3ae79031-e1bc-11d0-8f78-00a0c9110057}"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "NightOut",
-              "DocumentMoniker": "D:\\Users\\Steen\\source\\repos\\NightOut\\NightOut\\NightOut\\NightOut.csproj",
-              "RelativeDocumentMoniker": "NightOut\\NightOut.csproj",
-              "ToolTip": "D:\\Users\\Steen\\source\\repos\\NightOut\\NightOut\\NightOut\\NightOut.csproj",
-              "RelativeToolTip": "NightOut\\NightOut.csproj",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
-              "WhenOpened": "2026-06-14T13:25:19.57Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "NightOut",
-              "DocumentMoniker": "D:\\Users\\Steen\\source\\repos\\NightOut\\NightOut\\NightOut\\NightOut.csproj",
-              "RelativeDocumentMoniker": "NightOut\\NightOut.csproj",
-              "ToolTip": "D:\\Users\\Steen\\source\\repos\\NightOut\\NightOut\\NightOut\\NightOut.csproj",
-              "RelativeToolTip": "NightOut\\NightOut.csproj",
-              "ViewState": "AgIAAG0AAAAASS0IBcgrwH8AAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
-              "WhenOpened": "2026-06-14T13:15:01.388Z",
-              "EditorCaption": ""
             },
             {
               "$type": "Bookmark",
@@ -63,7 +34,20 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 0,
+              "Title": "NightOut.csproj",
+              "DocumentMoniker": "D:\\Users\\Steen\\source\\repos\\NightOut\\NightOut\\NightOut\\NightOut.csproj",
+              "RelativeDocumentMoniker": "NightOut\\NightOut.csproj",
+              "ToolTip": "D:\\Users\\Steen\\source\\repos\\NightOut\\NightOut\\NightOut\\NightOut.csproj",
+              "RelativeToolTip": "NightOut\\NightOut.csproj",
+              "ViewState": "AgIAAG0AAAAASS0IBcgrwH8AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2026-06-14T13:15:01.388Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
               "Title": "OfficialEventService.cs",
               "DocumentMoniker": "D:\\Users\\Steen\\source\\repos\\NightOut\\NightOut\\NightOut\\Services\\OfficialEventService.cs",
               "RelativeDocumentMoniker": "NightOut\\Services\\OfficialEventService.cs",
@@ -71,8 +55,7 @@
               "RelativeToolTip": "NightOut\\Services\\OfficialEventService.cs",
               "ViewState": "AgIAAHsCAAAAAAAAAAAYwJ4CAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-06-13T17:50:39.471Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-06-13T17:50:39.471Z"
             }
           ]
         }

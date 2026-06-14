@@ -23,29 +23,43 @@ public partial class MapPage : ContentPage
 #if ANDROID
         MapWebView.HandlerChanged += OnWebViewHandlerChanged;
 #endif
-
-        // Important : la WebView existe aussi sur iOS.
-        // Le fichier map.html doit donc être chargé sur Android ET sur iPhone.
         MapWebView.Navigating += OnMapWebViewNavigating;
         _ = LoadMapAsync();
     }
 
-    // Intercepte les URLs custom émises par le HTML (ex: nightout://navigate?tab=profile).
-    private void OnMapWebViewNavigating(object? sender, WebNavigatingEventArgs e)
+    // Intercepte les URLs custom émises par le HTML.
+    // Android utilise AndroidBridge. iOS/fallback passe par nightout://message?payload=...
+    private async void OnMapWebViewNavigating(object? sender, WebNavigatingEventArgs e)
     {
-        if (string.IsNullOrWhiteSpace(e.Url) || !e.Url.StartsWith("nightout://", StringComparison.OrdinalIgnoreCase)) return;
+        if (string.IsNullOrWhiteSpace(e.Url) || !e.Url.StartsWith("nightout://"))
+            return;
+
         e.Cancel = true;
 
-        // Parse manuel : "nightout://navigate?tab=profile" → tab = "profile"
-        var query = e.Url.Contains('?') ? e.Url.Split('?')[1] : string.Empty;
-        var tab   = query.Split('&')
-                         .Select(p => p.Split('='))
-                         .FirstOrDefault(kv => kv.Length == 2 && kv[0] == "tab")?[1];
-
-        if (tab == "profile")
+        try
         {
-            MainThread.BeginInvokeOnMainThread(() =>
-                _ = Shell.Current.GoToAsync("//ProfilePage"));
+            var query = e.Url.Contains('?') ? e.Url.Split('?', 2)[1] : string.Empty;
+            var parameters = query
+                .Split('&', StringSplitOptions.RemoveEmptyEntries)
+                .Select(p => p.Split('=', 2))
+                .Where(kv => kv.Length == 2)
+                .ToDictionary(kv => kv[0], kv => Uri.UnescapeDataString(kv[1]));
+
+            // Message JS générique : mapReady, cityChanged, barSelected, etc.
+            if (e.Url.StartsWith("nightout://message") && parameters.TryGetValue("payload", out var payload))
+            {
+                await HandleJsMessageAsync(payload);
+                return;
+            }
+
+            if (parameters.TryGetValue("tab", out var tab) && tab == "profile")
+            {
+                await Shell.Current.GoToAsync("//ProfilePage");
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MapPage] Navigation custom URL Error : {ex}");
         }
     }
 
@@ -265,6 +279,8 @@ public partial class MapPage : ContentPage
             {
                 case "mapReady":
                     System.Diagnostics.Debug.WriteLine("[MapPage] mapReady reçu depuis JS");
+                    _mapReady = true;
+                    await _vm.OnMapReadyAsync();
                     break;
 
                 case "barSelected":

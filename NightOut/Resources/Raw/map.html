@@ -677,8 +677,21 @@ function renderCityList() {
 
 function sendToApp(action, data) {
   const payload = JSON.stringify({ action, ...data });
-  if (window.AndroidBridge) window.AndroidBridge.postMessage(payload);
-  if (window.webkit?.messageHandlers?.iOSBridge) window.webkit.messageHandlers.iOSBridge.postMessage(payload);
+
+  // Android : bridge natif injecté par MapPage.xaml.cs
+  if (window.AndroidBridge && window.AndroidBridge.postMessage) {
+    window.AndroidBridge.postMessage(payload);
+    return;
+  }
+
+  // iOS : si un bridge WKWebView est ajouté plus tard
+  if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.iOSBridge) {
+    window.webkit.messageHandlers.iOSBridge.postMessage(payload);
+    return;
+  }
+
+  // Fallback iPhone/MAUI : interception par WebView.Navigating côté C#
+  window.location.href = 'nightout://message?payload=' + encodeURIComponent(payload);
 }
 
 window.NightOutMap = {
