@@ -36,11 +36,14 @@
     cursor: pointer; font-size: 14px; -webkit-tap-highlight-color: transparent; flex-shrink: 0;
   }
   .icon-btn:active { background: rgba(255,182,39,0.25); }
+  .icon-btn.active { background: rgba(61,184,122,0.18); border-color: rgba(61,184,122,0.55); box-shadow: 0 0 14px rgba(61,184,122,0.18); }
   #avatar-btn {
-    width: 34px; height: 34px; background: linear-gradient(135deg, #FFB627, #FF6B35);
+    width: 40px; height: 40px; background: linear-gradient(135deg, #FFB627, #FF6B35);
     border-radius: 50%; display: flex; align-items: center; justify-content: center;
-    font-size: 13px; font-weight: 700; color: #0A1018; cursor: pointer; flex-shrink: 0;
+    font-size: 13px; font-weight: 800; color: #0A1018; cursor: pointer; flex-shrink: 0;
+    overflow: hidden; border: 1px solid rgba(255,255,255,0.15);
   }
+  #avatar-btn img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
   /* ── FILTRES ── */
   #filters {
@@ -120,11 +123,17 @@
     border: 1px solid rgba(255,182,39,0.18); border-radius: 5px;
     display: flex; align-items: center; justify-content: center; font-size: 11px;
   }
-  .marker-name { font-size: 11px; font-weight: 600; color: #F2E8D5; white-space: nowrap; }
+  .marker-name {
+    font-size: 11px;
+    font-weight: 800;
+    color: #F2E8D5;
+    white-space: nowrap;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.45);
+  }
   .gauge-row { display: flex; align-items: center; gap: 5px; }
   .gauge-bar { flex: 1; height: 3px; background: #1A2535; border-radius: 2px; overflow: hidden; }
   .gauge-fill { height: 100%; border-radius: 2px; transition: width 0.8s ease; }
-  .gauge-count { font-size: 10px; color: #7A8FA6; min-width: 20px; text-align: right; }
+  .gauge-count { font-size: 10px; color: #D4C7B5; min-width: 20px; text-align: right; font-weight: 700; }
   .marker-stem { width: 1px; height: 7px; background: rgba(255,182,39,0.3); margin: 0 auto; }
   .marker-dot { width: 5px; height: 5px; border-radius: 50%; background: rgba(255,182,39,0.4); margin: 0 auto; }
   .bar-marker.active .marker-dot { background: #FFB627; box-shadow: 0 0 6px rgba(255,182,39,0.6); }
@@ -147,8 +156,9 @@
     font-weight: 900;
     color: #FFB627;
     text-shadow: 0 0 12px rgba(255,182,39,0.95), 0 0 22px rgba(255,45,107,0.55);
-    opacity: 0;
-    animation: float-note 1.85s ease-in-out infinite;
+    opacity: .95;
+    will-change: transform;
+    animation: note-dance 1.25s ease-in-out infinite;
   }
   .event-note.n1 { left: 0;  bottom: 1px;  animation-delay: 0s; }
   .event-note.n2 { left: 24px; bottom: 8px;  animation-delay: .35s; }
@@ -176,7 +186,7 @@
     animation: live-halo 1.8s ease-in-out infinite;
   }
   .bar-marker.live-event .marker-name,
-  .bar-marker.live-event .gauge-count { color: #0A1018; }
+  .bar-marker.live-event .gauge-count { color: #0A1018; text-shadow: none; }
   .bar-marker.live-event .cat-icon { background: rgba(10,16,24,.16); border-color: rgba(10,16,24,.22); }
   .bar-marker.has-event .marker-dot,
   .bar-marker.has-upcoming .marker-dot {
@@ -224,6 +234,10 @@
     70%  { opacity: .98; }
     100% { transform: translateY(-33px) scale(1.22) rotate(12deg); opacity: 0; }
   }
+  @keyframes note-dance {
+    0%,100% { transform: translate3d(0,0,0) scale(1) rotate(-8deg); }
+    50% { transform: translate3d(0,-15px,0) scale(1.18) rotate(12deg); }
+  }
   @keyframes live-card-pulse {
     0%,100% { transform: translateY(0) scale(1); }
     50% { transform: translateY(-2px) scale(1.025); }
@@ -236,6 +250,7 @@
   /* ── MARQUEURS ÉVÉNEMENTS OFFICIELS ── */
   .event-marker { cursor: pointer; -webkit-tap-highlight-color: transparent; }
   .event-card {
+    position: relative;
     min-width: 142px;
     max-width: 170px;
     border-radius: 14px;
@@ -253,9 +268,30 @@
   .event-title { font-size: 11px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .event-bar { font-size: 9px; font-weight: 700; opacity: .78; white-space: nowrap; overflow:hidden; text-overflow: ellipsis; }
   .event-date { margin-top: 3px; font-size: 9px; font-weight: 700; }
+  .event-address { margin-top: 4px; font-size: 9px; font-weight: 700; opacity: .82; white-space: nowrap; overflow:hidden; text-overflow: ellipsis; }
   .event-stats { margin-top: 5px; display:flex; gap: 7px; font-size: 9px; font-weight: 800; }
   .event-stem { width: 1px; height: 7px; background: rgba(255,182,39,0.45); margin: 0 auto; }
   .event-dot { width: 6px; height: 6px; border-radius: 50%; background: #FFB627; box-shadow: 0 0 8px rgba(255,182,39,.85); margin: 0 auto; }
+  .mapboxgl-popup-content {
+    background: #0F1923;
+    color: #F2E8D5;
+    border: 1px solid rgba(255,182,39,.24);
+    border-radius: 16px;
+    box-shadow: 0 12px 34px rgba(0,0,0,.72);
+    padding: 0;
+  }
+  .mapboxgl-popup-tip { border-top-color: #0F1923 !important; border-bottom-color: #0F1923 !important; }
+  .event-popup { min-width: 210px; max-width: 260px; padding: 14px; font-family: 'Inter', system-ui, sans-serif; }
+  .event-popup-title { color:#FFB627; font-size: 15px; font-weight: 900; margin-bottom: 4px; }
+  .event-popup-place { color:#F2E8D5; font-size: 12px; font-weight: 800; margin-bottom: 4px; }
+  .event-popup-date, .event-popup-address { color:#A8B3C3; font-size: 11px; margin-top: 5px; line-height: 1.35; }
+  .event-popup-actions { display:flex; gap: 8px; margin-top: 12px; }
+  .event-popup-btn {
+    flex:1; border:0; border-radius: 999px; padding: 9px 10px;
+    text-align:center; font-size: 12px; font-weight: 900; text-decoration:none; cursor:pointer;
+  }
+  .event-popup-btn.waze { background:#33CCFF; color:#061018; }
+  .event-popup-btn.details { background:#FFB627; color:#0A1018; }
 
 
   /* ── CLUSTER (bars regroupés) ── */
@@ -284,10 +320,18 @@
     animation: pulse-user 2s ease-in-out infinite;
   }
   .friend-marker {
-    width: 30px; height: 30px; border-radius: 50%;
-    background: #1A2535; border: 2px solid rgba(255,182,39,0.4);
+    width: 42px; height: 42px; border-radius: 50%;
+    background: linear-gradient(135deg, #FFB627, #FF6B35);
+    border: 3px solid rgba(61,184,122,0.95);
+    box-shadow: 0 0 16px rgba(61,184,122,0.55), 0 8px 22px rgba(0,0,0,0.55);
     display: flex; align-items: center; justify-content: center;
-    font-size: 14px; cursor: pointer;
+    font-size: 13px; font-weight: 900; color: #0A1018; cursor: pointer;
+    overflow: hidden; -webkit-tap-highlight-color: transparent;
+  }
+  .friend-marker img { width: 100%; height: 100%; object-fit: cover; display:block; }
+  .friend-marker::after {
+    content:''; position:absolute; right:-1px; bottom:-1px; width:10px; height:10px;
+    border-radius:50%; background:#3DB87A; border:2px solid #0A1018;
   }
   @keyframes pulse-user {
     0%,100% { box-shadow: 0 0 12px rgba(255,182,39,0.5); }
@@ -302,27 +346,28 @@
   <div id="city-btn" onclick="openCityPicker()">
     <div class="city-dot"></div>
     <span id="city-name">Chargement...</span>
-    <span class="city-arrow">▾</span>
+    <span class="city-arrow">&#9662;</span>
   </div>
   <div class="spacer"></div>
-  <div class="icon-btn">🔍</div>
-  <div class="icon-btn">🔔</div>
-  <div id="avatar-btn" onclick="window.location='nightout://navigate?tab=profile'">B</div>
+  <div class="icon-btn" id="friends-map-btn" onclick="toggleFriendsOnMap()" title="Afficher mes amis">&#128101;</div>
+  <div class="icon-btn">&#128276;</div>
+  <div id="avatar-btn" onclick="window.location='spotiz://navigate?tab=profile'">?</div>
 </div>
 
 <div id="filters">
   <div class="filter-chip active" onclick="setFilter('all', this)">Tous</div>
-  <div class="filter-chip" onclick="setFilter('live_event', this)">🎉 En événement</div>
+  <div class="filter-chip" onclick="setFilter('live_event', this)">&#127881; En &eacute;v&eacute;nement</div>
+  <div class="filter-chip" onclick="setFilter('events', this)">&#127925; &Eacute;v&eacute;nements</div>
 </div>
 
 <div id="fabs">
-  <div class="fab" id="fab-secret" onclick="toggleSecretMode()">👻</div>
-  <div class="fab" onclick="centerOnUserOrCity()">📍</div>
+  <div class="fab" id="fab-secret" onclick="toggleSecretMode()">&#128123;</div>
+  <div class="fab" onclick="centerOnUserOrCity()">&#128205;</div>
 </div>
 
 <div id="live-pill">
   <div class="live-dot"></div>
-  <span id="live-count">0 personnes en soirée</span>
+  <span id="live-count">0 personnes en soiree</span>
 </div>
 
 <div id="city-picker" onclick="closeCityPickerOnBg(event)">
@@ -346,7 +391,8 @@ const map = new mapboxgl.Map({
 });
 
 let markers = {}, friendMarkers = {}, eventMarkers = {}, userMarker = null, activeMarkerId = null;
-let isSecretMode = false, cities = [], selectedCity = null;
+let isSecretMode = false, cities = [], selectedCity = null, citySelectionLocked = false;
+let currentMapStyle = 'mapbox://styles/mapbox/navigation-night-v1';
 let barsData = [], eventsData = [], clusterMarkers = [];
 let selectedFilter = 'all';
 let categoryFilters = [];
@@ -373,17 +419,17 @@ function createBarMarker(bar) {
     + (hasUpcoming ? ' has-upcoming' : '');
 
   const safeName = escapeHtml(bar.name || 'Bar');
-  const safeLiveTitle = escapeHtml(bar.liveEventTitle || 'Événement en cours');
-  const safeUpcomingLabel = escapeHtml(bar.upcomingEventLabel || 'Bientôt');
+  const safeLiveTitle = escapeHtml(bar.liveEventTitle || 'Evenement en cours');
+  const safeUpcomingLabel = escapeHtml(bar.upcomingEventLabel || 'Bientot');
 
   el.innerHTML = `
     <div class="marker-card">
-      ${hasLive ? '<div class="event-notes"><span class="event-note n1">🎵</span><span class="event-note n2">🎶</span><span class="event-note n3">🎵</span></div>' : ''}
-      ${hasLive ? '<div class="live-badge">🎉 ÉVÉNEMENT</div>' : ''}
-      ${hasUpcoming ? `<div class="upcoming-badge">🎉 ${safeUpcomingLabel}</div>` : ''}
+      ${hasLive ? '<div class="event-notes"><span class="event-note n1">\uD83C\uDFB5</span><span class="event-note n2">\uD83C\uDFB6</span><span class="event-note n3">\uD83C\uDFB5</span></div>' : ''}
+      ${hasLive ? '<div class="live-badge">\uD83C\uDF89 EVENEMENT</div>' : ''}
+      ${hasUpcoming ? `<div class="upcoming-badge">\uD83C\uDF89 ${safeUpcomingLabel}</div>` : ''}
       ${bar.hasPromo && !hasLive ? '<div class="marker-promo">Promo</div>' : ''}
       <div class="marker-head">
-        <div class="cat-icon">${bar.primaryIcon || '🍺'}</div>
+        <div class="cat-icon">${bar.primaryIcon || '\uD83C\uDF7A'}</div>
         <div class="marker-name">${safeName}</div>
       </div>
       ${hasLive ? `<div class="live-title">${safeLiveTitle}</div>` : ''}
@@ -391,14 +437,14 @@ function createBarMarker(bar) {
         <div class="gauge-bar"><div class="gauge-fill" style="width:${width}%;background:${hasLive ? '#0A1018' : color};"></div></div>
         <div class="gauge-count">${bar.totalPresent || 0}</div>
       </div>
-      ${hasLive ? `<div class="live-stats"><span>🙋 ${bar.liveGoingCount || 0}</span><span>📍 ${bar.liveCheckedInCount || 0}</span></div>` : ''}
+      ${hasLive ? `<div class="live-stats"><span>\uD83D\uDE4B ${bar.liveGoingCount || 0}</span><span>\uD83D\uDCCD ${bar.liveCheckedInCount || 0}</span></div>` : ''}
     </div>
     <div class="marker-stem"></div>
     <div class="marker-dot"></div>`;
   el.addEventListener('click', () => {
     setActiveMarker(bar.id);
     if (bar.hasLiveEvent && bar.liveEventId) {
-      sendToApp('eventSelected', { eventId: bar.liveEventId });
+      sendToApp('eventSelected', { eventId: bar.liveEventId, eventType: bar.liveEventType || 'official' });
     } else {
       sendToApp('barSelected', { barId: bar.id });
     }
@@ -427,6 +473,7 @@ function clearClusterMarkers() {
 function getFilteredBars() {
   if (!selectedFilter || selectedFilter === 'all') return barsData;
   if (selectedFilter === 'live_event') return barsData.filter(b => !!b.hasLiveEvent);
+  if (selectedFilter === 'events') return [];
 
   return barsData.filter(b => {
     const slugs = Array.isArray(b.categorySlugs) ? b.categorySlugs : [];
@@ -522,38 +569,70 @@ function createEventMarker(event) {
   if (!event.latitude || !event.longitude) return;
   const el = document.createElement('div');
   el.className = 'event-marker';
-  const safeTitle = escapeHtml(event.title || 'Événement');
-  const safeBar = escapeHtml(event.barName || 'NightOut');
+  const safeTitle = escapeHtml(event.title || 'Evenement');
+  const safeBar = escapeHtml(event.barName || 'Spotiz');
+  const safeAddress = escapeHtml(event.address || event.barName || 'Adresse a confirmer');
   const safeDate = escapeHtml(event.dateLabel || '');
   el.innerHTML = `
     <div class="event-card">
+      <div class="event-notes"><span class="event-note n1">\uD83C\uDFB5</span><span class="event-note n2">\uD83C\uDFB6</span><span class="event-note n3">\uD83C\uDFB5</span></div>
       <div class="event-top">
-        <div class="event-emoji">🎉</div>
+        <div class="event-emoji">\uD83C\uDF89</div>
         <div style="min-width:0;flex:1;">
           <div class="event-title">${safeTitle}</div>
           <div class="event-bar">${safeBar}</div>
         </div>
       </div>
       <div class="event-date">${safeDate}</div>
-      <div class="event-stats"><span>🙋 ${event.goingCount || 0}</span><span>📍 ${event.checkedInCount || 0}</span></div>
+      <div class="event-address">\uD83D\uDCCD ${safeAddress}</div>
+      <div class="event-stats"><span>\uD83D\uDE4B ${event.goingCount || 0}</span><span>\uD83D\uDCCD ${event.checkedInCount || 0}</span></div>
     </div>
     <div class="event-stem"></div>
     <div class="event-dot"></div>`;
-  el.addEventListener('click', () => sendToApp('eventSelected', { eventId: event.id }));
+  const popup = new mapboxgl.Popup({ closeButton: true, closeOnClick: true, offset: 22 })
+    .setHTML(buildEventPopup(event));
+  el.addEventListener('click', (ev) => {
+    ev.stopPropagation();
+    popup.setLngLat([event.longitude, event.latitude]).addTo(map);
+  });
   const marker = new mapboxgl.Marker({ element: el, anchor: 'bottom' })
     .setLngLat([event.longitude, event.latitude]).addTo(map);
   eventMarkers[event.id] = marker;
 }
-
 function renderEvents() {
   clearEventMarkers();
+  if (selectedFilter !== 'events') return;
   eventsData.forEach(e => createEventMarker(e));
 }
 
+function buildEventPopup(event) {
+  const title = escapeHtml(event.title || 'Evenement');
+  const place = escapeHtml(event.barName || 'Lieu');
+  const address = escapeHtml(event.address || event.barName || 'Adresse a confirmer');
+  const date = escapeHtml(event.dateLabel || '');
+  const wazeAddress = escapeAttr(event.address || event.barName || '');
+  return `
+    <div class="event-popup">
+      <div class="event-popup-title">${title}</div>
+      <div class="event-popup-place">${place}</div>
+      <div class="event-popup-date">${date}</div>
+      <div class="event-popup-address">&#128205; ${address}</div>
+      <div class="event-popup-actions">
+        <button class="event-popup-btn waze" onclick="sendToApp('openWaze', { latitude: ${Number(event.latitude)}, longitude: ${Number(event.longitude)}, address: '${wazeAddress}' })">Waze</button>
+        <button class="event-popup-btn details" onclick="sendToApp('eventSelected', { eventId: '${escapeAttr(event.id)}', eventType: '${escapeAttr(event.sourceType || 'official')}' })">D&eacute;tails</button>
+      </div>
+    </div>`;
+}
 function createFriendMarker(friend) {
+  if (!friend.latitude || !friend.longitude) return;
   const el = document.createElement('div');
   el.className = 'friend-marker';
-  el.innerHTML = friend.avatar || '👤';
+  const initials = escapeHtml(friend.initials || 'Ami');
+  if (friend.avatarUrl) {
+    el.innerHTML = `<img src="${escapeAttr(friend.avatarUrl)}" alt="${escapeAttr(friend.displayName || 'Ami')}" onerror="this.remove(); this.parentElement.textContent='${initials}'">`;
+  } else {
+    el.textContent = initials;
+  }
   el.addEventListener('click', () => sendToApp('friendSelected', { userId: friend.id }));
   const marker = new mapboxgl.Marker({ element: el, anchor: 'center' })
     .setLngLat([friend.longitude, friend.latitude]).addTo(map);
@@ -584,6 +663,12 @@ function setUserPosition(lat, lng) {
   userMarker = new mapboxgl.Marker({ element: el, anchor: 'center' }).setLngLat([lng, lat]).addTo(map);
 }
 
+function clearUserPosition() {
+  if (!userMarker) return;
+  userMarker.remove();
+  userMarker = null;
+}
+
 function centerOnCity() {
   if (!selectedCity) return;
   map.flyTo({ center: [selectedCity.longitude, selectedCity.latitude], zoom: selectedCity.zoomLevel || 13, speed: 1.2 });
@@ -603,6 +688,7 @@ function setFilter(filter, el) {
   document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
   if (el) el.classList.add('active');
   renderBars();
+  renderEvents();
   sendToApp('filterChanged', { filter: selectedFilter });
 }
 
@@ -614,7 +700,8 @@ function loadCategoryFilters(json) {
 
     const base = [
       { slug: 'all', label: 'Tous' },
-      { slug: 'live_event', label: '🎉 En événement' }
+      { slug: 'live_event', label: '\uD83C\uDF89 En evenement' },
+      { slug: 'events', label: '\uD83C\uDFB5 Evenements' }
     ];
 
     const dynamic = categoryFilters
@@ -643,6 +730,7 @@ function loadCategoryFilters(json) {
 function toggleSecretMode() {
   isSecretMode = !isSecretMode;
   document.getElementById('fab-secret').classList.toggle('secret-active', isSecretMode);
+  if (isSecretMode) clearUserPosition();
   sendToApp('toggleSecretMode', { active: isSecretMode });
 }
 
@@ -656,6 +744,7 @@ function closeCityPickerOnBg(e) {
   if (e.target === document.getElementById('city-picker')) closeCityPicker();
 }
 function selectCity(city) {
+  citySelectionLocked = true;
   selectedCity = city;
   document.getElementById('city-name').textContent = city.name;
   renderCityList();
@@ -663,6 +752,45 @@ function selectCity(city) {
   map.flyTo({ center: [city.longitude, city.latitude], zoom: city.zoomLevel || 13, speed: 1.4 });
   sendToApp('cityChanged', { cityId: city.id, cityName: city.name });
 }
+
+function setSelectedCityById(cityId, shouldCenter) {
+  const city = cities.find(c => String(c.id) === String(cityId));
+  if (!city) return;
+
+  selectedCity = city;
+  document.getElementById('city-name').textContent = city.name;
+  renderCityList();
+
+  if (shouldCenter) {
+    map.flyTo({ center: [city.longitude, city.latitude], zoom: city.zoomLevel || 13, speed: 1.4 });
+  }
+}
+
+function selectNearestCityToPosition(lat, lng) {
+  if (citySelectionLocked) return;
+  if (!Array.isArray(cities) || cities.length === 0) return;
+
+  const nearest = cities
+    .filter(c => Number.isFinite(Number(c.latitude)) && Number.isFinite(Number(c.longitude)))
+    .map(c => ({ city: c, distance: distanceMeters(lat, lng, Number(c.latitude), Number(c.longitude)) }))
+    .sort((a, b) => a.distance - b.distance)[0]?.city;
+
+  if (!nearest || (selectedCity && selectedCity.id === nearest.id)) return;
+  setSelectedCityById(nearest.id, false);
+  sendToApp('nearestCityDetected', { cityId: nearest.id, cityName: nearest.name });
+}
+
+function distanceMeters(lat1, lng1, lat2, lng2) {
+  const earthRadius = 6371000;
+  const toRad = value => value * Math.PI / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLng = toRad(lng2 - lng1);
+  const a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
+    + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2))
+    * Math.sin(dLng / 2) * Math.sin(dLng / 2);
+  return earthRadius * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
 function renderCityList() {
   const list = document.getElementById('city-list');
   list.innerHTML = cities.map(c => {
@@ -670,9 +798,32 @@ function renderCityList() {
     return `<div class="city-option ${sel ? 'selected' : ''}" onclick='selectCity(${JSON.stringify(c)})'>
       <div class="city-opt-dot"></div>
       <span class="city-opt-name">${c.name}</span>
-      ${sel ? '<span class="city-opt-check">✓</span>' : ''}
+      ${sel ? '<span class="city-opt-check">&#10003;</span>' : ''}
     </div>`;
   }).join('');
+}
+
+function toggleFriendsOnMap() {
+  sendToApp('toggleFriendsOnMap', {});
+}
+
+function setFriendsButtonActive(active) {
+  const btn = document.getElementById('friends-map-btn');
+  if (btn) btn.classList.toggle('active', !!active);
+}
+
+function setCurrentUser(json) {
+  try {
+    const user = JSON.parse(json || '{}');
+    const btn = document.getElementById('avatar-btn');
+    if (!btn) return;
+    const initials = escapeHtml(user.initials || '?');
+    if (user.avatarUrl) {
+      btn.innerHTML = `<img src="${escapeAttr(user.avatarUrl)}" alt="profil" onerror="this.remove(); this.parentElement.textContent='${initials}'">`;
+    } else {
+      btn.textContent = initials;
+    }
+  } catch(e) { console.log('setCurrentUser error', e); }
 }
 
 function sendToApp(action, data) {
@@ -691,10 +842,159 @@ function sendToApp(action, data) {
   }
 
   // Fallback iPhone/MAUI : interception par WebView.Navigating côté C#
-  window.location.href = 'nightout://message?payload=' + encodeURIComponent(payload);
+  window.location.href = 'spotiz://message?payload=' + encodeURIComponent(payload);
 }
 
 window.NightOutMap = {
+  applyTheme: function(json) {
+    const theme = JSON.parse(json || '{}');
+    const isDark = String(theme.mapboxStyle || '').includes('night')
+      || String(theme.bgDeep || '').toLowerCase().startsWith('#0');
+    const markerCss = isDark ? `
+      .bar-marker:not(.live-event) .marker-card {
+        background: #0F1923 !important;
+        border-color: rgba(255,182,39,0.22) !important;
+        box-shadow: 0 6px 24px rgba(0,0,0,0.6) !important;
+      }
+      .bar-marker:not(.live-event) .marker-name {
+        color: #F2E8D5 !important;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.45);
+      }
+      .bar-marker:not(.live-event) .gauge-count { color: #D4C7B5 !important; }
+      .bar-marker:not(.live-event) .cat-icon {
+        background: rgba(255,182,39,0.1) !important;
+        border-color: rgba(255,182,39,0.18) !important;
+      }
+    ` : `
+      .bar-marker:not(.live-event) .marker-card {
+        background: linear-gradient(145deg, #C2754C, #A35C36) !important;
+        border-color: rgba(255,255,255,0.34) !important;
+        box-shadow: 0 10px 30px rgba(97,49,27,0.32), 0 2px 10px rgba(97,49,27,0.18) !important;
+      }
+      .bar-marker:not(.live-event).active .marker-card {
+        border-color: rgba(255,255,255,0.7) !important;
+        box-shadow: 0 12px 34px rgba(97,49,27,0.38), 0 0 0 3px rgba(194,117,76,0.18) !important;
+      }
+      .bar-marker:not(.live-event) .marker-name {
+        color: #FFF7EF !important;
+        text-shadow: 0 1px 2px rgba(61,40,23,0.45);
+      }
+      .bar-marker:not(.live-event) .gauge-count {
+        color: #FFF1E7 !important;
+        text-shadow: 0 1px 2px rgba(61,40,23,0.34);
+      }
+      .bar-marker:not(.live-event) .cat-icon {
+        background: rgba(255,247,239,0.18) !important;
+        border-color: rgba(255,247,239,0.3) !important;
+      }
+      .bar-marker:not(.live-event) .gauge-bar { background: rgba(255,247,239,0.34) !important; }
+      .bar-marker:not(.live-event) .marker-stem { background: rgba(194,117,76,0.54) !important; }
+      .bar-marker:not(.live-event) .marker-dot { background: #C2754C !important; box-shadow: 0 0 8px rgba(194,117,76,0.42) !important; }
+    `;
+    const cityPickerCss = isDark ? `
+      #city-picker { background: rgba(0,0,0,0.6) !important; }
+      #city-sheet {
+        background: #131F2B !important;
+        border-top-color: rgba(255,182,39,0.2) !important;
+        box-shadow: 0 -18px 52px rgba(0,0,0,0.48) !important;
+      }
+      .sheet-handle { background: rgba(255,182,39,0.25) !important; }
+      .sheet-title { color: #D4C7B5 !important; }
+      .city-option:active,
+      .city-option.selected { background: rgba(255,182,39,0.08) !important; }
+      .city-opt-name { color: #F2E8D5 !important; }
+      .city-option.selected .city-opt-name,
+      .city-opt-check { color: #FFB627 !important; }
+    ` : `
+      #city-picker { background: rgba(61,40,23,0.34) !important; }
+      #city-sheet {
+        background: #FAF6EF !important;
+        border-top-color: rgba(194,117,76,0.22) !important;
+        box-shadow: 0 -18px 52px rgba(61,40,23,0.16) !important;
+      }
+      .sheet-handle { background: rgba(194,117,76,0.38) !important; }
+      .sheet-title { color: #3D2817 !important; }
+      .city-option:active,
+      .city-option.selected { background: rgba(194,117,76,0.11) !important; }
+      .city-opt-name { color: #3D2817 !important; }
+      .city-option.selected .city-opt-name,
+      .city-opt-check { color: #C2754C !important; }
+    `;
+    const mapOverlayCss = isDark ? `
+      #live-pill {
+        background: rgba(10,16,24,0.86) !important;
+        border-color: rgba(255,182,39,0.22) !important;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.38) !important;
+      }
+      #live-count { color: #D4C7B5 !important; font-weight: 700; }
+      .live-dot { background: #3DB87A !important; box-shadow: 0 0 8px rgba(61,184,122,0.45); }
+      .cluster-bubble {
+        background: #0F1923 !important;
+        border-color: rgba(255,182,39,0.3) !important;
+        box-shadow: 0 6px 24px rgba(0,0,0,0.6) !important;
+      }
+      .cluster-count { color: #FFB627 !important; }
+      .cluster-label { color: #D4C7B5 !important; }
+      .cluster-people {
+        background: #0F1923 !important;
+        border-color: rgba(255,182,39,0.18) !important;
+        color: #F2E8D5 !important;
+        box-shadow: 0 6px 18px rgba(0,0,0,0.28) !important;
+      }
+    ` : `
+      #live-pill {
+        background: #FAF6EF !important;
+        border-color: rgba(194,117,76,0.28) !important;
+        box-shadow: 0 10px 28px rgba(61,40,23,0.16) !important;
+      }
+      #live-count { color: #3D2817 !important; font-weight: 800; }
+      .live-dot { background: #3DB87A !important; box-shadow: 0 0 8px rgba(61,184,122,0.42); }
+      .cluster-bubble {
+        background: linear-gradient(145deg, #C2754C, #A35C36) !important;
+        border-color: rgba(255,255,255,0.45) !important;
+        box-shadow: 0 10px 30px rgba(97,49,27,0.30), 0 2px 10px rgba(97,49,27,0.16) !important;
+      }
+      .cluster-ring { border-color: rgba(255,247,239,0.78) !important; opacity: 0.62 !important; }
+      .cluster-count { color: #FFF7EF !important; text-shadow: 0 1px 2px rgba(61,40,23,0.38); }
+      .cluster-label { color: #FFE7D8 !important; font-weight: 900; }
+      .cluster-people {
+        background: #FAF6EF !important;
+        border-color: rgba(194,117,76,0.28) !important;
+        color: #3D2817 !important;
+        box-shadow: 0 8px 22px rgba(61,40,23,0.14) !important;
+      }
+      .cluster-marker .marker-stem { background: rgba(194,117,76,0.54) !important; }
+      .cluster-marker .marker-dot { background: #C2754C !important; box-shadow: 0 0 8px rgba(194,117,76,0.42) !important; }
+    `;
+    const css = `
+      body { background: ${theme.bgDeep}; }
+      #logo, #city-name, .city-option.selected .city-opt-name, .event-popup-title, .cluster-count { color: ${theme.accent} !important; }
+      .city-arrow, .sheet-title, .event-popup-date, .event-popup-address { color: ${theme.textSecondary} !important; }
+      .filter-chip { background: ${theme.bgCard}; color: ${theme.textSecondary}; }
+      .filter-chip.active { background: ${theme.accent}; color: ${theme.bgDeep}; }
+      .icon-btn, .fab, .fab-bottom, #city-selector, #live-indicator, .marker-bubble, .mapboxgl-popup-content { background: ${theme.bgCard} !important; color: ${theme.textPrimary} !important; border-color: ${theme.border} !important; }
+      .bottom-sheet { background: ${theme.bgPanel} !important; }
+      .city-opt-name, .event-popup-place { color: ${theme.textPrimary} !important; }
+      .city-opt-check { margin-left: auto; font-size: 16px; font-weight: 900; }
+      ${cityPickerCss}
+      ${markerCss}
+      ${mapOverlayCss}
+      .gauge-bar { background: ${theme.bgElevated}; }
+      .bar-marker.active .marker-dot, .event-dot { background: ${theme.accent}; box-shadow: 0 0 8px ${theme.accent}; }
+      .mapboxgl-popup-tip { border-top-color: ${theme.bgCard} !important; border-bottom-color: ${theme.bgCard} !important; }
+    `;
+    let tag = document.getElementById('spotiz-theme-style');
+    if (!tag) {
+      tag = document.createElement('style');
+      tag.id = 'spotiz-theme-style';
+      document.head.appendChild(tag);
+    }
+    tag.textContent = css;
+    if (theme.mapboxStyle && map && currentMapStyle !== theme.mapboxStyle) {
+      currentMapStyle = theme.mapboxStyle;
+      map.setStyle(theme.mapboxStyle);
+    }
+  },
   loadBars: function(json) {
     barsData = JSON.parse(json);
     activeMarkerId = null;
@@ -706,13 +1006,32 @@ window.NightOutMap = {
   },
   loadFriends: function(json) {
     clearFriendMarkers();
-    JSON.parse(json).forEach(f => createFriendMarker(f));
+    JSON.parse(json || '[]').forEach(f => createFriendMarker(f));
+  },
+  setCurrentUser: function(json) {
+    setCurrentUser(json);
+  },
+  setFriendsButtonActive: function(active) {
+    setFriendsButtonActive(!!active);
   },
   updateGauge: function(barId, count) {
     updateBarGauge(barId, parseInt(count));
   },
   updateUserPosition: function(lat, lng) {
-    setUserPosition(parseFloat(lat), parseFloat(lng));
+    if (isSecretMode) return;
+    const parsedLat = parseFloat(lat);
+    const parsedLng = parseFloat(lng);
+    setUserPosition(parsedLat, parsedLng);
+    selectNearestCityToPosition(parsedLat, parsedLng);
+  },
+  clearUserPosition: function() {
+    clearUserPosition();
+  },
+  setSecretMode: function(active) {
+    isSecretMode = active === true || active === 'true';
+    const btn = document.getElementById('fab-secret');
+    if (btn) btn.classList.toggle('secret-active', isSecretMode);
+    if (isSecretMode) clearUserPosition();
   },
   centerOn: function(lat, lng, zoom) {
     map.flyTo({ center: [parseFloat(lng), parseFloat(lat)], zoom: parseFloat(zoom)||13, speed: 1.2 });
@@ -730,8 +1049,11 @@ window.NightOutMap = {
       // Le ViewModel décide une seule fois : GPS utilisateur -> ville sélectionnée -> ville par défaut.
     }
   },
+  setSelectedCity: function(cityId, shouldCenter) {
+    setSelectedCityById(cityId, shouldCenter === true || shouldCenter === 'true');
+  },
   updateLiveCount: function(count) {
-    document.getElementById('live-count').textContent = parseInt(count) + ' personnes en événement';
+    document.getElementById('live-count').textContent = parseInt(count) + ' personnes en evenement';
   }
 };
 

@@ -1,5 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
+using NightOut.Services;
 using NightOut.ViewModels;
+using System.Globalization;
 using System.Text.Json;
 
 namespace NightOut.Views.Map;
@@ -7,13 +9,15 @@ namespace NightOut.Views.Map;
 public partial class MapPage : ContentPage
 {
     private readonly MapViewModel _vm;
+    private readonly IThemeService _themeService;
     private bool _mapReady;
 
-    public MapPage(MapViewModel viewModel)
+    public MapPage(MapViewModel viewModel, IThemeService themeService)
     {
         InitializeComponent();
 
         _vm = viewModel;
+        _themeService = themeService;
         BindingContext = _vm;
 
         _vm.InvokeMapScript = InvokeMapScript;
@@ -24,14 +28,15 @@ public partial class MapPage : ContentPage
         MapWebView.HandlerChanged += OnWebViewHandlerChanged;
 #endif
         MapWebView.Navigating += OnMapWebViewNavigating;
+        _themeService.ThemeChanged += OnThemeChanged;
         _ = LoadMapAsync();
     }
 
     // Intercepte les URLs custom émises par le HTML.
-    // Android utilise AndroidBridge. iOS/fallback passe par nightout://message?payload=...
+    // Android utilise AndroidBridge. iOS/fallback passe par spotiz://message?payload=...
     private async void OnMapWebViewNavigating(object? sender, WebNavigatingEventArgs e)
     {
-        if (string.IsNullOrWhiteSpace(e.Url) || !e.Url.StartsWith("nightout://"))
+        if (string.IsNullOrWhiteSpace(e.Url) || !e.Url.StartsWith("spotiz://"))
             return;
 
         e.Cancel = true;
@@ -46,7 +51,7 @@ public partial class MapPage : ContentPage
                 .ToDictionary(kv => kv[0], kv => Uri.UnescapeDataString(kv[1]));
 
             // Message JS générique : mapReady, cityChanged, barSelected, etc.
-            if (e.Url.StartsWith("nightout://message") && parameters.TryGetValue("payload", out var payload))
+            if (e.Url.StartsWith("spotiz://message") && parameters.TryGetValue("payload", out var payload))
             {
                 await HandleJsMessageAsync(payload);
                 return;
@@ -151,6 +156,7 @@ public partial class MapPage : ContentPage
                 console.log('loadCities exists:', !!window.NightOutMap?.loadCities);
             ");
 
+            await ApplyMapThemeAsync();
             await _vm.OnMapReadyAsync();
         }
         catch (Exception ex)
@@ -159,8 +165,61 @@ public partial class MapPage : ContentPage
         }
     }
 
-    private async void OnModerationClicked(object sender, EventArgs e)
-        => await Shell.Current.GoToAsync("ModerationPage");
+    private void OnThemeChanged(object? sender, AppThemeMode e)
+    {
+        if (!_mapReady)
+            return;
+
+        MainThread.BeginInvokeOnMainThread(async () => await ApplyMapThemeAsync());
+    }
+
+    private async Task ApplyMapThemeAsync()
+    {
+        if (!_mapReady)
+            return;
+
+        try
+        {
+            var payload = BuildMapThemePayload();
+            await MapWebView.EvaluateJavaScriptAsync($"NightOutMap.applyTheme('{EscapeJs(payload)}');");
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MapPage] ApplyMapThemeAsync Error : {ex.Message}");
+        }
+    }
+
+    private string BuildMapThemePayload()
+    {
+        var resources = Application.Current?.Resources;
+
+        string GetHex(string key, string fallback)
+        {
+            if (resources != null &&
+                resources.TryGetValue(key, out var value) &&
+                value is Color color)
+                return color.ToHex();
+
+            return fallback;
+        }
+
+        var payload = new
+        {
+            bgDeep = GetHex("BgDeep", "#F4EFE6"),
+            bgCard = GetHex("BgCard", "#FAF6EF"),
+            bgPanel = GetHex("BgPanel", "#F4EFE6"),
+            bgElevated = GetHex("BgElevated", "#FAF6EF"),
+            accent = GetHex("Accent", "#C2754C"),
+            textPrimary = GetHex("TextPrimary", "#3D2817"),
+            textSecondary = GetHex("TextSecondary", "#8A6F4A"),
+            border = GetHex("Border", "#E5DCC9"),
+            mapboxStyle = _themeService.IsDarkMode
+                ? "mapbox://styles/mapbox/navigation-night-v1"
+                : "mapbox://styles/mapbox/light-v11"
+        };
+
+        return System.Text.Json.JsonSerializer.Serialize(payload);
+    }
 
     private async void OnAddBarClicked(object sender, EventArgs e)
     {
@@ -216,6 +275,12 @@ public partial class MapPage : ContentPage
                     "loadFriends" =>
                         $"NightOutMap.loadFriends('{EscapeJs(args)}');",
 
+                    "setCurrentUser" =>
+                        $"NightOutMap.setCurrentUser('{EscapeJs(args)}');",
+
+                    "setFriendsButtonActive" =>
+                        $"NightOutMap.setFriendsButtonActive({args.ToLowerInvariant()});",
+
                     "loadCities" =>
                         $"NightOutMap.loadCities('{EscapeJs(args)}');",
 
@@ -233,6 +298,9 @@ public partial class MapPage : ContentPage
 
                     "selectBar" =>
                         $"NightOutMap.selectBar('{EscapeJs(args)}');",
+
+                    "setSelectedCity" =>
+                        $"NightOutMap.setSelectedCity('{EscapeJs(args)}', false);",
 
                     "updateLiveCount" =>
                         $"NightOutMap.updateLiveCount({args});",
@@ -292,7 +360,16 @@ public partial class MapPage : ContentPage
                 case "eventSelected":
                     var eventId = doc.RootElement.GetProperty("eventId").GetString();
                     if (!string.IsNullOrWhiteSpace(eventId))
-                        await Shell.Current.GoToAsync($"OfficialEventDetailPage?eventId={Uri.EscapeDataString(eventId)}");
+                    {
+                        var eventType = doc.RootElement.TryGetProperty("eventType", out var eventTypeElement)
+                            ? eventTypeElement.GetString()
+                            : "official";
+
+                        if (string.Equals(eventType, "ephemeral", StringComparison.OrdinalIgnoreCase))
+                            await Shell.Current.GoToAsync("EphemeralEventsPage");
+                        else
+                            await Shell.Current.GoToAsync($"OfficialEventDetailPage?eventId={Uri.EscapeDataString(eventId)}");
+                    }
                     break;
 
                 case "cityChanged":
@@ -301,9 +378,29 @@ public partial class MapPage : ContentPage
                         await _vm.ChangeCityFromHtmlAsync(cityId);
                     break;
 
+                case "nearestCityDetected":
+                    var nearestCityId = doc.RootElement.GetProperty("cityId").GetString();
+                    if (!string.IsNullOrEmpty(nearestCityId))
+                        await _vm.ChangeCityFromMapAutoAsync(nearestCityId);
+                    break;
+
                 case "toggleSecretMode":
                     var active = doc.RootElement.GetProperty("active").GetBoolean();
                     await _vm.SetSecretModeAsync(active);
+                    break;
+
+                case "toggleFriendsOnMap":
+                    await _vm.ToggleFriendsOnMapAsync();
+                    break;
+
+                case "friendSelected":
+                    var friendId = doc.RootElement.GetProperty("userId").GetString();
+                    if (!string.IsNullOrWhiteSpace(friendId))
+                        await _vm.OnFriendSelectedAsync(friendId);
+                    break;
+
+                case "openWaze":
+                    await OpenWazeAsync(doc.RootElement);
                     break;
 
                 case "filterChanged":
@@ -326,6 +423,38 @@ public partial class MapPage : ContentPage
             .Replace("'", "\\'")
             .Replace("\n", "\\n")
             .Replace("\r", "");
+    }
+
+    private async Task OpenWazeAsync(JsonElement message)
+    {
+        try
+        {
+            double latitude = 0;
+            double longitude = 0;
+            var hasLatitude = message.TryGetProperty("latitude", out var latitudeElement)
+                && latitudeElement.TryGetDouble(out latitude);
+            var hasLongitude = message.TryGetProperty("longitude", out var longitudeElement)
+                && longitudeElement.TryGetDouble(out longitude);
+            var address = message.TryGetProperty("address", out var addressElement)
+                ? addressElement.GetString()
+                : null;
+
+            var uriText = hasLatitude && hasLongitude
+                ? $"waze://?ll={latitude.ToString(CultureInfo.InvariantCulture)},{longitude.ToString(CultureInfo.InvariantCulture)}&navigate=yes"
+                : !string.IsNullOrWhiteSpace(address)
+                    ? $"waze://?q={Uri.EscapeDataString(address)}&navigate=yes"
+                    : null;
+
+            if (string.IsNullOrWhiteSpace(uriText))
+                return;
+
+            await Launcher.OpenAsync(new Uri(uriText));
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MapPage] OpenWazeAsync erreur : {ex}");
+            await DisplayAlert("Waze", "Waze n'est pas disponible sur cet appareil.", "OK");
+        }
     }
 
     private static string BuildUpdateGaugeJs(string args)

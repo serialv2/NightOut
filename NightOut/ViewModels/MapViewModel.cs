@@ -18,7 +18,9 @@ public partial class MapViewModel(
     IFriendService friendService,
     IMediaService mediaService,
     ICityService cityService,
-    IOfficialEventService officialEventService) : BaseViewModel
+    IOfficialEventService officialEventService,
+    IEphemeralEventService ephemeralEventService,
+    IUserStatusService userStatusService) : BaseViewModel
 {
     [ObservableProperty]
     private Bar? _selectedBar;
@@ -38,6 +40,11 @@ public partial class MapViewModel(
     private bool _hasLoadedMapData;
     private bool _hasAppliedInitialMapCenter;
     private bool _userHasManuallySelectedCity;
+    private bool _hasRealtimeSubscriptions;
+    private bool _friendMapRefreshQueued;
+    private bool _showFriendsOnMap;
+    private DateTime _lastMapLocationSavedUtc = DateTime.MinValue;
+    private Profile? _currentProfileForMap;
 
     private const double StartupGpsZoom = 15;
     private const double FallbackCityZoom = 13;
@@ -63,6 +70,64 @@ public partial class MapViewModel(
     private DateTime? _outsideSinceUtc;
     private bool      _isEvaluatingPresence;
 
+
+    // ───────────────────────────  FICHE RAPIDE BAR (bottom sheet carte)  ───────────────────────────
+    public string SelectedBarName => SelectedBar?.Name ?? string.Empty;
+    public string SelectedBarCategoryText => SelectedBar?.PrimaryCategory?.Name ?? "Bar";
+    public string SelectedBarAddressText => string.IsNullOrWhiteSpace(SelectedBar?.Address)
+        ? "Adresse non renseignée"
+        : SelectedBar!.Address;
+
+    public string SelectedBarPhoneText => string.IsNullOrWhiteSpace(SelectedBar?.Phone)
+        ? "Téléphone non renseigné"
+        : SelectedBar!.Phone;
+
+    public string SelectedBarInstagramText => string.IsNullOrWhiteSpace(SelectedBar?.Instagram)
+        ? "Instagram non renseigné"
+        : SelectedBar!.Instagram!;
+
+    public string SelectedBarWebsiteText => string.IsNullOrWhiteSpace(SelectedBar?.Website)
+        ? "Site web non renseigné"
+        : SelectedBar!.Website!;
+
+    public string SelectedBarDescriptionText => string.IsNullOrWhiteSpace(SelectedBar?.Description)
+        ? "Aucune description pour le moment."
+        : SelectedBar!.Description!;
+
+    public string SelectedBarOpenText => "Ouvert";
+    public string SelectedBarPresenceText => SelectedBar == null
+        ? "0 présent"
+        : SelectedBar.TotalPresent <= 1 ? $"{SelectedBar.TotalPresent} présent" : $"{SelectedBar.TotalPresent} présents";
+
+    public string SelectedBarAmbianceText => SelectedBar?.TotalPresent switch
+    {
+        null => "Ambiance",
+        0 => "Calme",
+        < 10 => "Ça démarre",
+        < 40 => "Ambiance sympa",
+        < 100 => "Ambiance chaude",
+        _ => "Très chaud"
+    };
+
+    public double SelectedBarGaugeRatio => SelectedBar == null
+        ? 0
+        : Math.Clamp(SelectedBar.TotalPresent / 120.0, 0, 1);
+
+    private void NotifySelectedBarInfoChanged()
+    {
+        OnPropertyChanged(nameof(SelectedBarName));
+        OnPropertyChanged(nameof(SelectedBarCategoryText));
+        OnPropertyChanged(nameof(SelectedBarAddressText));
+        OnPropertyChanged(nameof(SelectedBarPhoneText));
+        OnPropertyChanged(nameof(SelectedBarInstagramText));
+        OnPropertyChanged(nameof(SelectedBarWebsiteText));
+        OnPropertyChanged(nameof(SelectedBarDescriptionText));
+        OnPropertyChanged(nameof(SelectedBarOpenText));
+        OnPropertyChanged(nameof(SelectedBarPresenceText));
+        OnPropertyChanged(nameof(SelectedBarAmbianceText));
+        OnPropertyChanged(nameof(SelectedBarGaugeRatio));
+    }
+
     public ObservableCollection<Bar>     NearbyBars  { get; } = [];
     public ObservableCollection<OfficialEvent> MapEvents { get; } = [];
     public ObservableCollection<Category> MapCategories { get; } = [];
@@ -71,7 +136,11 @@ public partial class MapViewModel(
     public ObservableCollection<BarPhoto> BarMedia    { get; } = [];
 
     // CanPostMedia est recalculé dès que le bar affiché OU le check-in actif change.
-    partial void OnSelectedBarChanged(Bar? value)       => RecomputeCanPostMedia();
+    partial void OnSelectedBarChanged(Bar? value)
+    {
+        RecomputeCanPostMedia();
+        NotifySelectedBarInfoChanged();
+    }
     partial void OnActiveCheckinChanged(Checkin? value) => RecomputeCanPostMedia();
 
     private void RecomputeCanPostMedia()
@@ -85,6 +154,23 @@ public partial class MapViewModel(
     }
 
     public Action<string, string>? InvokeMapScript { get; set; }
+
+    private sealed class MapFestiveEvent
+    {
+        public string Id { get; init; } = string.Empty;
+        public string SourceType { get; init; } = "official";
+        public string Title { get; init; } = string.Empty;
+        public string? BarId { get; init; }
+        public string? BarName { get; init; }
+        public string? Address { get; init; }
+        public double? Latitude { get; init; }
+        public double? Longitude { get; init; }
+        public string? FlyerUrl { get; init; }
+        public DateTime StartAt { get; init; }
+        public DateTime EndAt { get; init; }
+        public int GoingCount { get; init; }
+        public int CheckedInCount { get; init; }
+    }
 
     // La page peut fournir sa propre confirmation (DisplayAlert custom, popup Toolkit…).
     // Si elle ne le fait pas, on utilise un DisplayAlert sur la fenêtre courante.
@@ -103,6 +189,7 @@ public partial class MapViewModel(
     {
         locationService.StopTracking();
         await realtimeService.UnsubscribeAllAsync();
+        _hasRealtimeSubscriptions = false;
     }
 
     public async Task OnMapReadyAsync()
@@ -118,16 +205,17 @@ public partial class MapViewModel(
                 await LoadCitiesAsync();
                 await LoadMapCategoriesAsync();
                 await LoadFriendsOnMapAsync();
-                await SubscribeToRealtimeAsync();
             }
 
             // 2) (Re)pousser systématiquement vers la carte JS : la WebView peut avoir
             //    été recréée alors que le ViewModel (singleton) garde déjà les données.
             await SendCitiesToMapAsync();
             await SendCategoryFiltersToMapAsync();
+            await SendCurrentUserToMapAsync();
 
             await ApplyInitialMapCenterAsync();
             await LoadBarsForCurrentCityAsync();
+            await SubscribeToRealtimeAsync();
         }
         catch (Exception ex)
         {
@@ -176,6 +264,7 @@ public partial class MapViewModel(
 
             System.Diagnostics.Debug.WriteLine($"[MapVM] JSON villes envoyé : {citiesJson}");
             InvokeMapScript?.Invoke("loadCities", citiesJson);
+            SyncSelectedCityToMap();
         }
         catch (Exception ex)
         {
@@ -326,6 +415,15 @@ public partial class MapViewModel(
 
         _selectedCity = nearest;
         SelectedCityName = nearest.Name;
+        SyncSelectedCityToMap();
+    }
+
+    private void SyncSelectedCityToMap()
+    {
+        if (_selectedCity == null)
+            return;
+
+        InvokeMapScript?.Invoke("setSelectedCity", _selectedCity.Id);
     }
 
     private static bool IsValidGpsLocation(double lat, double lng)
@@ -346,6 +444,7 @@ public partial class MapViewModel(
             _selectedCity    = city;
             SelectedCityName = city.Name;
             _userHasManuallySelectedCity = true;
+            SyncSelectedCityToMap();
 
             // Choix manuel : le GPS lent ne doit plus réécraser la ville choisie ensuite.
             _hasAppliedInitialMapCenter = true;
@@ -355,6 +454,32 @@ public partial class MapViewModel(
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[MapVM] ChangeCityFromHtmlAsync erreur : {ex}");
+        }
+    }
+
+    public async Task ChangeCityFromMapAutoAsync(string cityId)
+    {
+        try
+        {
+            if (_userHasManuallySelectedCity)
+                return;
+
+            var city = Cities.FirstOrDefault(c => c.Id == cityId);
+            if (city == null)
+                return;
+
+            if (_selectedCity?.Id == city.Id)
+                return;
+
+            _selectedCity = city;
+            SelectedCityName = city.Name;
+            SyncSelectedCityToMap();
+
+            await LoadBarsForCurrentCityAsync();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MapVM] ChangeCityFromMapAutoAsync erreur : {ex}");
         }
     }
 
@@ -373,12 +498,18 @@ public partial class MapViewModel(
         try
         {
             var barsTask = barService.GetBarsByCityAsync(cityId);
-            var eventsTask = officialEventService.GetPublicOfficialEventsAsync(cityId);
+            var officialEventsTask = officialEventService.GetPublicOfficialEventsAsync(cityId);
+            var ephemeralEventsTask = ephemeralEventService.GetPublicEphemeralEventsAsync(cityId);
 
-            await Task.WhenAll(barsTask, eventsTask);
+            await Task.WhenAll(barsTask, officialEventsTask, ephemeralEventsTask);
 
             var bars = barsTask.Result ?? [];
-            var events = eventsTask.Result ?? [];
+            var officialEvents = officialEventsTask.Result ?? [];
+            var ephemeralEvents = ephemeralEventsTask.Result ?? [];
+            var activeCheckinCounts = await barService.GetActiveCheckinCountsByBarAsync(bars.Select(b => b.Id));
+
+            foreach (var bar in bars)
+                bar.TotalPresent = activeCheckinCounts.TryGetValue(bar.Id, out var count) ? count : 0;
 
             var now = DateTime.UtcNow;
 
@@ -393,20 +524,20 @@ public partial class MapViewModel(
                 return DateTime.SpecifyKind(value, DateTimeKind.Utc);
             }
 
-            bool IsLiveEvent(OfficialEvent e)
+            bool IsLiveEvent(MapFestiveEvent item)
             {
-                var start = AsUtc(e.StartAt);
-                var end = e.EndAt.HasValue ? AsUtc(e.EndAt.Value) : start.AddHours(8);
+                var start = AsUtc(item.StartAt);
+                var end = AsUtc(item.EndAt);
                 return start <= now && end >= now;
             }
 
-            string GetUpcomingLabel(OfficialEvent e)
+            string GetUpcomingLabel(MapFestiveEvent item)
             {
-                var start = AsUtc(e.StartAt);
+                var start = AsUtc(item.StartAt);
                 var diff = start - now;
 
                 if (diff.TotalMinutes <= 0)
-                    return "Bientôt";
+                    return "Bientot";
 
                 if (diff.TotalHours < 1)
                     return $"dans {Math.Max(1, (int)Math.Round(diff.TotalMinutes))} min";
@@ -418,7 +549,61 @@ public partial class MapViewModel(
                 return days == 1 ? "demain" : $"dans {days} jours";
             }
 
-            var eventsByBar = events
+            static string DateLabel(DateTime value)
+                => value == default
+                    ? string.Empty
+                    : value.ToLocalTime().ToString("ddd dd/MM - HH:mm", CultureInfo.CurrentCulture);
+
+            var festiveEvents = officialEvents.Select(e =>
+            {
+                var start = AsUtc(e.StartAt);
+                return new MapFestiveEvent
+                {
+                    Id = e.Id,
+                    SourceType = "official",
+                    Title = e.Title,
+                    BarId = e.BarId,
+                    BarName = e.BarDisplay,
+                    Address = e.BarAddress,
+                    Latitude = e.Latitude,
+                    Longitude = e.Longitude,
+                    FlyerUrl = e.FlyerUrl,
+                    StartAt = e.StartAt,
+                    EndAt = e.EndAt ?? start.AddHours(8),
+                    GoingCount = e.GoingCount,
+                    CheckedInCount = e.CheckedInCount
+                };
+            }).Concat(ephemeralEvents.Select(e => new MapFestiveEvent
+            {
+                Id = e.Id,
+                SourceType = "ephemeral",
+                Title = e.Title,
+                BarId = e.BarId,
+                BarName = e.PlaceDisplay,
+                Address = e.Address,
+                Latitude = e.Latitude,
+                Longitude = e.Longitude,
+                FlyerUrl = e.ImageUrl,
+                StartAt = e.StartAt,
+                EndAt = e.ExpiresAt,
+                GoingCount = e.ParticipantsCount,
+                CheckedInCount = 0
+            })).ToList();
+
+            var liveFestiveEvents = festiveEvents.Where(IsLiveEvent).ToList();
+            var todayStart = DateTime.Today;
+            var tomorrowStart = todayStart.AddDays(1);
+            var todayFestiveEvents = festiveEvents
+                .Where(e =>
+                {
+                    var localStart = e.StartAt.ToLocalTime();
+                    return localStart < tomorrowStart && e.EndAt >= now;
+                })
+                .Where(e => e.Latitude is not null && e.Longitude is not null)
+                .OrderBy(e => e.StartAt)
+                .ToList();
+
+            var eventsByBar = liveFestiveEvents
                 .Where(e => !string.IsNullOrWhiteSpace(e.BarId))
                 .GroupBy(e => e.BarId!)
                 .ToDictionary(g => g.Key, g => g.OrderBy(e => e.StartAt).ToList());
@@ -426,19 +611,11 @@ public partial class MapViewModel(
             var liveEventsByBar = eventsByBar
                 .ToDictionary(
                     kvp => kvp.Key,
-                    kvp => kvp.Value.FirstOrDefault(IsLiveEvent))
+                    kvp => kvp.Value.FirstOrDefault())
                 .Where(kvp => kvp.Value is not null)
                 .ToDictionary(kvp => kvp.Key, kvp => kvp.Value!);
 
-            var upcomingEventsByBar = eventsByBar
-                .ToDictionary(
-                    kvp => kvp.Key,
-                    kvp => kvp.Value
-                        .Where(e => AsUtc(e.StartAt) > now)
-                        .OrderBy(e => e.StartAt)
-                        .FirstOrDefault())
-                .Where(kvp => kvp.Value is not null)
-                .ToDictionary(kvp => kvp.Key, kvp => kvp.Value!);
+            var upcomingEventsByBar = new Dictionary<string, MapFestiveEvent>();
 
             var eventBarIds = eventsByBar.Keys.ToHashSet();
 
@@ -449,25 +626,24 @@ public partial class MapViewModel(
                 NearbyBars.Add(bar);
             }
 
-            // Les événements liés à un bar sont intégrés visuellement dans la fiche bar.
-            // On garde des marqueurs séparés uniquement pour d'éventuels événements sans bar.
-            MapEvents.Clear();
-            foreach (var item in events.Where(e => string.IsNullOrWhiteSpace(e.BarId) && e.Latitude is not null && e.Longitude is not null))
-                MapEvents.Add(item);
+            var looseFestiveEvents = liveFestiveEvents
+                .Where(e => string.IsNullOrWhiteSpace(e.BarId) && e.Latitude is not null && e.Longitude is not null)
+                .ToList();
 
             TotalPeopleOut = (int)bars.Sum(b => b.TotalPresent);
 
             var barsJson = JsonConvert.SerializeObject(bars.Select(b => new
             {
-                id           = b.Id,
-                name         = b.Name,
-                latitude     = b.Latitude,
-                longitude    = b.Longitude,
+                id = b.Id,
+                name = b.Name,
+                latitude = b.Latitude,
+                longitude = b.Longitude,
                 totalPresent = b.TotalPresent,
-                hasPromo     = b.HasPromo,
-                hasEvent     = b.HasEventTonight,
+                hasPromo = b.HasPromo,
+                hasEvent = b.HasEventTonight,
                 hasLiveEvent = liveEventsByBar.ContainsKey(b.Id),
-                liveEventId  = liveEventsByBar.TryGetValue(b.Id, out var liveEvent) ? liveEvent.Id : null,
+                liveEventId = liveEventsByBar.TryGetValue(b.Id, out var liveEvent) ? liveEvent.Id : null,
+                liveEventType = liveEventsByBar.TryGetValue(b.Id, out var liveEventType) ? liveEventType.SourceType : null,
                 liveEventTitle = liveEventsByBar.TryGetValue(b.Id, out var liveEventTitle) ? liveEventTitle.Title : null,
                 liveGoingCount = liveEventsByBar.TryGetValue(b.Id, out var liveGoing) ? liveGoing.GoingCount : 0,
                 liveCheckedInCount = liveEventsByBar.TryGetValue(b.Id, out var liveCheckIn) ? liveCheckIn.CheckedInCount : 0,
@@ -478,25 +654,27 @@ public partial class MapViewModel(
                     .Select(x => x.ToLowerInvariant())
                     .ToArray(),
                 primarySlug = b.PrimaryCategory?.Key?.ToLowerInvariant() ?? "bar",
-                primaryIcon  = b.PrimaryCategory?.Icon ?? "🍺",
-                primaryCat   = b.PrimaryCategory?.Name ?? "Bar"
+                primaryIcon = b.PrimaryCategory?.Icon ?? "🍺",
+                primaryCat = b.PrimaryCategory?.Name ?? "Bar"
             }));
 
-            var eventsJson = JsonConvert.SerializeObject(MapEvents.Select(e => new
+            var eventsJson = JsonConvert.SerializeObject(todayFestiveEvents.Select(e => new
             {
-                id             = e.Id,
-                title          = e.Title,
-                barId          = e.BarId,
-                barName        = e.BarDisplay,
-                latitude       = e.Latitude,
-                longitude      = e.Longitude,
-                flyerUrl       = e.FlyerUrl,
-                dateLabel      = e.ShortDateLabel,
-                goingCount     = e.GoingCount,
+                id = e.Id,
+                sourceType = e.SourceType,
+                title = e.Title,
+                barId = e.BarId,
+                barName = e.BarName,
+                address = e.Address,
+                latitude = e.Latitude,
+                longitude = e.Longitude,
+                flyerUrl = e.FlyerUrl,
+                dateLabel = DateLabel(e.StartAt),
+                goingCount = e.GoingCount,
                 checkedInCount = e.CheckedInCount
             }));
 
-            System.Diagnostics.Debug.WriteLine($"[MapVM] Bars envoyés : {NearbyBars.Count} / événements : {MapEvents.Count}");
+            System.Diagnostics.Debug.WriteLine($"[MapVM] Bars envoyes : {NearbyBars.Count} / evenements festifs : {looseFestiveEvents.Count}");
             InvokeMapScript?.Invoke("loadBars", barsJson);
             InvokeMapScript?.Invoke("loadEvents", eventsJson);
             InvokeMapScript?.Invoke("updateLiveCount", TotalPeopleOut.ToString());
@@ -508,11 +686,116 @@ public partial class MapViewModel(
             InvokeMapScript?.Invoke("loadEvents", "[]");
         }
     }
-
-    private async Task LoadFriendsOnMapAsync()
+    private async Task SendCurrentUserToMapAsync()
     {
-        InvokeMapScript?.Invoke("loadFriends", "[]");
-        await Task.CompletedTask;
+        try
+        {
+            _currentProfileForMap ??= await authService.GetCurrentProfileAsync();
+            var profile = _currentProfileForMap;
+            if (profile == null)
+                return;
+
+            IsSecretMode = profile.SecretMode || !profile.ShareLocationWithFriends;
+            InvokeMapScript?.Invoke("setSecretMode", IsSecretMode ? "true" : "false");
+
+            var name = !string.IsNullOrWhiteSpace(profile.DisplayName)
+                ? profile.DisplayName!
+                : !string.IsNullOrWhiteSpace(profile.Username)
+                    ? profile.Username
+                    : "Moi";
+
+            var parts = name.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+            var initials = parts.Length >= 2
+                ? $"{parts[0][0]}{parts[1][0]}".ToUpperInvariant()
+                : name.Length >= 2 ? name[..2].ToUpperInvariant() : name[..1].ToUpperInvariant();
+
+            var json = JsonConvert.SerializeObject(new
+            {
+                id = profile.Id,
+                displayName = name,
+                avatarUrl = profile.AvatarUrl,
+                initials
+            });
+
+            InvokeMapScript?.Invoke("setCurrentUser", json);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MapVM] SendCurrentUserToMapAsync erreur : {ex}");
+        }
+    }
+
+    private async Task LoadFriendsOnMapAsync(bool showToast = true)
+    {
+        try
+        {
+            if (!_showFriendsOnMap || IsSecretMode)
+            {
+                InvokeMapScript?.Invoke("loadFriends", "[]");
+                return;
+            }
+
+            var friends = await friendService.GetVisibleFriendsOnMapAsync();
+
+            var friendsJson = JsonConvert.SerializeObject(friends.Select(f =>
+            {
+                var name = !string.IsNullOrWhiteSpace(f.DisplayName)
+                    ? f.DisplayName!
+                    : !string.IsNullOrWhiteSpace(f.Username)
+                        ? f.Username
+                        : "Ami";
+
+                var parts = name.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+                var initials = parts.Length >= 2
+                    ? $"{parts[0][0]}{parts[1][0]}".ToUpperInvariant()
+                    : name.Length >= 2 ? name[..2].ToUpperInvariant() : name[..1].ToUpperInvariant();
+
+                return new
+                {
+                    id = f.Id,
+                    displayName = name,
+                    avatarUrl = f.AvatarUrl,
+                    initials,
+                    latitude = f.LastLatitude,
+                    longitude = f.LastLongitude
+                };
+            }));
+
+            InvokeMapScript?.Invoke("loadFriends", friendsJson);
+            if (showToast)
+            {
+                await ShowToastAsync(friends.Count == 0
+                    ? "👥 Aucun ami actif à proximité pour l'instant"
+                    : $"👥 {friends.Count} ami(s) affiché(s) sur la carte");
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MapVM] LoadFriendsOnMapAsync erreur : {ex}");
+            InvokeMapScript?.Invoke("loadFriends", "[]");
+        }
+    }
+
+    public async Task ToggleFriendsOnMapAsync()
+    {
+        _showFriendsOnMap = !_showFriendsOnMap;
+        InvokeMapScript?.Invoke("setFriendsButtonActive", _showFriendsOnMap ? "true" : "false");
+        await LoadFriendsOnMapAsync();
+    }
+
+    public async Task OnFriendSelectedAsync(string userId)
+    {
+        if (string.IsNullOrWhiteSpace(userId)) return;
+
+        try
+        {
+            await Shell.Current.GoToAsync($"FriendProfilePage?userId={Uri.EscapeDataString(userId)}");
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MapVM] OnFriendSelectedAsync erreur : {ex}");
+            await ShowToastAsync("Profil ami bientôt disponible");
+        }
     }
 
     public async Task OnBarSelectedAsync(string barId)
@@ -570,7 +853,16 @@ public partial class MapViewModel(
                     // Stocke la dernière position connue (utilisée par le check-in manuel).
                     _lastLocation = (lat, lng);
 
-                    InvokeMapScript?.Invoke("updateUserPosition", JsArgs(lat, lng));
+                    if (!IsSecretMode)
+                        InvokeMapScript?.Invoke("updateUserPosition", JsArgs(lat, lng));
+
+                    if (!IsSecretMode && (DateTime.UtcNow - _lastMapLocationSavedUtc).TotalMinutes >= 2)
+                    {
+                        _lastMapLocationSavedUtc = DateTime.UtcNow;
+                        _ = friendService.UpdateMyMapLocationAsync(lat, lng);
+                        if (_showFriendsOnMap)
+                            _ = LoadFriendsOnMapAsync();
+                    }
 
                     // Si le GPS arrive juste après le chargement de la WebView, on recentre une seule fois.
                     // Par contre, si l'utilisateur a déjà choisi une ville manuellement, on respecte son choix.
@@ -677,7 +969,9 @@ public partial class MapViewModel(
 
         try
         {
+            var checkedOutBarId = ActiveCheckin.BarId;
             await checkinService.CheckOutAsync(ActiveCheckin.Id);
+            ApplyBarPresenceDelta(checkedOutBarId, -1);
         }
         catch (Exception ex)
         {
@@ -713,6 +1007,7 @@ public partial class MapViewModel(
                 // Le RPC renvoie parfois bar_id non mappé : on le force depuis la valeur connue.
                 if (string.IsNullOrEmpty(checkin.BarId)) checkin.BarId = bar.Id;
                 ActiveCheckin = checkin;   // réassignation => recalcul de CanPostMedia avec le bon BarId
+                ApplyBarPresenceDelta(bar.Id, +1);
                 await ShowToastAsync("📍 Tes amis savent que tu es là !");
             }
         }
@@ -758,23 +1053,94 @@ public partial class MapViewModel(
 
     private static double ToRad(double deg) => deg * Math.PI / 180.0;
 
+    private void ApplyBarPresenceDelta(string? barId, int delta)
+    {
+        if (string.IsNullOrWhiteSpace(barId) || delta == 0)
+            return;
+
+        var bar = NearbyBars.FirstOrDefault(b => b.Id == barId);
+        if (bar == null)
+            return;
+
+        ApplyBarPresenceCount(barId, Math.Max(0, bar.TotalPresent + delta));
+    }
+
+    private void ApplyBarPresenceCount(string barId, int count)
+    {
+        var bar = NearbyBars.FirstOrDefault(b => b.Id == barId);
+        if (bar == null)
+            return;
+
+        bar.TotalPresent = Math.Max(0, count);
+
+        if (SelectedBar?.Id == barId)
+        {
+            SelectedBar.TotalPresent = bar.TotalPresent;
+            OnPropertyChanged(nameof(SelectedBar));
+            NotifySelectedBarInfoChanged();
+        }
+
+        TotalPeopleOut = NearbyBars.Sum(b => b.TotalPresent);
+        InvokeMapScript?.Invoke("updateGauge", $"{barId},{bar.TotalPresent}");
+        InvokeMapScript?.Invoke("updateLiveCount", TotalPeopleOut.ToString());
+    }
+
     private async Task SubscribeToRealtimeAsync()
     {
         try
         {
+            if (_hasRealtimeSubscriptions)
+                return;
+
+            _hasRealtimeSubscriptions = true;
+
+            await realtimeService.SubscribeToFriendMapLocationsAsync(() =>
+            {
+                if (!_showFriendsOnMap || IsSecretMode)
+                    return;
+
+                QueueFriendMapRefresh();
+            });
+
             foreach (var bar in NearbyBars)
             {
                 await realtimeService.SubscribeToBarGaugeAsync(bar.Id, count =>
                 {
-                    InvokeMapScript?.Invoke("updateGauge", $"{bar.Id},{count}");
-                    TotalPeopleOut = (int)NearbyBars.Sum(b => b.TotalPresent);
+                    ApplyBarPresenceCount(bar.Id, (int)count);
                 });
             }
         }
         catch (Exception ex)
         {
+            _hasRealtimeSubscriptions = false;
             System.Diagnostics.Debug.WriteLine($"[MapVM] SubscribeToRealtimeAsync erreur : {ex}");
         }
+    }
+
+    private void QueueFriendMapRefresh()
+    {
+        if (_friendMapRefreshQueued)
+            return;
+
+        _friendMapRefreshQueued = true;
+
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                await Task.Delay(700);
+                await MainThread.InvokeOnMainThreadAsync(async () =>
+                {
+                    _friendMapRefreshQueued = false;
+                    await LoadFriendsOnMapAsync(showToast: false);
+                });
+            }
+            catch (Exception ex)
+            {
+                _friendMapRefreshQueued = false;
+                System.Diagnostics.Debug.WriteLine($"[MapVM] QueueFriendMapRefresh erreur : {ex}");
+            }
+        });
     }
 
     [RelayCommand]
@@ -786,10 +1152,13 @@ public partial class MapViewModel(
         {
             if (ActiveCheckin?.BarId == SelectedBar.Id)
             {
+                var checkedOutBarId = ActiveCheckin.BarId;
+
                 if (ActiveCheckin != null)
                     await checkinService.CheckOutAsync(ActiveCheckin.Id);
 
                 ActiveCheckin = null;
+                ApplyBarPresenceDelta(checkedOutBarId, -1);
 
                 // Évite que la détection auto repropose ce bar immédiatement après un
                 // check-out manuel (l'utilisateur vient de choisir de partir).
@@ -818,6 +1187,7 @@ public partial class MapViewModel(
 
                 try
                 {
+                    var previousBarId = ActiveCheckin?.BarId;
                     var checkin = await checkinService.CheckInAsync(
                         SelectedBar.Id, location.Value.Lat, location.Value.Lng);
 
@@ -825,6 +1195,9 @@ public partial class MapViewModel(
                     {
                         if (string.IsNullOrEmpty(checkin.BarId)) checkin.BarId = SelectedBar.Id;
                         ActiveCheckin = checkin;   // recalcule CanPostMedia => boutons visibles
+                        if (!string.IsNullOrWhiteSpace(previousBarId) && previousBarId != SelectedBar.Id)
+                            ApplyBarPresenceDelta(previousBarId, -1);
+                        ApplyBarPresenceDelta(SelectedBar.Id, +1);
                         await ShowToastAsync("📍 Tes amis savent que tu es là !");
                     }
                 }
@@ -839,15 +1212,48 @@ public partial class MapViewModel(
     [RelayCommand]
     public async Task ToggleSecretModeAsync()
     {
-        IsSecretMode = !IsSecretMode;
-        await ShowToastAsync(IsSecretMode ? "👻 Mode secret activé" : "👁 Tu es à nouveau visible");
-        await LoadFriendsOnMapAsync();
+        await ApplySecretModeAsync(!IsSecretMode);
     }
 
     public async Task SetSecretModeAsync(bool active)
     {
+        await ApplySecretModeAsync(active);
+    }
+
+    private async Task ApplySecretModeAsync(bool active)
+    {
         IsSecretMode = active;
-        await ShowToastAsync(active ? "👻 Mode secret activé" : "👁 Tu es à nouveau visible");
+        InvokeMapScript?.Invoke("setSecretMode", active ? "true" : "false");
+
+        if (active)
+        {
+            InvokeMapScript?.Invoke("clearUserPosition", string.Empty);
+            InvokeMapScript?.Invoke("loadFriends", "[]");
+        }
+
+        var ok = await friendService.SetMyMapVisibilityAsync(!active);
+
+        if (active)
+        {
+            await userStatusService.GoOfflineAsync();
+            _lastMapLocationSavedUtc = DateTime.UtcNow;
+        }
+        else
+        {
+            await userStatusService.GoOnlineAsync();
+            _lastMapLocationSavedUtc = DateTime.MinValue;
+
+            if (_lastLocation.HasValue)
+            {
+                InvokeMapScript?.Invoke("updateUserPosition", JsArgs(_lastLocation.Value.Lat, _lastLocation.Value.Lng));
+                _ = friendService.UpdateMyMapLocationAsync(_lastLocation.Value.Lat, _lastLocation.Value.Lng);
+            }
+        }
+
+        await ShowToastAsync(active
+            ? (ok ? "👻 Mode fantôme activé : tu n'es plus visible par tes amis" : "👻 Mode fantôme activé localement, mais synchro serveur à vérifier")
+            : (ok ? "👁 Tu es à nouveau visible par tes amis" : "👁 Mode visible localement, mais synchro serveur à vérifier"));
+
         await LoadFriendsOnMapAsync();
     }
 
@@ -873,6 +1279,62 @@ public partial class MapViewModel(
         var name = Uri.EscapeDataString(SelectedBar.Name ?? string.Empty);
         // label = nom du bar affiché dans Google Maps / Plans
         await Launcher.OpenAsync($"https://maps.google.com/?q={lat},{lng}({name})");
+    }
+
+
+    [RelayCommand]
+    public async Task CallSelectedBarAsync()
+    {
+        if (string.IsNullOrWhiteSpace(SelectedBar?.Phone))
+        {
+            await ShowToastAsync("Téléphone non renseigné");
+            return;
+        }
+
+        try
+        {
+            PhoneDialer.Open(SelectedBar.Phone);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[MapVM] CallSelectedBarAsync erreur : {ex}");
+            await ShowToastAsync("Impossible d'ouvrir le téléphone");
+        }
+    }
+
+    [RelayCommand]
+    public async Task OpenSelectedBarInstagramAsync()
+    {
+        if (string.IsNullOrWhiteSpace(SelectedBar?.Instagram))
+        {
+            await ShowToastAsync("Instagram non renseigné");
+            return;
+        }
+
+        var value = SelectedBar.Instagram.Trim();
+        var url = value.StartsWith("http", StringComparison.OrdinalIgnoreCase)
+            ? value
+            : $"https://instagram.com/{value.TrimStart('@')}";
+
+        try { await Launcher.OpenAsync(url); }
+        catch { await ShowToastAsync("Impossible d'ouvrir Instagram"); }
+    }
+
+    [RelayCommand]
+    public async Task OpenSelectedBarWebsiteAsync()
+    {
+        if (string.IsNullOrWhiteSpace(SelectedBar?.Website))
+        {
+            await ShowToastAsync("Site web non renseigné");
+            return;
+        }
+
+        var url = SelectedBar.Website.Trim();
+        if (!url.StartsWith("http", StringComparison.OrdinalIgnoreCase))
+            url = "https://" + url;
+
+        try { await Launcher.OpenAsync(url); }
+        catch { await ShowToastAsync("Impossible d'ouvrir le site"); }
     }
 
     [RelayCommand]
@@ -956,6 +1418,7 @@ public partial class MapViewModel(
             {
                 "pas_de_checkin"        => "Tu dois être présent au bar pour publier.",
                 "video_trop_lourde"     => "Vidéo trop lourde (max 25 Mo). Filme plus court.",
+                "video_trop_longue"     => "Vidéo trop longue (max 30 s). Filme plus court.",
                 "permission_camera"     => "Autorise l'accès à la caméra dans les réglages.",
                 "capture_non_supportee" => "La capture n'est pas disponible sur cet appareil.",
                 _                        => "Échec de la capture. Réessaie."
