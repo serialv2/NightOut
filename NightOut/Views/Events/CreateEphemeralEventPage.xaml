@@ -34,7 +34,7 @@
 
                 <Border StrokeShape="RoundRectangle 28" Stroke="{DynamicResource Border}" StrokeThickness="1" BackgroundColor="{DynamicResource BgElevated}" Padding="18">
                     <Grid RowDefinitions="Auto,Auto,Auto" RowSpacing="12">
-                        <Border StrokeShape="RoundRectangle 999" BackgroundColor="#33D0735C" Padding="10,5" HorizontalOptions="Start">
+                        <Border StrokeShape="RoundRectangle 999" BackgroundColor="{DynamicResource AccentDim}" Padding="10,5" HorizontalOptions="Start">
                             <Label Text="{Binding PreviewBadge}" FontSize="11" FontAttributes="Bold" TextColor="{DynamicResource Error}" />
                         </Border>
 
@@ -86,7 +86,7 @@
                             <Border Grid.Column="1"
                                     StrokeShape="RoundRectangle 16"
                                     Stroke="{DynamicResource Accent}"
-                                    BackgroundColor="#14CEA358"
+                                    BackgroundColor="{DynamicResource AccentDim}"
                                     Padding="12,8">
                                 <Border.GestureRecognizers>
                                     <TapGestureRecognizer Command="{Binding PickFlyerCommand}" />
@@ -209,7 +209,7 @@
                             <Border Grid.Column="1"
                                     StrokeShape="RoundRectangle 16"
                                     Stroke="{DynamicResource Accent}"
-                                    BackgroundColor="#14CEA358"
+                                    BackgroundColor="{DynamicResource AccentDim}"
                                     Padding="12,8"
                                     VerticalOptions="End">
                                 <Border.GestureRecognizers>
@@ -290,7 +290,7 @@
             </Border>
         </Grid>
 
-        <Grid Grid.RowSpan="3" BackgroundColor="#992A1B10" IsVisible="{Binding IsBusy}">
+        <Grid Grid.RowSpan="3" BackgroundColor="{DynamicResource SecretOverlayOff}" IsVisible="{Binding IsBusy}">
             <ActivityIndicator IsRunning="{Binding IsBusy}" Color="{DynamicResource Accent}" WidthRequest="48" HeightRequest="48" HorizontalOptions="Center" VerticalOptions="Center" />
         </Grid>
 

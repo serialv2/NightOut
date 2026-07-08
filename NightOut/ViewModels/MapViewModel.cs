@@ -1040,6 +1040,7 @@ public partial class MapViewModel(
         {
             var checkedOutBarId = ActiveCheckin.BarId;
             await checkinService.CheckOutAsync(ActiveCheckin.Id);
+            await userStatusService.GoOfflineAsync();
             ApplyBarPresenceDelta(checkedOutBarId, -1);
         }
         catch (Exception ex)
@@ -1072,6 +1073,12 @@ public partial class MapViewModel(
         {
             var previousBarId = ActiveCheckin?.BarId;
             var checkin = await checkinService.CheckInAsync(bar.Id, lat, lng);
+            if (checkin == null)
+            {
+                await ShowToastAsync(GetCheckinFailureMessage());
+                return;
+            }
+
             if (checkin != null)
             {
                 // Le RPC renvoie parfois bar_id non mappé : on le force depuis la valeur connue.
@@ -1108,6 +1115,20 @@ public partial class MapViewModel(
             if (page == null) return false;
             return await page.DisplayAlert("Check-in", message, "J'y suis", "Pas maintenant");
         });
+    }
+
+    private string GetCheckinFailureMessage()
+    {
+        var error = checkinService.LastCheckinError;
+        return error switch
+        {
+            null or "" => "Check-in impossible pour le moment.",
+            "reponse_serveur_vide" => "Check-in refuse par Supabase: reponse vide.",
+            "reponse_serveur_illisible" => "Check-in refuse par Supabase: reponse illisible.",
+            "utilisateur_non_connecte" => "Tu dois etre connecte pour te check-in.",
+            "trop_loin" => "Rapproche-toi du bar pour te check-in.",
+            _ => $"Check-in refuse: {error}"
+        };
     }
 
     private static double DistanceMeters(double lat1, double lon1, double lat2, double lon2)
@@ -1309,7 +1330,7 @@ public partial class MapViewModel(
                     }
                     else
                     {
-                        await ShowToastAsync("Check-in impossible pour le moment. Reessaie dans quelques secondes.");
+                        await ShowToastAsync(GetCheckinFailureMessage());
                     }
                 }
                 catch (InvalidOperationException ioe) when (ioe.Message == "trop_loin")

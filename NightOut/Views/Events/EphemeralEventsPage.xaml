@@ -102,7 +102,7 @@
 
                             <VerticalStackLayout Padding="18" Spacing="12" VerticalOptions="Fill">
                                 <Border StrokeThickness="0"
-                                        BackgroundColor="#33D0735C"
+                                        BackgroundColor="{DynamicResource AccentDim}"
                                         StrokeShape="RoundRectangle 999"
                                         Padding="11,6"
                                         HorizontalOptions="Start">
@@ -289,7 +289,7 @@
 
                                             <VerticalStackLayout Grid.Column="1" Spacing="5" VerticalOptions="Start">
                                                 <Border StrokeThickness="0"
-                                                        BackgroundColor="#33D0735C"
+                                                        BackgroundColor="{DynamicResource AccentDim}"
                                                         StrokeShape="RoundRectangle 999"
                                                         Padding="8,3"
                                                         HorizontalOptions="Start">

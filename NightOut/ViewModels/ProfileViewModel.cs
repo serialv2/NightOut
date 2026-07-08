@@ -313,10 +313,15 @@ public partial class ProfileViewModel(
         {
             await profileService.SignOutAsync();
             var loginPage = services.GetRequiredService<LoginPage>();
+            var resources = Application.Current?.Resources;
             Application.Current!.Windows[0].Page = new NavigationPage(loginPage)
             {
-                BarBackgroundColor = Color.FromArgb("#F5F2EE"),
-                BarTextColor = Color.FromArgb("#37241B")
+                BarBackgroundColor = resources?.TryGetValue("BgDeep", out var bg) == true && bg is Color bgColor
+                    ? bgColor
+                    : Color.FromArgb("#F5F2EE"),
+                BarTextColor = resources?.TryGetValue("TextPrimary", out var tx) == true && tx is Color txColor
+                    ? txColor
+                    : Color.FromArgb("#37241B")
             };
         }
         catch (Exception ex)

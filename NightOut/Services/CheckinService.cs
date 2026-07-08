@@ -6,6 +6,9 @@ namespace NightOut.Services;
 
 public class CheckinService(Client supabase, IAuthService auth, ICreditService credits) : ICheckinService
 {
+    private const string NoEventId = "00000000-0000-0000-0000-000000000000";
+
+    public string? LastCheckinError { get; private set; }
     public string? LastBeaconCheckinError { get; private set; }
     public event Action<Checkin?>? ActiveCheckinChanged;
 
@@ -16,50 +19,73 @@ public class CheckinService(Client supabase, IAuthService auth, ICreditService c
     /// </summary>
     public async Task<Checkin?> CheckInAsync(string barId, double lat, double lng, string? eventId = null)
     {
+        var step = "initialisation";
+
         try
         {
+            LastCheckinError = null;
+
+            step = "utilisateur";
             var userId = auth.GetCurrentUserId();
-            if (userId == null) return null;
-
-            var activeCheckins = await GetActiveCheckinsForUserAsync(userId);
-            var activeAtSameBar = activeCheckins
-                .OrderByDescending(c => c.CheckedInAt)
-                .FirstOrDefault(c => c.BarId == barId);
-
-            if (activeAtSameBar != null)
+            if (userId == null)
             {
-                await CloseDuplicateActiveCheckinsAsync(userId, activeAtSameBar.Id);
-                return activeAtSameBar;
+                LastCheckinError = "utilisateur_non_connecte";
+                return null;
             }
 
-            await CloseDuplicateActiveCheckinsAsync(userId, keepCheckinId: null);
-
+            step = "appel_rpc";
             var response = await supabase.Rpc("check_in", new
             {
-                p_bar_id   = barId,
-                p_user_id  = userId,
-                p_lat      = lat,
-                p_lng      = lng,
-                p_event_id = eventId
+                p_bar_id = barId,
+                p_user_id = userId,
+                p_lat = lat,
+                p_lng = lng,
+                p_event_id = string.IsNullOrWhiteSpace(eventId) ? NoEventId : eventId
             });
 
+            step = "reponse_rpc";
             if (string.IsNullOrEmpty(response?.Content))
+            {
+                LastCheckinError = "reponse_serveur_vide";
                 return null;
+            }
 
+            step = "lecture_checkin";
             var checkin = JsonConvert.DeserializeObject<Checkin>(response.Content);
             if (checkin != null)
             {
+                if (string.IsNullOrWhiteSpace(checkin.BarId))
+                    checkin.BarId = barId;
+
+                step = "nettoyage_doublons";
                 await CloseDuplicateActiveCheckinsAsync(userId, checkin.Id);
-                await credits.AddMyCreditsByRuleAsync("checkin", checkin.Id, "checkin", 50);
+
+                try
+                {
+                    step = "credits";
+                    await credits.AddMyCreditsByRuleAsync("checkin", checkin.Id, "checkin", 50);
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[Checkin] Credits check-in erreur : {ex.Message}");
+                }
             }
+            else
+            {
+                LastCheckinError = "reponse_serveur_illisible";
+            }
+
             return checkin;
         }
         catch (Exception ex) when (ex.ToString().Contains("trop_loin"))
         {
+            LastCheckinError = "trop_loin";
             throw new InvalidOperationException("trop_loin", ex);
         }
-        catch
+        catch (Exception ex)
         {
+            LastCheckinError = $"{step}: {ex.Message}";
+            System.Diagnostics.Debug.WriteLine($"[Checkin] CheckIn erreur : {ex}");
             return null;
         }
     }

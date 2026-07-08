@@ -125,10 +125,9 @@ video{width:100%;height:100%;object-fit:cover;background:#000;}
         }
     }
     [JsonIgnore] public bool IsTextPost => Type == "text";
-    [JsonIgnore] public bool IsCheckin => Type == "checkin" || Type == "checkout";
-    [JsonIgnore] public bool IsCheckout => Type == "checkout";
-    [JsonIgnore] public string CheckinTitle => IsCheckout ? "Check-out" : "Check-in";
-    [JsonIgnore] public string CheckinIcon => IsCheckout ? "↗" : "⌖";
+    [JsonIgnore] public bool IsCheckin => Type == "checkin";
+    [JsonIgnore] public string CheckinTitle => "Check-in";
+    [JsonIgnore] public string CheckinIcon => "⌖";
     [JsonIgnore] public bool IsVideo   => Type == "video" ||
         string.Equals(MediaType, "video", StringComparison.OrdinalIgnoreCase);
     [JsonIgnore] public bool IsMine      { get; set; }

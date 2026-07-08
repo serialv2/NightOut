@@ -15,6 +15,8 @@ using NightOut.Views.Events;
 using ZXing.Net.Maui.Controls;
 #if ANDROID
 using NightOut.Platforms.Android;
+#elif IOS
+using NightOut.Platforms.iOS;
 #endif
 namespace NightOut;
 
@@ -64,6 +66,8 @@ public static class MauiProgram
         builder.Services.AddSingleton<BeaconAutoCheckinService>();
 #if ANDROID
         builder.Services.AddSingleton<IBeaconScanner, AndroidBeaconScanner>();
+#elif IOS
+        builder.Services.AddSingleton<IBeaconScanner, IosBeaconScanner>();
 #else
         builder.Services.AddSingleton<IBeaconScanner, UnsupportedBeaconScanner>();
 #endif

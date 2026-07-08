@@ -56,7 +56,7 @@
                           ColumnDefinitions="48,*,48,48"
                           ColumnSpacing="10"
                           VerticalOptions="Start">
-                        <Border BackgroundColor="#66F5F1ED"
+                        <Border BackgroundColor="{DynamicResource AccentDim}"
                                 Stroke="{DynamicResource Border}"
                                 StrokeThickness="1"
                                 StrokeShape="RoundRectangle 24"
@@ -70,7 +70,7 @@
                         </Border>
 
                         <Border Grid.Column="2"
-                                BackgroundColor="#66F5F1ED"
+                                BackgroundColor="{DynamicResource AccentDim}"
                                 Stroke="{DynamicResource Border}"
                                 StrokeThickness="1"
                                 StrokeShape="RoundRectangle 24"
@@ -84,7 +84,7 @@
                         </Border>
 
                         <Border Grid.Column="3"
-                                BackgroundColor="#66F5F1ED"
+                                BackgroundColor="{DynamicResource AccentDim}"
                                 Stroke="{DynamicResource Border}"
                                 StrokeThickness="1"
                                 StrokeShape="RoundRectangle 24"
@@ -475,8 +475,8 @@
                                             HeightRequest="360"
                                             StrokeThickness="0"
                                             StrokeShape="RoundRectangle 0"
-                                            BackgroundColor="#2A1B10">
-                                        <Grid BackgroundColor="#2A1B10">
+                                            BackgroundColor="{DynamicResource BgDeep}">
+                                        <Grid BackgroundColor="{DynamicResource BgDeep}">
                                             <WebView Source="{Binding VideoSource}" />
                                         </Grid>
                                     </Border>

@@ -10,12 +10,19 @@ drop function if exists public.check_in(
     uuid
 );
 
+drop function if exists public.check_in(
+    uuid,
+    uuid,
+    double precision,
+    double precision
+);
+
 create or replace function public.check_in(
     p_bar_id uuid,
     p_user_id uuid,
     p_lat double precision,
     p_lng double precision,
-    p_event_id uuid default null
+    p_event_id uuid
 )
 returns jsonb
 language plpgsql
@@ -88,7 +95,7 @@ begin
             gen_random_uuid(),
             p_user_id,
             p_bar_id,
-            p_event_id,
+            nullif(p_event_id, '00000000-0000-0000-0000-000000000000'::uuid),
             now(),
             true
         )
@@ -122,3 +129,5 @@ $$;
 
 grant execute on function public.check_in(uuid, uuid, double precision, double precision, uuid)
 to authenticated;
+
+notify pgrst, 'reload schema';

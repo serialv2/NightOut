@@ -38,8 +38,7 @@ public class ThemeService : IThemeService
         var merged = app.Resources.MergedDictionaries;
 
         // On retire l'ancien dictionnaire de couleurs (clair ou sombre) s'il est présent.
-        var existing = merged.FirstOrDefault(d => d is ColorsLight or ColorsDark);
-        if (existing != null)
+        foreach (var existing in merged.Where(d => d is ColorsLight or ColorsDark).ToList())
             merged.Remove(existing);
 
         merged.Add(theme == AppThemeMode.Dark

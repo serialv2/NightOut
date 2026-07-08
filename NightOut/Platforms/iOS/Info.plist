@@ -38,6 +38,11 @@
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Spotiz utilise le micro lors de l'enregistrement d'une vidéo.</string>
 
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>Spotiz utilise le Bluetooth pour detecter les balises des bars et valider automatiquement votre presence.</string>
+	<key>NSBluetoothPeripheralUsageDescription</key>
+	<string>Spotiz utilise le Bluetooth pour detecter les balises des bars et valider automatiquement votre presence.</string>
+
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Spotiz utilise votre position pour afficher les bars et événements proches de vous.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>

@@ -318,7 +318,7 @@
 
         <!-- ══ VISIONNEUR MÉDIA PLEIN ÉCRAN — conservé pour compatibilité avec tes fonctions existantes ══ -->
         <Grid Grid.Row="0" Grid.RowSpan="2"
-              BackgroundColor="#E6F5F2EE"
+              BackgroundColor="{DynamicResource SecretOverlayOff}"
               IsVisible="{Binding IsMediaViewerVisible}">
             <Grid.GestureRecognizers>
                 <TapGestureRecognizer Command="{Binding CloseMediaViewerCommand}" />
@@ -338,15 +338,15 @@
                   Padding="16,50,16,0" ColumnSpacing="10">
                 <Button Grid.Column="0" Text="✕" FontSize="18" FontAttributes="Bold"
                         WidthRequest="40" HeightRequest="40" CornerRadius="20" Padding="0"
-                        BackgroundColor="#33F2EEE8" TextColor="{DynamicResource TextPrimary}"
+                        BackgroundColor="{DynamicResource AccentDim}" TextColor="{DynamicResource TextPrimary}"
                         Command="{Binding CloseMediaViewerCommand}" />
                 <Button Grid.Column="2" Text="🚩 Signaler" FontSize="12"
                         HeightRequest="40" CornerRadius="20" Padding="14,0"
-                        BackgroundColor="#33A8523C" TextColor="{DynamicResource Error}"
+                        BackgroundColor="{DynamicResource AccentDim}" TextColor="{DynamicResource Error}"
                         Command="{Binding ReportMediaCommand}" CommandParameter="{Binding ViewerMedia}" />
                 <Button Grid.Column="3" Text="🗑" FontSize="14"
                         WidthRequest="40" HeightRequest="40" CornerRadius="20" Padding="0"
-                        BackgroundColor="#33F2EEE8" TextColor="{DynamicResource TextPrimary}"
+                        BackgroundColor="{DynamicResource AccentDim}" TextColor="{DynamicResource TextPrimary}"
                         IsVisible="{Binding ViewerMedia.IsMine}"
                         Command="{Binding DeleteMediaCommand}" CommandParameter="{Binding ViewerMedia}" />
             </Grid>

@@ -13,7 +13,7 @@
             BarcodesDetected="OnBarcodesDetected"
             IsDetecting="False" />
 
-        <BoxView BackgroundColor="#66F5F2EE"/>
+        <BoxView BackgroundColor="{DynamicResource SecretOverlayOff}"/>
 
         <Grid RowDefinitions="Auto,*,Auto" Padding="20,50,20,30">
             <Grid Grid.Row="0" ColumnDefinitions="44,*" ColumnSpacing="12">
@@ -49,7 +49,7 @@
                     HeightRequest="260"
                     HorizontalOptions="Center"
                     VerticalOptions="Center"
-                    BackgroundColor="#222A1B10"
+                    BackgroundColor="{DynamicResource AccentDim}"
                     Stroke="{DynamicResource Accent}"
                     StrokeThickness="3"
                     StrokeShape="RoundRectangle 28">
@@ -57,7 +57,7 @@
                     <Label Text="QR"
                            FontFamily="DMSans-Bold"
                            FontSize="34"
-                           TextColor="#5537241B"
+                           TextColor="{DynamicResource TextSecondary}"
                            HorizontalOptions="Center"
                            VerticalOptions="Center"/>
                 </Grid>

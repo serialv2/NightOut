@@ -4,6 +4,7 @@ namespace NightOut.Services;
 
 public interface ICheckinService
 {
+    string? LastCheckinError { get; }
     string? LastBeaconCheckinError { get; }
     event Action<Checkin?>? ActiveCheckinChanged;
 

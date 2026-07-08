@@ -8,6 +8,7 @@
   <meta name="theme-color" content="#F4EFE6">
   <link rel="icon" href="/assets/spotiz-icon.png">
   <link rel="apple-touch-icon" href="/assets/spotiz-icon.png">
+  <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet">
   <link rel="stylesheet" href="/styles.css?v=map-page-1">
 </head>
 <body>
@@ -55,31 +56,49 @@
       </header>
 
       <section class="view is-active map-view" data-view="map" aria-label="Carte Spotiz">
-        <div class="map-commandbar" aria-label="Filtres carte">
-          <div class="map-filter-group">
-            <button class="filter is-active" type="button" data-action="map-filter" data-map-filter="all">Tous</button>
-            <button class="filter" type="button" data-action="map-filter" data-map-filter="open">Ouverts</button>
-            <button class="filter" type="button" data-action="map-filter" data-map-filter="hot">Tres animes</button>
-            <button class="filter" type="button" data-action="map-filter" data-map-filter="friends">Avec amis</button>
-            <button class="filter" type="button" data-route="events">Sorties ce soir</button>
-          </div>
-          <div class="map-summary" data-map-summary></div>
-        </div>
         <div class="map-layout">
-          <section class="map-panel">
-            <div class="map-canvas" aria-label="Carte interactive">
-              <div class="map-neighborhood neighborhood-a"></div>
-              <div class="map-neighborhood neighborhood-b"></div>
-              <div class="map-neighborhood neighborhood-c"></div>
-              <div class="street street-main"></div>
-              <div class="street street-second"></div>
-              <div class="street street-third"></div>
-              <div class="map-water"></div>
-              <div class="map-gridlines"></div>
-              <div class="map-markers" data-map-markers></div>
-              <button class="user-dot" type="button" aria-label="Ta position"></button>
+          <section class="map-panel mapbox-panel">
+            <div id="spotiz-map" class="spotiz-map" aria-label="Carte interactive Spotiz"></div>
+
+            <div class="map-mobile-topbar">
+              <div class="map-brand">Spotiz</div>
+              <button class="city-pill" type="button" data-action="city-sheet">
+                <span class="live-dot"></span>
+                <span data-current-city>Lille</span>
+                <span class="city-chevron">⌄</span>
+              </button>
+              <div class="map-top-spacer"></div>
+              <button class="round-map-button" type="button" data-route="friends" aria-label="Amis">👥</button>
+              <button class="round-map-button" type="button" data-route="notifications" aria-label="Notifications">🔔</button>
+              <button class="profile-dot" type="button" data-route="profile">ST</button>
             </div>
+
+            <div class="map-floating-filters" aria-label="Filtres carte">
+              <button class="filter is-active" type="button" data-action="map-filter" data-map-filter="all">Tous</button>
+              <button class="filter" type="button" data-action="map-filter" data-map-filter="events">🎉 En evenement</button>
+              <button class="filter" type="button" data-action="map-filter" data-map-filter="event">🎵 Evenements</button>
+              <button class="filter" type="button" data-action="map-filter" data-map-filter="bar">🍺 Bar</button>
+              <button class="filter" type="button" data-action="map-filter" data-map-filter="hot">🔥 Anime</button>
+            </div>
+
+            <div class="map-fabs">
+              <button class="round-map-button large" type="button" data-action="locate" aria-label="Me localiser">📍</button>
+            </div>
+
+            <div class="map-live-pill">
+              <span class="live-dot"></span>
+              <span data-map-summary>0 personne en evenement</span>
+            </div>
+
             <div class="map-sheet" data-selected-spot></div>
+
+            <div class="city-sheet-backdrop" data-city-sheet>
+              <div class="city-sheet-panel">
+                <div class="sheet-handle"></div>
+                <h2>Choisir une ville</h2>
+                <div class="city-list" data-city-list></div>
+              </div>
+            </div>
           </section>
 
           <aside class="feed-column map-feed">
@@ -481,6 +500,7 @@
   </div>
 
   <div class="toast" data-toast role="status" aria-live="polite"></div>
+  <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
   <script src="/config.js?v=notifications-actions-3"></script>
   <script src="/supabase-api.js?v=notifications-actions-3"></script>
   <script src="/app.js?v=notifications-actions-3"></script>

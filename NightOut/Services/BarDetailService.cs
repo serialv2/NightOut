@@ -43,17 +43,10 @@ public class BarDetailService(Supabase.Client supabase, IAuthService auth) : IBa
 
             if (string.IsNullOrEmpty(resp?.Content)) return [];
 
-            var items = JsonConvert.DeserializeObject<List<BarActivityItem>>(resp.Content) ?? [];
-            var currentUserId = auth.GetCurrentUserId();
-
-            var checkoutItems = await GetRecentCheckoutItemsAsync(barId, limit);
-            items = items
-                .Concat(checkoutItems)
-                .GroupBy(i => i.Id)
-                .Select(g => g.First())
-                .OrderByDescending(i => i.CreatedAt)
-                .Take(limit)
+            var items = (JsonConvert.DeserializeObject<List<BarActivityItem>>(resp.Content) ?? [])
+                .Where(item => !IsPresenceActivity(item))
                 .ToList();
+            var currentUserId = auth.GetCurrentUserId();
 
             var commentCounts = await GetActivityCommentCountsAsync(items.Select(i => i.Id));
 
@@ -74,6 +67,16 @@ public class BarDetailService(Supabase.Client supabase, IAuthService auth) : IBa
     }
 
     // ── Amis présents ────────────────────────────────────────────
+    private static bool IsPresenceActivity(BarActivityItem item)
+    {
+        var type = item.Type?.Trim();
+        return !string.IsNullOrWhiteSpace(type) &&
+               (type.Contains("checkin", StringComparison.OrdinalIgnoreCase) ||
+                type.Contains("check-in", StringComparison.OrdinalIgnoreCase) ||
+                type.Contains("checkout", StringComparison.OrdinalIgnoreCase) ||
+                type.Contains("check-out", StringComparison.OrdinalIgnoreCase));
+    }
+
     public async Task<List<Profile>> GetFriendsAtBarAsync(string barId)
     {
         try
@@ -92,66 +95,6 @@ public class BarDetailService(Supabase.Client supabase, IAuthService auth) : IBa
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[BarDetailService] GetFriendsAtBar erreur : {ex}");
-            return [];
-        }
-    }
-
-    private async Task<List<BarActivityItem>> GetRecentCheckoutItemsAsync(string barId, int limit)
-    {
-        try
-        {
-            var result = await supabase.From<Checkin>()
-                .Filter("bar_id", Operator.Equals, barId)
-                .Filter("is_active", Operator.Equals, "false")
-                .Order(c => c.CheckedInAt, Supabase.Postgrest.Constants.Ordering.Descending)
-                .Limit(Math.Max(limit * 2, 20))
-                .Get();
-
-            var checkouts = (result?.Models ?? [])
-                .Where(c => c.CheckedOutAt.HasValue)
-                .OrderByDescending(c => c.CheckedOutAt!.Value)
-                .Take(limit)
-                .ToList();
-
-            if (checkouts.Count == 0)
-                return [];
-
-            var userIds = checkouts
-                .Select(c => c.UserId)
-                .Where(id => !string.IsNullOrWhiteSpace(id))
-                .Distinct()
-                .ToList();
-
-            var profiles = new Dictionary<string, Profile>();
-            if (userIds.Count > 0)
-            {
-                var profileResult = await supabase.From<Profile>()
-                    .Filter("id", Operator.In, userIds)
-                    .Get();
-
-                profiles = (profileResult?.Models ?? [])
-                    .Where(p => !string.IsNullOrWhiteSpace(p.Id))
-                    .ToDictionary(p => p.Id, p => p);
-            }
-
-            return checkouts.Select(c =>
-            {
-                profiles.TryGetValue(c.UserId, out var profile);
-                return new BarActivityItem
-                {
-                    Id = $"{c.Id}:checkout",
-                    Type = "checkout",
-                    UserId = c.UserId,
-                    Username = profile?.DisplayNameOrUsername ?? "Utilisateur",
-                    AvatarUrl = profile?.AvatarUrl,
-                    Content = "a quitte le bar",
-                    CreatedAt = c.CheckedOutAt!.Value
-                };
-            }).ToList();
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"[BarDetailService] GetRecentCheckoutItems erreur : {ex.Message}");
             return [];
         }
     }

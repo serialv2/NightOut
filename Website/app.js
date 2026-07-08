@@ -146,8 +146,23 @@ const state = {
   selectedGroupIndex: 0,
   selectedConversation: null,
   profile: null,
-  online: false
+  online: false,
+  userLocation: null,
+  selectedCityName: "Lille"
 };
+
+const mapState = {
+  map: null,
+  ready: false,
+  markers: new Map(),
+  userMarker: null,
+  pendingRender: false
+};
+
+const knownCities = [
+  { name: "Lille", latitude: 50.6292, longitude: 3.0573, zoom: 12.4 },
+  { name: "Valenciennes", latitude: 50.3571, longitude: 3.5234, zoom: 12.6 }
+];
 
 const titles = {
   map: "Carte Spotiz",
@@ -401,21 +416,19 @@ function restoreOAuthSessionFromHash() {
 }
 
 function mapBar(row, index = 0) {
-  const fallbackPositions = [
-    { x: 54, y: 30 },
-    { x: 28, y: 54 },
-    { x: 72, y: 61 },
-    { x: 42, y: 70 },
-    { x: 66, y: 42 }
-  ];
-  const fallback = fallbackPositions[index % fallbackPositions.length];
   const category = row.category || row.primary_category?.name || "Bar";
   const count = Number(row.total_present || row.totalPresent || 0);
   const friends = Number(row.friends_present || row.friendsPresent || 0);
   const level = count >= 80 ? "hot" : count >= 30 ? "good" : "calm";
+  const latitude = Number(row.latitude ?? row.lat);
+  const longitude = Number(row.longitude ?? row.lng ?? row.lon);
+  const hasCoordinates = Number.isFinite(latitude) && Number.isFinite(longitude);
   return {
     ...row,
     category,
+    latitude: hasCoordinates ? latitude : null,
+    longitude: hasCoordinates ? longitude : null,
+    hasCoordinates,
     total_present: count,
     friends_present: friends,
     open: Boolean(row.open ?? row.is_open ?? true),
@@ -424,10 +437,8 @@ function mapBar(row, index = 0) {
     instagram: row.instagram || row.instagram_url || "",
     website: row.website || row.website_url || "",
     description: row.description || "Les donnees du lieu s'afficheront ici quand la fiche sera complete.",
-    distance: row.distance || "A proximite",
+    distance: row.distance || "",
     eta: row.eta || "",
-    x: Number(row.x ?? row.map_x ?? fallback.x),
-    y: Number(row.y ?? row.map_y ?? fallback.y),
     mood: count >= 80 ? "Tres anime" : count >= 30 ? "Anime" : "Calme",
     meta: `${count} present${count > 1 ? "s" : ""} - ${category}`,
     icon: row.icon || (count >= 80 ? "&#128293;" : count >= 30 ? "&#127864;" : "&#127911;"),
@@ -438,11 +449,315 @@ function mapBar(row, index = 0) {
 
 function visibleMapBars() {
   return state.bars.filter((bar) => {
+    if (!bar.hasCoordinates) return false;
     if (state.mapFilter === "open") return bar.open;
     if (state.mapFilter === "hot") return bar.level === "hot";
     if (state.mapFilter === "friends") return Number(bar.friends_present || 0) > 0;
+    if (state.mapFilter === "bar") return true;
+    if (state.mapFilter === "events") return Boolean(bar.event || bar.current_event_title || bar.has_event);
+    if (state.mapFilter === "event") return Boolean(bar.event || bar.current_event_title || bar.has_event);
     return true;
   });
+}
+
+function getMapStyle() {
+  return app.dataset.theme === "dark"
+    ? "mapbox://styles/mapbox/navigation-night-v1"
+    : "mapbox://styles/mapbox/light-v11";
+}
+
+function selectedBar() {
+  return state.bars.find((bar) => bar.id === state.selectedBarId) || state.bars.find((bar) => bar.hasCoordinates) || state.bars[0];
+}
+
+function getCityBars(city) {
+  if (!city) return state.bars.filter((bar) => bar.hasCoordinates);
+  return state.bars
+    .filter((bar) => bar.hasCoordinates)
+    .map((bar) => ({ bar, distance: distanceMeters(city.latitude, city.longitude, bar.latitude, bar.longitude) }))
+    .filter((item) => item.distance < 45000)
+    .sort((a, b) => a.distance - b.distance)
+    .map((item) => item.bar);
+}
+
+function distanceMeters(lat1, lng1, lat2, lng2) {
+  const toRad = (value) => value * Math.PI / 180;
+  const earth = 6371000;
+  const dLat = toRad(Number(lat2) - Number(lat1));
+  const dLng = toRad(Number(lng2) - Number(lng1));
+  const a = Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(Number(lat1))) * Math.cos(toRad(Number(lat2))) *
+    Math.sin(dLng / 2) ** 2;
+  return 2 * earth * Math.asin(Math.sqrt(a));
+}
+
+function nearestCity(lat, lng) {
+  return knownCities
+    .map((city) => ({ city, distance: distanceMeters(lat, lng, city.latitude, city.longitude) }))
+    .sort((a, b) => a.distance - b.distance)[0]?.city || knownCities[0];
+}
+
+function updateCurrentCity(cityName) {
+  state.selectedCityName = cityName || state.selectedCityName || "Lille";
+  document.querySelectorAll("[data-current-city]").forEach((node) => {
+    node.textContent = state.selectedCityName;
+  });
+}
+
+function initSpotizMap() {
+  if (mapState.map || !document.getElementById("spotiz-map")) return;
+  if (!window.mapboxgl) {
+    showMapError("Mapbox n'a pas pu se charger. Verifie la connexion internet et recharge la page.");
+    return;
+  }
+
+  const token = window.SpotizConfig?.mapboxAccessToken;
+  if (!token) {
+    showMapError("Token Mapbox manquant dans config.js.");
+    return;
+  }
+
+  mapboxgl.accessToken = token;
+  const initialCity = knownCities.find((city) => city.name === state.selectedCityName) || knownCities[0];
+
+  mapState.map = new mapboxgl.Map({
+    container: "spotiz-map",
+    style: getMapStyle(),
+    center: [initialCity.longitude, initialCity.latitude],
+    zoom: initialCity.zoom,
+    attributionControl: false,
+    logoPosition: "bottom-left",
+    pitch: 0,
+    dragRotate: false,
+    touchPitch: false
+  });
+
+  mapState.map.addControl(new mapboxgl.AttributionControl({ compact: true }), "bottom-left");
+  mapState.map.on("load", () => {
+    mapState.ready = true;
+    renderSpots();
+    locateUser({ silent: true, autoSelectCity: true });
+  });
+}
+
+function showMapError(message) {
+  const panel = document.querySelector(".mapbox-panel");
+  if (!panel || panel.querySelector(".map-error-card")) return;
+  const card = document.createElement("div");
+  card.className = "map-error-card";
+  card.textContent = message;
+  panel.appendChild(card);
+}
+
+function flyToBar(bar, zoom = 15.4) {
+  if (!mapState.map || !bar?.hasCoordinates) return;
+  mapState.map.flyTo({
+    center: [bar.longitude, bar.latitude],
+    zoom,
+    speed: 1.1,
+    essential: true
+  });
+}
+
+function fitMapToBars(bars) {
+  if (!mapState.map || !bars.length) return;
+  const bounds = new mapboxgl.LngLatBounds();
+  bars.forEach((bar) => bounds.extend([bar.longitude, bar.latitude]));
+  if (bars.length === 1) {
+    flyToBar(bars[0], 14.5);
+    return;
+  }
+  mapState.map.fitBounds(bounds, {
+    padding: { top: 140, right: 80, bottom: 210, left: 50 },
+    maxZoom: 14.5,
+    duration: 900
+  });
+}
+
+function markerHtml(bar) {
+  return `
+    <div class="marker-card">
+      ${bar.event ? `<span class="upcoming-badge">LIVE</span>` : ""}
+      <div class="marker-head">
+        <span class="marker-icon">${bar.icon}</span>
+        <span class="marker-name">${escapeHtml(bar.name)}</span>
+      </div>
+      <div class="marker-gauge">
+        <span class="marker-gauge-track"><span class="marker-gauge-fill" style="width:${Number(bar.gauge || 0)}%"></span></span>
+        <span class="marker-count">${escapeHtml(bar.total_present || 0)}</span>
+      </div>
+    </div>
+    <div class="marker-stem"></div>
+    <div class="marker-dot"></div>
+  `;
+}
+
+function syncMapMarkers(visibleBars) {
+  if (!mapState.ready || !mapState.map) {
+    mapState.pendingRender = true;
+    return;
+  }
+
+  const visibleIds = new Set(visibleBars.map((bar) => String(bar.id)));
+
+  for (const [id, markerData] of mapState.markers.entries()) {
+    if (!visibleIds.has(id)) {
+      markerData.marker.remove();
+      mapState.markers.delete(id);
+    }
+  }
+
+  visibleBars.forEach((bar) => {
+    const id = String(bar.id);
+    const selected = id === String(state.selectedBarId);
+    let markerData = mapState.markers.get(id);
+
+    if (!markerData) {
+      const element = document.createElement("button");
+      element.type = "button";
+      element.className = `bar-marker ${bar.level}`;
+      element.dataset.action = "select-bar";
+      element.dataset.barId = id;
+      element.setAttribute("aria-label", bar.name);
+      element.innerHTML = markerHtml(bar);
+      element.addEventListener("click", (event) => {
+        event.stopPropagation();
+        state.selectedBarId = id;
+        renderSpots();
+        flyToBar(bar);
+      });
+
+      const marker = new mapboxgl.Marker({ element, anchor: "bottom" })
+        .setLngLat([bar.longitude, bar.latitude])
+        .addTo(mapState.map);
+
+      markerData = { marker, element };
+      mapState.markers.set(id, markerData);
+    } else {
+      markerData.marker.setLngLat([bar.longitude, bar.latitude]);
+      markerData.element.innerHTML = markerHtml(bar);
+      markerData.element.className = `bar-marker ${bar.level}`;
+    }
+
+    markerData.element.classList.toggle("is-selected", selected);
+  });
+}
+
+function setUserMarker(lat, lng) {
+  if (!mapState.map || !window.mapboxgl) return;
+  if (!mapState.userMarker) {
+    const element = document.createElement("div");
+    element.className = "user-location-marker";
+    element.innerHTML = '<span></span>';
+    mapState.userMarker = new mapboxgl.Marker({ element, anchor: "center" }).setLngLat([lng, lat]).addTo(mapState.map);
+    return;
+  }
+  mapState.userMarker.setLngLat([lng, lat]);
+}
+
+function renderCityList() {
+  const target = document.querySelector("[data-city-list]");
+  if (!target) return;
+  target.innerHTML = knownCities.map((city) => `
+    <button class="city-option ${city.name === state.selectedCityName ? "is-selected" : ""}" type="button" data-action="select-city" data-city="${escapeHtml(city.name)}">
+      <span class="live-dot"></span>
+      <span>${escapeHtml(city.name)}</span>
+      <span>${city.name === state.selectedCityName ? "✓" : ""}</span>
+    </button>
+  `).join("");
+}
+
+function applyMapTheme() {
+  if (!mapState.map) return;
+  mapState.ready = false;
+  mapState.map.setStyle(getMapStyle());
+  mapState.map.once("styledata", () => {
+    mapState.ready = true;
+    syncMapMarkers(visibleMapBars());
+  });
+}
+
+function toggleCitySheet(open) {
+  const sheet = document.querySelector("[data-city-sheet]");
+  if (!sheet) return;
+  sheet.classList.toggle("is-open", open ?? !sheet.classList.contains("is-open"));
+}
+
+function selectCity(cityName, options = {}) {
+  const city = knownCities.find((item) => item.name === cityName) || knownCities[0];
+  updateCurrentCity(city.name);
+
+  const cityBars = getCityBars(city);
+  if (cityBars.length) {
+    state.selectedBarId = cityBars[0].id;
+  }
+
+  renderSpots();
+
+  if (!mapState.map) return;
+
+  const barsToFit = cityBars.length ? cityBars : visibleMapBars();
+  if (barsToFit.length && !options.keepZoom) {
+    fitMapToBars(barsToFit);
+    return;
+  }
+
+  mapState.map.flyTo({
+    center: [city.longitude, city.latitude],
+    zoom: city.zoom,
+    essential: true
+  });
+}
+
+function locateUser({ silent = false, autoSelectCity = false } = {}) {
+  if (!navigator.geolocation) {
+    if (!silent) showToast("Geolocalisation indisponible sur ce navigateur.");
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition((position) => {
+    const { latitude, longitude } = position.coords;
+    state.userLocation = { latitude, longitude };
+    setUserMarker(latitude, longitude);
+
+    const city = nearestCity(latitude, longitude);
+    if (autoSelectCity || !state.selectedCityName) {
+      selectCity(city.name, { keepZoom: true });
+    }
+
+    if (mapState.map) {
+      mapState.map.flyTo({
+        center: [longitude, latitude],
+        zoom: 14.5,
+        essential: true
+      });
+    }
+
+    if (!silent) showToast(`Position detectee autour de ${city.name}.`);
+  }, () => {
+    if (!silent) {
+      showToast("Position non autorisee. Choisis une ville dans la liste.");
+      toggleCitySheet(true);
+    }
+  }, {
+    enableHighAccuracy: true,
+    timeout: 8000,
+    maximumAge: 60000
+  });
+}
+
+function openDirections(bar) {
+  if (!bar?.hasCoordinates) {
+    showToast("Adresse GPS indisponible pour ce lieu.");
+    return;
+  }
+
+  const destination = `${bar.latitude},${bar.longitude}`;
+  const isAppleDevice = /iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent);
+  const url = isAppleDevice
+    ? `https://maps.apple.com/?daddr=${encodeURIComponent(destination)}&dirflg=w`
+    : `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(destination)}&travelmode=walking`;
+  window.open(url, "_blank", "noopener");
 }
 
 function mapEvent(row) {
@@ -455,33 +770,33 @@ function mapEvent(row) {
 }
 
 function renderSpots() {
-  const selected = state.bars.find((bar) => bar.id === state.selectedBarId) || state.bars[0];
-  const selectedCard = document.querySelector("[data-selected-spot]");
+  initSpotizMap();
+
   const visibleBars = visibleMapBars();
-  const markerTarget = document.querySelector("[data-map-markers]");
+  if (!visibleBars.some((bar) => String(bar.id) === String(state.selectedBarId))) {
+    state.selectedBarId = visibleBars[0]?.id || state.bars.find((bar) => bar.hasCoordinates)?.id || state.bars[0]?.id || null;
+  }
+
+  const selected = selectedBar();
+  const selectedCard = document.querySelector("[data-selected-spot]");
   const listTarget = document.querySelector("[data-spot-list]");
   const totalTarget = document.querySelector("[data-map-total]");
   const hotTarget = document.querySelector("[data-map-hot-count]");
-  const summaryTarget = document.querySelector("[data-map-summary]");
+  const summaryTargets = document.querySelectorAll("[data-map-summary]");
   const totalPresent = state.bars.reduce((sum, bar) => sum + Number(bar.total_present || 0), 0);
   const hotCount = state.bars.filter((bar) => bar.level === "hot").length;
 
   if (totalTarget) totalTarget.textContent = totalPresent;
   if (hotTarget) hotTarget.textContent = hotCount;
-  if (summaryTarget) {
-    summaryTarget.textContent = `${visibleBars.length} lieu${visibleBars.length > 1 ? "x" : ""} affiches`;
-  }
+  summaryTargets.forEach((target) => {
+    target.textContent = `${totalPresent} personne${totalPresent > 1 ? "s" : ""} en evenement`;
+  });
 
-  if (markerTarget) {
-    markerTarget.innerHTML = visibleBars.map((spot) => `
-      <button class="map-marker ${escapeHtml(spot.level)} ${spot.id === state.selectedBarId ? "is-selected" : ""}" type="button" data-action="select-bar" data-bar-id="${escapeHtml(spot.id)}" style="--x:${Number(spot.x)}%; --y:${Number(spot.y)}%;" aria-label="${escapeHtml(spot.name)}">
-        <span>${spot.icon}</span>
-        <strong>${escapeHtml(spot.total_present)}</strong>
-      </button>
-    `).join("");
-  }
+  syncMapMarkers(visibleBars);
+  renderCityList();
 
-  if (selectedCard && selected) {
+  if (selectedCard && selected?.hasCoordinates) {
+    selectedCard.classList.remove("is-hidden");
     selectedCard.innerHTML = `
       <div class="map-sheet-header">
         <div class="map-place-icon">${selected.icon}</div>
@@ -491,11 +806,12 @@ function renderSpots() {
           <p>${escapeHtml(selected.address)}</p>
         </div>
         <span class="pill ${escapeHtml(selected.level)}">${escapeHtml(selected.mood)}</span>
+        <button class="sheet-close" type="button" data-action="close-map-sheet" aria-label="Fermer">×</button>
       </div>
       <div class="map-pill-row">
         <span>${selected.open ? "Ouvert" : "Ferme"}</span>
-        <span>${escapeHtml(selected.event || "Aucun evenement annonce")}</span>
-        <span>${escapeHtml(selected.distance)}${selected.eta ? ` - ${escapeHtml(selected.eta)}` : ""}</span>
+        <span>${escapeHtml(selected.event || selected.current_event_title || "Aucun evenement annonce")}</span>
+        <span>${selected.distance ? escapeHtml(selected.distance) : "Autour de " + escapeHtml(state.selectedCityName)}</span>
       </div>
       <div class="map-metric">
         <div>
@@ -511,7 +827,7 @@ function renderSpots() {
         <span style="width:${Number(selected.gauge || 0)}%"></span>
       </div>
       <div class="map-quick-actions">
-        <button class="primary-button" type="button" data-action="checkin" data-bar-id="${escapeHtml(selected.id)}">Check-in</button>
+        <button class="primary-button" type="button" data-action="checkin" data-bar-id="${escapeHtml(selected.id)}">Check in</button>
         <button class="ghost-button" type="button" data-action="directions">Itineraire</button>
         <button class="ghost-button" type="button" data-route="bar">Fiche</button>
       </div>
@@ -522,12 +838,15 @@ function renderSpots() {
       </div>
       <p class="map-description">${escapeHtml(selected.description)}</p>
     `;
+  } else if (selectedCard) {
+    selectedCard.classList.add("is-hidden");
+    selectedCard.innerHTML = "";
   }
 
   if (!listTarget) return;
 
   listTarget.innerHTML = visibleBars.map((spot) => `
-    <button class="spot-card ${spot.id === state.selectedBarId ? "is-selected" : ""}" type="button" data-action="select-bar" data-bar-id="${escapeHtml(spot.id)}">
+    <button class="spot-card ${String(spot.id) === String(state.selectedBarId) ? "is-selected" : ""}" type="button" data-action="select-bar" data-bar-id="${escapeHtml(spot.id)}">
       <div class="spot-icon">${spot.icon}</div>
       <div>
         <h3>${escapeHtml(spot.name)}</h3>
@@ -820,7 +1139,9 @@ async function loadSupabaseData() {
 
     if (Array.isArray(bars) && bars.length) {
       state.bars = bars.map(mapBar);
-      state.selectedBarId = state.bars[0].id;
+      const city = knownCities.find((item) => item.name === state.selectedCityName) || knownCities[0];
+      const cityBars = getCityBars(city);
+      state.selectedBarId = cityBars[0]?.id || state.bars.find((bar) => bar.hasCoordinates)?.id || state.bars[0].id;
     }
 
     if (Array.isArray(events) && events.length) {
@@ -829,6 +1150,7 @@ async function loadSupabaseData() {
 
     state.online = true;
     renderSpots();
+    fitMapToBars(getCityBars(knownCities.find((item) => item.name === state.selectedCityName) || knownCities[0]));
     renderEvents();
     renderEventDetail();
     showToast("Données Spotiz chargées.");
@@ -906,6 +1228,7 @@ async function handleAction(button) {
     const nextTheme = app.dataset.theme === "light" ? "dark" : "light";
     app.dataset.theme = nextTheme;
     localStorage.setItem("spotiz-theme", nextTheme);
+    applyMapTheme();
     button.textContent = nextTheme === "light" ? "☾" : "☀";
     showToast(nextTheme === "light" ? "Thème clair activé." : "Thème sombre activé.");
     return;
@@ -914,6 +1237,7 @@ async function handleAction(button) {
   if (action === "select-bar") {
     state.selectedBarId = button.dataset.barId;
     renderSpots();
+    flyToBar(selectedBar());
     return;
   }
 
@@ -924,6 +1248,33 @@ async function handleAction(button) {
     });
     renderSpots();
     showToast(`Filtre "${button.textContent.trim()}" applique.`);
+    return;
+  }
+
+  if (action === "city-sheet") {
+    renderCityList();
+    toggleCitySheet(true);
+    return;
+  }
+
+  if (action === "select-city") {
+    selectCity(button.dataset.city);
+    toggleCitySheet(false);
+    return;
+  }
+
+  if (action === "close-map-sheet") {
+    document.querySelector("[data-selected-spot]")?.classList.add("is-hidden");
+    return;
+  }
+
+  if (action === "locate") {
+    locateUser({ silent: false, autoSelectCity: true });
+    return;
+  }
+
+  if (action === "directions") {
+    openDirections(selectedBar());
     return;
   }
 
