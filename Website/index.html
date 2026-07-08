@@ -1,0 +1,488 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Spotiz</title>
+  <meta name="description" content="Spotiz rassemble carte, sorties, amis, messages et espace pro.">
+  <meta name="theme-color" content="#F4EFE6">
+  <link rel="icon" href="/assets/spotiz-icon.png">
+  <link rel="apple-touch-icon" href="/assets/spotiz-icon.png">
+  <link rel="stylesheet" href="/styles.css?v=map-page-1">
+</head>
+<body>
+  <div class="app-shell" data-theme="light">
+    <aside class="side-nav" aria-label="Navigation principale">
+      <a class="brand" href="/" data-route="map" aria-label="Accueil Spotiz">
+        <img src="/assets/spotiz-icon.png" alt="" width="42" height="42">
+        <span>Spotiz</span>
+      </a>
+
+      <nav class="tabs">
+        <button class="tab is-active" type="button" data-route="map"><span>&#128506;</span>Carte</button>
+        <button class="tab" type="button" data-route="events"><span>&#127881;</span>Sorties</button>
+        <button class="tab" type="button" data-route="friends"><span>&#128101;</span>Amis</button>
+        <button class="tab" type="button" data-route="messages"><span>&#128172;</span>Messages</button>
+        <button class="tab" type="button" data-route="notifications"><span>&#128276;</span>Notifications</button>
+        <button class="tab" type="button" data-route="profile"><span>&#128100;</span>Profil</button>
+        <button class="tab" type="button" data-route="pro"><span>&#11088;</span>Pro</button>
+      </nav>
+
+      <div class="side-actions">
+        <button class="icon-button" type="button" data-action="toggle-theme" aria-label="Changer de theme">☾</button>
+        <button class="ghost-button" type="button" data-route="auth">Connexion</button>
+      </div>
+      <div class="nav-profile">
+        <div class="avatar">ST</div>
+        <div>
+          <strong>Steen</strong>
+          <span>Mode aperçu</span>
+        </div>
+      </div>
+    </aside>
+
+    <main class="workspace">
+      <header class="topbar">
+        <div>
+          <p class="kicker" data-current-city>Lille</p>
+          <h1 data-page-title>Carte Spotiz</h1>
+        </div>
+        <div class="topbar-actions">
+          <button class="ghost-button compact" type="button" data-route="notifications">Notifications</button>
+          <button class="ghost-button compact" type="button" data-action="locate">Me localiser</button>
+          <button class="primary-button compact" type="button" data-route="create-event">Creer une sortie</button>
+        </div>
+      </header>
+
+      <section class="view is-active map-view" data-view="map" aria-label="Carte Spotiz">
+        <div class="map-commandbar" aria-label="Filtres carte">
+          <div class="map-filter-group">
+            <button class="filter is-active" type="button" data-action="map-filter" data-map-filter="all">Tous</button>
+            <button class="filter" type="button" data-action="map-filter" data-map-filter="open">Ouverts</button>
+            <button class="filter" type="button" data-action="map-filter" data-map-filter="hot">Tres animes</button>
+            <button class="filter" type="button" data-action="map-filter" data-map-filter="friends">Avec amis</button>
+            <button class="filter" type="button" data-route="events">Sorties ce soir</button>
+          </div>
+          <div class="map-summary" data-map-summary></div>
+        </div>
+        <div class="map-layout">
+          <section class="map-panel">
+            <div class="map-canvas" aria-label="Carte interactive">
+              <div class="map-neighborhood neighborhood-a"></div>
+              <div class="map-neighborhood neighborhood-b"></div>
+              <div class="map-neighborhood neighborhood-c"></div>
+              <div class="street street-main"></div>
+              <div class="street street-second"></div>
+              <div class="street street-third"></div>
+              <div class="map-water"></div>
+              <div class="map-gridlines"></div>
+              <div class="map-markers" data-map-markers></div>
+              <button class="user-dot" type="button" aria-label="Ta position"></button>
+            </div>
+            <div class="map-sheet" data-selected-spot></div>
+          </section>
+
+          <aside class="feed-column map-feed">
+            <div class="section-head">
+              <div>
+                <p class="kicker">Bars et lieux</p>
+                <h2>Autour de toi</h2>
+              </div>
+              <button class="text-button" type="button" data-route="events">Voir sorties</button>
+            </div>
+            <div class="map-feed-stats">
+              <article>
+                <strong data-map-total>0</strong>
+                <span>presents maintenant</span>
+              </article>
+              <article>
+                <strong data-map-hot-count>0</strong>
+                <span>spots animes</span>
+              </article>
+            </div>
+            <div class="spot-list" data-spot-list></div>
+          </aside>
+        </div>
+      </section>
+
+      <section class="view" data-view="events" aria-label="Sorties ephemeres">
+        <div class="event-hero">
+          <span class="pill hot">Ce soir</span>
+          <h2>Before rooftop au Joseph</h2>
+          <p>Organise par Baptiste · 21 participants · depart vers 21h30</p>
+          <div class="avatar-row"><span>BA</span><span>LO</span><span>MA</span><span>+18</span></div>
+          <div class="row-actions">
+            <button class="primary-button" type="button" data-action="join-event" data-event-id="demo-event-1">J'y vais</button>
+            <button class="ghost-button" type="button" data-action="rate-creator">Noter</button>
+            <button class="ghost-button" type="button" data-route="creator">Profil</button>
+          </div>
+        </div>
+        <div class="filters" data-filters>
+          <button class="filter is-active" type="button" data-filter="all">Tout</button>
+          <button class="filter" type="button" data-filter="today">Ce soir</button>
+          <button class="filter" type="button" data-filter="friends">Avec amis</button>
+          <button class="filter" type="button" data-filter="free">Gratuit</button>
+        </div>
+        <div class="cards-grid" data-events-list></div>
+      </section>
+
+      <section class="view" data-view="event-detail" aria-label="Detail sortie">
+        <div class="bar-detail" data-event-detail></div>
+      </section>
+
+      <section class="view" data-view="create-event" aria-label="Creer une sortie">
+        <form class="panel form-panel" data-create-event-form>
+          <p class="kicker">Sortie ephemere</p>
+          <h2>Creer une sortie</h2>
+          <div class="form-grid">
+            <label>Titre<input name="title" type="text" placeholder="Before rooftop" required></label>
+            <label>Lieu<input name="place_name" type="text" placeholder="Joseph"></label>
+            <label>Date et heure<input name="start_at" type="datetime-local" required></label>
+            <label>Visibilite<select name="visibility"><option value="public">Public</option><option value="friends">Amis</option><option value="group">Groupe</option></select></label>
+          </div>
+          <label>Description<textarea name="description" rows="4" placeholder="Infos utiles"></textarea></label>
+          <div class="row-actions">
+            <button class="primary-button" type="submit">Publier</button>
+            <button class="ghost-button" type="button" data-route="events">Annuler</button>
+          </div>
+          <p class="form-status" data-create-event-status></p>
+        </form>
+      </section>
+
+      <section class="view" data-view="friends" aria-label="Amis et groupes">
+        <div class="split-layout">
+          <section class="panel">
+            <div class="section-head">
+              <h2>Amis presents</h2>
+              <button class="text-button" type="button" data-action="invite-friend">Inviter</button>
+            </div>
+            <div class="friend-list" data-friends-list></div>
+          </section>
+          <section class="panel">
+            <div class="section-head">
+              <h2>Groupes</h2>
+              <button class="text-button" type="button" data-action="create-group">Creer</button>
+            </div>
+            <div class="group-list" data-groups-list></div>
+          </section>
+        </div>
+      </section>
+
+      <section class="view" data-view="friend-profile" aria-label="Profil ami">
+        <div class="profile-layout" data-friend-detail></div>
+      </section>
+
+      <section class="view" data-view="group-detail" aria-label="Detail groupe">
+        <div class="split-layout" data-group-detail></div>
+      </section>
+
+      <section class="view" data-view="messages" aria-label="Messages">
+        <div class="messages-layout">
+          <aside class="conversation-list">
+            <div class="conversation-tools">
+              <div>
+                <p class="kicker">Messages</p>
+                <h2>Discussions</h2>
+              </div>
+              <button class="icon-button" type="button" data-action="new-message" aria-label="Nouveau message">+</button>
+            </div>
+            <input class="search-input" type="search" placeholder="Rechercher" data-conversation-search>
+            <div class="conversation-tabs">
+              <button class="filter is-active" type="button" data-action="conversation-filter" data-conversation-filter="all">Tous</button>
+              <button class="filter" type="button" data-action="conversation-filter" data-conversation-filter="unread">Non lus</button>
+              <button class="filter" type="button" data-action="conversation-filter" data-conversation-filter="groups">Groupes</button>
+            </div>
+            <div class="conversation-scroll" data-conversations></div>
+          </aside>
+          <section class="chat-panel">
+            <div class="chat-head" data-chat-head>
+              <div class="avatar">LO</div>
+              <div><h2>Lola</h2><p>Au Joseph · en ligne</p></div>
+              <div class="chat-actions">
+                <button class="icon-button" type="button" data-action="share-location" aria-label="Partager ma position">&#128205;</button>
+                <button class="icon-button" type="button" data-action="mute-conversation" aria-label="Mettre en sourdine">&#128276;</button>
+                <button class="icon-button" type="button" data-action="report-conversation" aria-label="Signaler">&#9888;</button>
+              </div>
+            </div>
+            <div class="chat-stream" data-chat-stream></div>
+            <div class="quick-replies">
+              <button class="filter" type="button" data-action="quick-reply" data-message="J'arrive dans 10 minutes">J'arrive</button>
+              <button class="filter" type="button" data-action="quick-reply" data-message="On se retrouve ou ?">Ou ?</button>
+              <button class="filter" type="button" data-action="quick-reply" data-message="Partage ta position">Position</button>
+            </div>
+            <form class="composer" data-message-form>
+              <input name="message" type="text" autocomplete="off" placeholder="Ecrire un message">
+              <button class="primary-button" type="submit">Envoyer</button>
+            </form>
+          </section>
+        </div>
+      </section>
+
+      <section class="view" data-view="notifications" aria-label="Notifications">
+        <div class="notifications-page">
+          <section class="notifications-header">
+            <button class="icon-button" type="button" data-action="back-from-notifications" aria-label="Retour">&#8249;</button>
+            <div>
+              <h2>Notifications</h2>
+              <p>Demandes, groupes, sorties et invitations</p>
+              <strong data-notifications-unread></strong>
+            </div>
+            <div class="notifications-actions">
+              <button class="ghost-button compact" type="button" data-action="refresh-notifications">Actualiser</button>
+              <button class="ghost-button compact" type="button" data-action="mark-notifications-read" data-mark-all-read>Tout lu</button>
+            </div>
+          </section>
+
+          <section class="notifications-panel">
+            <div class="notification-toolbar">
+              <div>
+                <p class="kicker">Historique</p>
+                <h2 data-notifications-title>Centre de notifications</h2>
+              </div>
+              <div class="notification-filters">
+                <button class="filter is-active" type="button" data-action="notification-filter" data-notification-filter="all">Toutes</button>
+                <button class="filter" type="button" data-action="notification-filter" data-notification-filter="unread">Non lues</button>
+                <button class="filter" type="button" data-action="notification-filter" data-notification-filter="messages">Messages</button>
+                <button class="filter" type="button" data-action="notification-filter" data-notification-filter="groups">Groupes</button>
+                <button class="filter" type="button" data-action="notification-filter" data-notification-filter="events">Sorties</button>
+              </div>
+            </div>
+            <div class="activity-feed" data-notifications-list></div>
+          </section>
+        </div>
+      </section>
+
+      <section class="view" data-view="profile" aria-label="Profil">
+        <div class="profile-layout">
+          <section class="profile-card">
+            <div class="profile-avatar">ST</div>
+            <h2>Steen</h2>
+            <p>@steen · Lille · 42 sorties</p>
+            <div class="stats-row"><span><strong>18</strong> amis</span><span><strong>7</strong> groupes</span><span><strong>4</strong> badges</span></div>
+            <button class="primary-button" type="button" data-action="save-profile">Enregistrer</button>
+            <button class="ghost-button" type="button" data-route="settings">Reglages avances</button>
+          </section>
+          <section class="panel">
+            <h2>Reglages</h2>
+            <label class="setting"><span>Mode secret</span><input type="checkbox" data-action="secret-mode"></label>
+            <label class="setting"><span>Notifications sorties</span><input type="checkbox" checked></label>
+            <label class="setting"><span>Check-in automatique</span><input type="checkbox" checked></label>
+          </section>
+        </div>
+      </section>
+
+      <section class="view" data-view="settings" aria-label="Reglages">
+        <div class="split-layout">
+          <section class="panel">
+            <p class="kicker">Confidentialite</p>
+            <h2>Reglages du compte</h2>
+            <label class="setting"><span>Profil prive</span><input type="checkbox"></label>
+            <label class="setting"><span>Partager ma position aux amis</span><input type="checkbox" checked></label>
+            <label class="setting"><span>Ouvert aux rencontres</span><input type="checkbox"></label>
+            <button class="primary-button" type="button" data-action="save-profile">Enregistrer</button>
+          </section>
+          <section class="panel">
+            <p class="kicker">Session</p>
+            <h2>Compte</h2>
+            <button class="ghost-button" type="button" data-action="logout">Se deconnecter</button>
+            <button class="ghost-button" type="button" data-route="forgot-password">Mot de passe oublie</button>
+          </section>
+        </div>
+      </section>
+
+      <section class="view" data-view="pro" aria-label="Espace professionnel">
+        <div class="pro-layout">
+          <section class="panel">
+            <p class="kicker">Tableau de bord pro</p>
+            <h2>Joseph</h2>
+            <div class="metric-grid"><span><strong>312</strong> vues</span><span><strong>128</strong> check-ins</span><span><strong>46</strong> abonnes</span><span><strong>4.8</strong> note</span></div>
+          </section>
+          <section class="panel">
+            <div class="section-head">
+              <h2>Evenements officiels</h2>
+              <button class="text-button" type="button" data-action="create-pro-event">Ajouter</button>
+            </div>
+            <div class="pro-events" data-pro-events></div>
+          </section>
+        </div>
+        <div class="cards-grid pro-extra">
+          <article class="panel"><h2>Statistiques</h2><p>Vues, followers, check-ins et taux de retour.</p><button class="ghost-button" type="button" data-route="pro-stats">Ouvrir</button></article>
+          <article class="panel"><h2>Recompenses</h2><p>Offres, wallet client et scan QR.</p><button class="ghost-button" type="button" data-route="rewards">Gerer</button></article>
+          <article class="panel"><h2>Fiche bar</h2><p>Logo, horaires, categories, reseaux et revendication.</p><button class="ghost-button" type="button" data-route="register-bar">Modifier</button></article>
+        </div>
+      </section>
+
+      <section class="view" data-view="pro-stats" aria-label="Statistiques pro">
+        <div class="panel">
+          <p class="kicker">Stats pro</p>
+          <h2>Performance du bar</h2>
+          <div class="metric-grid"><span><strong>+18%</strong> vues</span><span><strong>64%</strong> retour</span><span><strong>23</strong> clics itineraire</span><span><strong>11</strong> partages</span></div>
+          <div class="chart-strip"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+        </div>
+      </section>
+
+      <section class="view" data-view="rewards" aria-label="Recompenses">
+        <div class="split-layout">
+          <section class="panel">
+            <div class="section-head"><h2>Recompenses actives</h2><button class="text-button" type="button" data-action="create-reward">Ajouter</button></div>
+            <div class="activity-feed"><article class="activity-item"><p>1 cocktail offert apres 5 check-ins.</p></article><article class="activity-item"><p>Happy hour VIP pour les abonnes.</p></article></div>
+          </section>
+          <section class="panel qr-panel"><h2>Scan QR</h2><div class="qr-box">QR</div><button class="primary-button" type="button" data-action="scan-reward">Scanner</button></section>
+        </div>
+      </section>
+
+      <section class="view" data-view="register-bar" aria-label="Inscription bar">
+        <form class="panel form-panel" data-register-bar-form>
+          <p class="kicker">Espace pro</p>
+          <h2>Fiche et revendication bar</h2>
+          <div class="form-grid">
+            <label>Nom public<input name="display_name" type="text" placeholder="Joseph"></label>
+            <label>Telephone<input name="phone" type="tel" placeholder="+33 ..."></label>
+            <label>Site web<input name="website" type="url" placeholder="https://..."></label>
+            <label>Instagram<input name="instagram" type="text" placeholder="@spotiz"></label>
+          </div>
+          <label>Description<textarea name="description" rows="4" placeholder="Ambiance, horaires, style musical"></textarea></label>
+          <div class="row-actions"><button class="primary-button" type="submit">Envoyer pour validation</button><button class="ghost-button" type="button" data-route="pro">Retour pro</button></div>
+          <p class="form-status" data-register-bar-status></p>
+        </form>
+      </section>
+
+      <section class="view" data-view="auth" aria-label="Connexion et inscription">
+        <div class="auth-scene">
+          <section class="auth-visual" aria-label="Apercu Spotiz">
+            <div class="auth-logo-row">
+              <img src="/assets/spotiz-icon.png" alt="" width="46" height="46">
+              <span>Spotiz</span>
+            </div>
+            <p class="kicker">Sortir ce soir</p>
+            <h2>La carte, tes amis et les meilleurs spots au meme endroit.</h2>
+            <p>Connecte-toi pour retrouver tes groupes, tes messages, tes check-ins et les sorties autour de toi.</p>
+            <div class="auth-mini-map">
+              <span class="mini-pin pin-one">&#128293;</span>
+              <span class="mini-pin pin-two">&#127864;</span>
+              <span class="mini-pin pin-three">&#127911;</span>
+              <div class="mini-card">
+                <strong>Joseph</strong>
+                <small>86 presents · before rooftop</small>
+              </div>
+            </div>
+            <div class="auth-proof">
+              <span><strong>128</strong> presents</span>
+              <span><strong>4.8</strong> note</span>
+              <span><strong>21</strong> sorties</span>
+            </div>
+          </section>
+
+          <section class="auth-stack">
+            <form class="auth-card auth-card-primary" data-auth-form>
+              <p class="kicker">Compte Spotiz</p>
+              <h2>Connexion</h2>
+              <p class="auth-subtitle">Reprends ta soiree exactement la ou tu l'as laissee.</p>
+              <label>Email<input name="email" type="email" placeholder="ton@email.com" required></label>
+              <label>Mot de passe<input name="password" type="password" placeholder="Mot de passe" required></label>
+              <button class="primary-button" type="submit">Se connecter</button>
+              <button class="google-button" type="button" data-action="google-login">
+                <span>G</span>
+                Continuer avec Google
+              </button>
+              <button class="text-button auth-link" type="button" data-route="forgot-password">Mot de passe oublie</button>
+              <p class="form-status" data-auth-status></p>
+            </form>
+
+            <div class="auth-switch-card">
+              <span>Nouveau sur Spotiz ?</span>
+              <button class="text-button" type="button" data-route="register">Creer un compte</button>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <section class="view" data-view="register" aria-label="Inscription">
+        <div class="auth-scene register-scene">
+          <section class="auth-visual" aria-label="Compte Spotiz">
+            <div class="auth-logo-row">
+              <img src="/assets/spotiz-icon.png" alt="" width="46" height="46">
+              <span>Spotiz</span>
+            </div>
+            <p class="kicker">Nouveau compte</p>
+            <h2>Rejoins les sorties autour de toi.</h2>
+            <p>Choisis ton type de compte. Les comptes pro restent soumis a validation Spotiz comme dans l'application.</p>
+            <div class="auth-proof">
+              <span><strong>Carte</strong> spots</span>
+              <span><strong>Amis</strong> groupes</span>
+              <span><strong>Pro</strong> stats</span>
+            </div>
+          </section>
+
+          <section class="auth-stack">
+            <form class="auth-card auth-card-primary" data-register-form>
+              <div class="section-head">
+                <div>
+                  <p class="kicker">Inscription</p>
+                  <h2>Creer ton compte</h2>
+                </div>
+                <span class="pill good">Email requis</span>
+              </div>
+              <label>Pseudo<input name="username" type="text" placeholder="Pseudo" required></label>
+              <label>Email<input name="email" type="email" placeholder="ton@email.com" required></label>
+              <label>Mot de passe<input name="password" type="password" placeholder="8 caracteres minimum" required></label>
+              <label>Type de compte<select name="account_type"><option value="user">Utilisateur</option><option value="establishment">Etablissement / bar</option><option value="organizer">Organisateur</option></select></label>
+              <button class="primary-button" type="submit">Creer mon compte</button>
+              <button class="google-button" type="button" data-action="google-register">
+                <span>G</span>
+                S'inscrire avec Google
+              </button>
+              <button class="text-button auth-link" type="button" data-route="auth">J'ai deja un compte</button>
+              <p class="form-status" data-register-status></p>
+            </form>
+          </section>
+        </div>
+      </section>
+
+      <section class="view" data-view="forgot-password" aria-label="Mot de passe oublie">
+        <div class="auth-layout">
+          <form class="auth-card" data-forgot-form>
+            <p class="kicker">Securite</p>
+            <h2>Mot de passe oublie</h2>
+            <input name="email" type="email" placeholder="ton@email.com" required>
+            <button class="primary-button" type="submit">Envoyer le lien</button>
+            <button class="ghost-button" type="button" data-route="auth">Retour connexion</button>
+            <p class="form-status" data-forgot-status></p>
+          </form>
+        </div>
+      </section>
+
+      <section class="view" data-view="confirmed" aria-label="Email confirme">
+        <div class="confirmation-card"><span class="success-icon">✓</span><h2>Email confirme</h2><p>Tu peux retourner dans Spotiz et te connecter avec ton adresse e-mail.</p><a class="primary-button" href="spotiz://auth-callback">Ouvrir l'application</a></div>
+      </section>
+
+      <section class="view" data-view="bar" aria-label="Fiche bar">
+        <div class="bar-detail">
+          <section class="panel"><span class="pill hot">Ouvert</span><h2>La Maison</h2><p>Bar festif · Lille centre · ambiance tres animee ce soir</p><div class="row-actions"><button class="primary-button" type="button" data-action="follow-bar">Suivre</button><button class="ghost-button" type="button" data-action="checkin">Check-in</button></div></section>
+          <section class="panel"><h2>Activite</h2><div class="activity-feed" data-activity-feed></div></section>
+        </div>
+      </section>
+
+      <section class="view" data-view="creator" aria-label="Profil organisateur">
+        <div class="profile-layout">
+          <section class="profile-card"><div class="profile-avatar">BA</div><h2>Baptiste</h2><p>Organisateur verifie · Lille · 23 sorties creees</p><div class="stats-row"><span><strong>4.9</strong> note</span><span><strong>312</strong> participants</span><span><strong>18</strong> avis</span></div><button class="primary-button" type="button" data-action="rate-creator">Noter l'organisateur</button></section>
+          <section class="panel"><h2>Sorties recentes</h2><div class="activity-feed"><article class="activity-item"><p>Before rooftop au Joseph · ce soir</p></article><article class="activity-item"><p>Tournee vieux Lille · demain</p></article><article class="activity-item"><p>DJ set au Quai · vendredi</p></article></div></section>
+        </div>
+      </section>
+    </main>
+
+    <nav class="mobile-nav" aria-label="Navigation mobile">
+      <button class="mobile-tab is-active" type="button" data-route="map">&#128506;<span>Carte</span></button>
+      <button class="mobile-tab" type="button" data-route="events">&#127881;<span>Sorties</span></button>
+      <button class="mobile-tab" type="button" data-route="friends">&#128101;<span>Amis</span></button>
+      <button class="mobile-tab" type="button" data-route="messages">&#128172;<span>Messages</span></button>
+      <button class="mobile-tab" type="button" data-route="profile">&#128100;<span>Profil</span></button>
+    </nav>
+  </div>
+
+  <div class="toast" data-toast role="status" aria-live="polite"></div>
+  <script src="/config.js?v=notifications-actions-3"></script>
+  <script src="/supabase-api.js?v=notifications-actions-3"></script>
+  <script src="/app.js?v=notifications-actions-3"></script>
+</body>
+</html>

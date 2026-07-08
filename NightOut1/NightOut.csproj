@@ -1,0 +1,116 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFrameworks>net9.0-android;net9.0-ios</TargetFrameworks>
+		<OutputType>Exe</OutputType>
+		<RootNamespace>NightOut</RootNamespace>
+		<ApplicationId>fr.spotiz.app</ApplicationId>
+		<ApplicationIdGuid>a1b2c3d4-e5f6-7890-abcd-ef1234567890</ApplicationIdGuid>
+		<ApplicationVersion>1</ApplicationVersion>
+		<ApplicationDisplayVersion>1.0.0</ApplicationDisplayVersion>
+		<UseMaui>true</UseMaui>
+		<SingleProject>true</SingleProject>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+
+		<EnableDefaultCssItems>false</EnableDefaultCssItems>
+		<ApplicationTitle>Spotiz</ApplicationTitle>
+		<GenerateAppInstallerFile>False</GenerateAppInstallerFile>
+
+		<!-- Android -->
+		<AndroidEnableMultiDex>true</AndroidEnableMultiDex>
+		<AndroidDexTool>d8</AndroidDexTool>
+
+		<!-- D8/apksigner ont besoin de marge avec Firebase, AndroidX Camera et ZXing. -->
+		<JavaMaximumHeapSize>2G</JavaMaximumHeapSize>
+
+		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">23.0</SupportedOSPlatformVersion>
+		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">15.0</SupportedOSPlatformVersion>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="$(TargetFramework.Contains('-ios'))">
+		<CodesignKey>iPhone Developer</CodesignKey>
+		<CodesignProvision></CodesignProvision>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net9.0-android|AnyCPU'">
+		<AndroidPackageFormat>apk</AndroidPackageFormat>
+		<AndroidKeyStore>false</AndroidKeyStore>
+		<EmbedAssembliesIntoApk>false</EmbedAssembliesIntoApk>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net9.0-android|AnyCPU'">
+		<AndroidPackageFormat>aab</AndroidPackageFormat>
+		<AndroidKeyStore>false</AndroidKeyStore>
+		<AndroidLinkMode>None</AndroidLinkMode>
+		<RunAOTCompilation>false</RunAOTCompilation>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<MauiImage Include="Resources\Images\*" />
+		<MauiIcon Include="Resources\AppIcon\appicon.png" Color="#0A1018" />
+		<MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#0A1018" BaseSize="128,128" />
+
+		<MauiFont Include="Resources\Fonts\DMSans-Regular.ttf" />
+		<MauiFont Include="Resources\Fonts\DMSans-Medium.ttf" />
+		<MauiFont Include="Resources\Fonts\DMSans-SemiBold.ttf" />
+		<MauiFont Include="Resources\Fonts\DMSans-Bold.ttf" />
+		<MauiFont Include="Resources\Fonts\PlayfairDisplay-BoldItalic.ttf" />
+
+		<MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.0" />
+		<PackageReference Include="CommunityToolkit.Maui" Version="9.0.3" />
+		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.3.2" />
+		<PackageReference Include="Supabase" Version="1.1.1" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+		<PackageReference Include="SkiaSharp" Version="3.119.2" />
+		<PackageReference Include="SkiaSharp.Views.Maui.Controls" Version="3.119.2" />
+		<PackageReference Include="ZXing.Net.Maui" Version="0.4.0" />
+		<PackageReference Include="ZXing.Net.Maui.Controls" Version="0.4.0" />
+	</ItemGroup>
+
+	<ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">
+		<GoogleServicesJson Include="Platforms\Android\google-services.json" />
+
+		<PackageReference Include="Xamarin.Firebase.Messaging" Version="123.0.8" />
+
+	</ItemGroup>
+
+	<ItemGroup>
+		<Compile Update="Views\Controls\BottomNavBar.xaml.cs">
+			<DependentUpon>BottomNavBar.xaml</DependentUpon>
+		</Compile>
+		<Compile Update="Views\Friends\FriendsPage.xaml.cs">
+			<DependentUpon>FriendsPage.xaml</DependentUpon>
+		</Compile>
+		<Compile Update="Views\Messages\MessagesPage.xaml.cs">
+			<DependentUpon>MessagesPage.xaml</DependentUpon>
+		</Compile>
+		<Compile Update="Views\Profile\ProfilePage.xaml.cs">
+			<DependentUpon>ProfilePage.xaml</DependentUpon>
+		</Compile>
+	</ItemGroup>
+
+	<ItemGroup>
+		<MauiXaml Update="Views\Controls\BottomNavBar.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
+		<MauiXaml Update="Views\Friends\FriendsPage.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
+		<MauiXaml Update="Views\Messages\MessagesPage.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
+		<MauiXaml Update="Views\Profile\ProfilePage.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
+		<MauiXaml Update="Views\RegisterBarPage.xaml">
+			<Generator>MSBuild:Compile</Generator>
+		</MauiXaml>
+	</ItemGroup>
+
+</Project>

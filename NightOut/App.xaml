@@ -8,49 +8,36 @@
     <Application.Resources>
         <ResourceDictionary>
 
+            <!--
+                Le dictionnaire de couleurs (ColorsLight ou ColorsDark) est ajouté
+                dynamiquement au démarrage par ThemeService.Initialize(), appelé
+                depuis App.xaml.cs juste après InitializeComponent().
+                Ne pas ajouter de <Color x:Key="..."> ici : tout passe par
+                Resources/Styles/Colors.Light.xaml et Colors.Dark.xaml.
+            -->
+
             <!-- ══ CONVERTERS ══ -->
             <toolkit:InvertedBoolConverter x:Key="InvertedBoolConverter"/>
             <toolkit:BoolToObjectConverter x:Key="BoolToSecretBgConverter"
-                                           TrueObject="#2E7B5DE5"
-                                           FalseObject="#CC0A1018"/>
-
-            <!-- ══ COULEURS GLOBALES ══ -->
-            <Color x:Key="BgDeep">#0A1018</Color>
-            <Color x:Key="BgCard">#0F1923</Color>
-            <Color x:Key="BgPanel">#131F2B</Color>
-            <Color x:Key="BgElevated">#1A2535</Color>
-            <Color x:Key="Accent">#FFB627</Color>
-            <Color x:Key="AccentDim">#1AFFB627</Color>
-            <Color x:Key="AccentSoft">#2EFFB627</Color>
-            <Color x:Key="Second">#FF6B35</Color>
-            <Color x:Key="TextPrimary">#F2E8D5</Color>
-            <Color x:Key="TextSecondary">#7A8FA6</Color>
-            <Color x:Key="TextMuted">#3D5068</Color>
-            <Color x:Key="Border">#1AFFB627</Color>
-            <Color x:Key="BorderMid">#2EFFB627</Color>
-            <Color x:Key="GaugeLow">#3DB87A</Color>
-            <Color x:Key="GaugeMid">#FFB627</Color>
-            <Color x:Key="GaugeHot">#FF6B35</Color>
-            <Color x:Key="GaugeFire">#FF2D6B</Color>
-            <Color x:Key="Success">#3DB87A</Color>
-            <Color x:Key="Error">#E53935</Color>
+                                           TrueObject="{DynamicResource SecretOverlayOn}"
+                                           FalseObject="{DynamicResource SecretOverlayOff}"/>
 
             <!-- ══ STYLES GLOBAUX ══ -->
             <Style TargetType="Label">
-                <Setter Property="TextColor" Value="{StaticResource TextPrimary}"/>
+                <Setter Property="TextColor" Value="{DynamicResource TextPrimary}"/>
                 <Setter Property="FontFamily" Value="DMSans-Regular"/>
             </Style>
 
             <Style TargetType="Entry">
-                <Setter Property="TextColor" Value="{StaticResource TextPrimary}"/>
-                <Setter Property="PlaceholderColor" Value="{StaticResource TextMuted}"/>
+                <Setter Property="TextColor" Value="{DynamicResource TextPrimary}"/>
+                <Setter Property="PlaceholderColor" Value="{DynamicResource TextMuted}"/>
                 <Setter Property="FontFamily" Value="DMSans-Regular"/>
                 <Setter Property="FontSize" Value="14"/>
                 <Setter Property="BackgroundColor" Value="Transparent"/>
             </Style>
 
             <Style TargetType="ContentPage">
-                <Setter Property="BackgroundColor" Value="{StaticResource BgDeep}"/>
+                <Setter Property="BackgroundColor" Value="{DynamicResource BgDeep}"/>
             </Style>
 
             <Style x:Key="BtnPrimary" TargetType="Border">
@@ -62,16 +49,16 @@
             <Style x:Key="BtnSecondary" TargetType="Border">
                 <Setter Property="StrokeShape" Value="RoundRectangle 14"/>
                 <Setter Property="StrokeThickness" Value="1"/>
-                <Setter Property="Stroke" Value="{StaticResource BorderMid}"/>
-                <Setter Property="BackgroundColor" Value="{StaticResource AccentDim}"/>
+                <Setter Property="Stroke" Value="{DynamicResource BorderMid}"/>
+                <Setter Property="BackgroundColor" Value="{DynamicResource AccentDim}"/>
                 <Setter Property="HeightRequest" Value="50"/>
             </Style>
 
             <Style x:Key="InputField" TargetType="Border">
                 <Setter Property="StrokeShape" Value="RoundRectangle 12"/>
                 <Setter Property="StrokeThickness" Value="1"/>
-                <Setter Property="Stroke" Value="{StaticResource Border}"/>
-                <Setter Property="BackgroundColor" Value="{StaticResource BgElevated}"/>
+                <Setter Property="Stroke" Value="{DynamicResource Border}"/>
+                <Setter Property="BackgroundColor" Value="{DynamicResource BgElevated}"/>
                 <Setter Property="HeightRequest" Value="50"/>
                 <Setter Property="Padding" Value="14,0"/>
             </Style>

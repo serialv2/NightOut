@@ -1,0 +1,357 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="NightOut.Views.Map.MapPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:NightOut.ViewModels"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    xmlns:controls="clr-namespace:NightOut.Views.Controls"
+    x:DataType="vm:MapViewModel"
+    Shell.NavBarIsVisible="False"
+    BackgroundColor="#0A1018">
+
+    <ContentPage.Resources>
+        <toolkit:InvertedBoolConverter x:Key="InvertedBoolConverter" />
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="*,Auto">
+
+        <WebView
+            x:Name="MapWebView"
+            Grid.Row="0"
+            Navigated="OnMapNavigated"
+            BackgroundColor="#0A1018" />
+
+        <!-- ════════════════════════════════════════════════════════════════
+             FICHE RAPIDE DU BAR SUR LA CARTE
+             Objectif : toutes les infos pratiques restent ici.
+             La page BarDetailPage devient ensuite le vrai salon / feed live.
+        ═════════════════════════════════════════════════════════════════ -->
+        <Border
+            Grid.Row="0"
+            VerticalOptions="End"
+            Margin="10,0,10,10"
+            BackgroundColor="#101B2D"
+            Stroke="#33FFB627"
+            StrokeThickness="1"
+            StrokeShape="RoundRectangle 28"
+            IsVisible="{Binding IsBottomSheetVisible}">
+
+            <ScrollView MaximumHeightRequest="560">
+                <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto"
+                      Padding="18,14,18,18"
+                      RowSpacing="14">
+
+                    <!-- Poignée + fermeture -->
+                    <Grid Grid.Row="0" ColumnDefinitions="*,Auto,*">
+                        <BoxView
+                            Grid.Column="1"
+                            WidthRequest="40"
+                            HeightRequest="4"
+                            Color="#33FFB627"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Center"
+                            CornerRadius="2">
+                            <BoxView.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding CloseBottomSheetCommand}" />
+                            </BoxView.GestureRecognizers>
+                        </BoxView>
+
+                        <Button
+                            Grid.Column="2"
+                            Text="✕"
+                            FontSize="16"
+                            FontAttributes="Bold"
+                            BackgroundColor="Transparent"
+                            TextColor="#7A8FA6"
+                            WidthRequest="36"
+                            HeightRequest="36"
+                            Padding="0"
+                            HorizontalOptions="End"
+                            VerticalOptions="Center"
+                            Command="{Binding CloseBottomSheetCommand}" />
+                    </Grid>
+
+                    <!-- Header bar -->
+                    <Grid Grid.Row="1" ColumnDefinitions="70,*" ColumnSpacing="14">
+
+                        <Border Grid.Column="0"
+                                WidthRequest="70"
+                                HeightRequest="70"
+                                BackgroundColor="#182538"
+                                Stroke="#66FFB627"
+                                StrokeThickness="1"
+                                StrokeShape="RoundRectangle 22">
+                            <Grid>
+                                <Label Text="{Binding SelectedBar.PrimaryCategory.Icon}"
+                                       FontSize="28"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center" />
+                                <Image Source="{Binding SelectedBar.LogoUrl}"
+                                       Aspect="AspectFill" />
+                            </Grid>
+                        </Border>
+
+                        <VerticalStackLayout Grid.Column="1" Spacing="6" VerticalOptions="Center">
+                            <HorizontalStackLayout Spacing="6">
+                                <Label Text="{Binding SelectedBarName}"
+                                       FontFamily="DMSans-Bold"
+                                       FontSize="22"
+                                       TextColor="#F7F2EA"
+                                       LineBreakMode="TailTruncation" />
+                                <Label Text="✓"
+                                       FontSize="15"
+                                       TextColor="#FFB627"
+                                       VerticalOptions="Center"
+                                       IsVisible="{Binding SelectedBar.IsVerified}" />
+                            </HorizontalStackLayout>
+
+                            <Label Text="{Binding SelectedBarCategoryText}"
+                                   FontFamily="DMSans-Regular"
+                                   FontSize="13"
+                                   TextColor="#9AABC0" />
+
+                            <HorizontalStackLayout Spacing="8">
+                                <Border BackgroundColor="#14351F" StrokeThickness="0" StrokeShape="RoundRectangle 999">
+                                    <HorizontalStackLayout Padding="8,4" Spacing="5">
+                                        <BoxView WidthRequest="8" HeightRequest="8" CornerRadius="4" Color="#2BFF7A" VerticalOptions="Center" />
+                                        <Label Text="{Binding SelectedBarOpenText}" FontFamily="DMSans-Bold" FontSize="11" TextColor="#2BFF7A" />
+                                    </HorizontalStackLayout>
+                                </Border>
+
+                                <Border BackgroundColor="#182538" StrokeThickness="0" StrokeShape="RoundRectangle 999">
+                                    <Label Text="{Binding SelectedBarPresenceText}" Padding="9,4" FontFamily="DMSans-Medium" FontSize="11" TextColor="#DCE6F2" />
+                                </Border>
+
+                                <Border BackgroundColor="#2A1D0B" StrokeThickness="0" StrokeShape="RoundRectangle 999">
+                                    <Label Text="{Binding SelectedBarAmbianceText, StringFormat='🔥 {0}'}" Padding="9,4" FontFamily="DMSans-Medium" FontSize="11" TextColor="#FFB627" />
+                                </Border>
+                            </HorizontalStackLayout>
+                        </VerticalStackLayout>
+                    </Grid>
+
+                    <!-- Jauge ambiance -->
+                    <Border Grid.Row="2"
+                            BackgroundColor="#172436"
+                            Stroke="Transparent"
+                            StrokeShape="RoundRectangle 18"
+                            Padding="14,12">
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14">
+                            <VerticalStackLayout Grid.Column="0" Spacing="0">
+                                <Label Text="{Binding SelectedBar.TotalPresent}"
+                                       FontFamily="PlayfairDisplay-BoldItalic"
+                                       FontSize="30"
+                                       TextColor="#FFB627" />
+                                <Label Text="présents"
+                                       FontFamily="DMSans-Regular"
+                                       FontSize="10"
+                                       TextColor="#53677F" />
+                            </VerticalStackLayout>
+
+                            <Grid Grid.Column="1" RowDefinitions="Auto,Auto" RowSpacing="8" VerticalOptions="Center">
+                                <Grid Grid.Row="0" ColumnDefinitions="*,Auto">
+                                    <Label Text="Ambiance"
+                                           FontFamily="DMSans-Regular"
+                                           FontSize="12"
+                                           TextColor="#9AABC0" />
+                                    <Label Grid.Column="1"
+                                           Text="{Binding SelectedBarAmbianceText}"
+                                           FontFamily="DMSans-Bold"
+                                           FontSize="12"
+                                           TextColor="#FFB627" />
+                                </Grid>
+
+                                <ProgressBar Grid.Row="1"
+                                             Progress="{Binding SelectedBarGaugeRatio}"
+                                             ProgressColor="#FFB627" />
+                            </Grid>
+                        </Grid>
+                    </Border>
+
+                    <!-- Actions principales -->
+                    <Grid Grid.Row="3" ColumnDefinitions="*,*" ColumnSpacing="10">
+                        <Border Grid.Column="0" StrokeShape="RoundRectangle 18" StrokeThickness="0" HeightRequest="52">
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                    <GradientStop Color="#FFB627" Offset="0" />
+                                    <GradientStop Color="#FF6B35" Offset="1" />
+                                </LinearGradientBrush>
+                            </Border.Background>
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding ToggleCheckinCommand}" />
+                            </Border.GestureRecognizers>
+                            <Label Text="Check-in"
+                                   FontFamily="DMSans-Bold"
+                                   FontSize="15"
+                                   TextColor="#0A1018"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center" />
+                        </Border>
+
+                        <Border Grid.Column="1"
+                                BackgroundColor="#182538"
+                                Stroke="#44FFB627"
+                                StrokeThickness="1"
+                                StrokeShape="RoundRectangle 18"
+                                HeightRequest="52">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding GoToBarAsync}" />
+                            </Border.GestureRecognizers>
+                            <HorizontalStackLayout Spacing="8" HorizontalOptions="Center" VerticalOptions="Center">
+                                <Label Text="➤" FontSize="16" TextColor="#FFB627" />
+                                <Label Text="Itinéraire" FontFamily="DMSans-Bold" FontSize="14" TextColor="#FFB627" />
+                            </HorizontalStackLayout>
+                        </Border>
+                    </Grid>
+
+                    <!-- Infos pratiques condensées -->
+                    <Border Grid.Row="4"
+                            BackgroundColor="#0C1623"
+                            Stroke="#22324A"
+                            StrokeThickness="1"
+                            StrokeShape="RoundRectangle 22"
+                            Padding="16">
+                        <VerticalStackLayout Spacing="14">
+                            <Label Text="Infos rapides"
+                                   FontFamily="DMSans-Bold"
+                                   FontSize="17"
+                                   TextColor="#F7F2EA" />
+
+                            <Grid ColumnDefinitions="24,*" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="12" ColumnSpacing="10">
+                                <Label Grid.Row="0" Grid.Column="0" Text="📍" FontSize="16" VerticalOptions="Start" />
+                                <Label Grid.Row="0" Grid.Column="1" Text="{Binding SelectedBarAddressText}" FontFamily="DMSans-Regular" FontSize="13" TextColor="#DCE6F2" LineBreakMode="WordWrap" />
+
+                                <Label Grid.Row="1" Grid.Column="0" Text="☎" FontSize="16" VerticalOptions="Center" />
+                                <Label Grid.Row="1" Grid.Column="1" Text="{Binding SelectedBarPhoneText}" FontFamily="DMSans-Regular" FontSize="13" TextColor="#DCE6F2" />
+
+                                <Label Grid.Row="2" Grid.Column="0" Text="📷" FontSize="16" VerticalOptions="Center" />
+                                <Label Grid.Row="2" Grid.Column="1" Text="{Binding SelectedBarInstagramText}" FontFamily="DMSans-Regular" FontSize="13" TextColor="#DCE6F2" />
+
+                                <Label Grid.Row="3" Grid.Column="0" Text="🌐" FontSize="16" VerticalOptions="Center" />
+                                <Label Grid.Row="3" Grid.Column="1" Text="{Binding SelectedBarWebsiteText}" FontFamily="DMSans-Regular" FontSize="13" TextColor="#DCE6F2" LineBreakMode="TailTruncation" />
+                            </Grid>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- Boutons rapides secondaires -->
+                    <Grid Grid.Row="5" ColumnDefinitions="*,*,*" ColumnSpacing="10">
+                        <Border Grid.Column="0" BackgroundColor="#182538" StrokeThickness="0" StrokeShape="RoundRectangle 18" HeightRequest="48">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding CallSelectedBarCommand}" />
+                            </Border.GestureRecognizers>
+                            <VerticalStackLayout Spacing="1" HorizontalOptions="Center" VerticalOptions="Center">
+                                <Label Text="☎" FontSize="16" HorizontalOptions="Center" />
+                                <Label Text="Appeler" FontFamily="DMSans-Medium" FontSize="11" TextColor="#DCE6F2" />
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <Border Grid.Column="1" BackgroundColor="#182538" StrokeThickness="0" StrokeShape="RoundRectangle 18" HeightRequest="48">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding OpenSelectedBarInstagramCommand}" />
+                            </Border.GestureRecognizers>
+                            <VerticalStackLayout Spacing="1" HorizontalOptions="Center" VerticalOptions="Center">
+                                <Label Text="📷" FontSize="16" HorizontalOptions="Center" />
+                                <Label Text="Instagram" FontFamily="DMSans-Medium" FontSize="11" TextColor="#DCE6F2" />
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <Border Grid.Column="2" BackgroundColor="#182538" StrokeThickness="0" StrokeShape="RoundRectangle 18" HeightRequest="48">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding OpenSelectedBarWebsiteCommand}" />
+                            </Border.GestureRecognizers>
+                            <VerticalStackLayout Spacing="1" HorizontalOptions="Center" VerticalOptions="Center">
+                                <Label Text="🌐" FontSize="16" HorizontalOptions="Center" />
+                                <Label Text="Site" FontFamily="DMSans-Medium" FontSize="11" TextColor="#DCE6F2" />
+                            </VerticalStackLayout>
+                        </Border>
+                    </Grid>
+
+                    <!-- Description courte -->
+                    <Border Grid.Row="6"
+                            BackgroundColor="#0C1623"
+                            Stroke="#22324A"
+                            StrokeThickness="1"
+                            StrokeShape="RoundRectangle 20"
+                            Padding="14">
+                        <VerticalStackLayout Spacing="7">
+                            <Label Text="À propos"
+                                   FontFamily="DMSans-Bold"
+                                   FontSize="15"
+                                   TextColor="#F7F2EA" />
+                            <Label Text="{Binding SelectedBarDescriptionText}"
+                                   FontFamily="DMSans-Regular"
+                                   FontSize="12"
+                                   TextColor="#9AABC0"
+                                   LineBreakMode="WordWrap"
+                                   MaxLines="3" />
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- Entrée vers le salon/feed premium -->
+                    <Border Grid.Row="7"
+                            StrokeShape="RoundRectangle 20"
+                            StrokeThickness="0"
+                            HeightRequest="54">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                <GradientStop Color="#FFB627" Offset="0" />
+                                <GradientStop Color="#FF8A2A" Offset="0.55" />
+                                <GradientStop Color="#FF5B35" Offset="1" />
+                            </LinearGradientBrush>
+                        </Border.Background>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding GoToBarDetailCommand}" />
+                        </Border.GestureRecognizers>
+                        <HorizontalStackLayout Spacing="8" HorizontalOptions="Center" VerticalOptions="Center">
+                            <Label Text="🔥" FontSize="17" />
+                            <Label Text="Entrer dans le bar"
+                                   FontFamily="DMSans-Bold"
+                                   FontSize="15"
+                                   TextColor="#0A1018" />
+                        </HorizontalStackLayout>
+                    </Border>
+                </Grid>
+            </ScrollView>
+        </Border>
+
+        <!-- ══ BOTTOM NAV COMMUNE ══ -->
+        <controls:BottomNavBar Grid.Row="1" ActiveTab="Map" />
+
+        <!-- ══ VISIONNEUR MÉDIA PLEIN ÉCRAN — conservé pour compatibilité avec tes fonctions existantes ══ -->
+        <Grid Grid.Row="0" Grid.RowSpan="2"
+              BackgroundColor="#E60A1018"
+              IsVisible="{Binding IsMediaViewerVisible}">
+            <Grid.GestureRecognizers>
+                <TapGestureRecognizer Command="{Binding CloseMediaViewerCommand}" />
+            </Grid.GestureRecognizers>
+
+            <Image Source="{Binding ViewerMedia.PhotoUrl}"
+                   Aspect="AspectFit"
+                   Margin="12,80,12,40"
+                   IsVisible="{Binding ViewerMedia.IsVideo, Converter={StaticResource InvertedBoolConverter}}" />
+
+            <WebView x:Name="MediaWebView"
+                     Margin="12,80,12,40"
+                     IsVisible="{Binding ViewerMedia.IsVideo}"
+                     BackgroundColor="Transparent" />
+
+            <Grid VerticalOptions="Start" ColumnDefinitions="Auto,*,Auto,Auto"
+                  Padding="16,50,16,0" ColumnSpacing="10">
+                <Button Grid.Column="0" Text="✕" FontSize="18" FontAttributes="Bold"
+                        WidthRequest="40" HeightRequest="40" CornerRadius="20" Padding="0"
+                        BackgroundColor="#331A2535" TextColor="#F2E8D5"
+                        Command="{Binding CloseMediaViewerCommand}" />
+                <Button Grid.Column="2" Text="🚩 Signaler" FontSize="12"
+                        HeightRequest="40" CornerRadius="20" Padding="14,0"
+                        BackgroundColor="#33B5482F" TextColor="#FF8A6F"
+                        Command="{Binding ReportMediaCommand}" CommandParameter="{Binding ViewerMedia}" />
+                <Button Grid.Column="3" Text="🗑" FontSize="14"
+                        WidthRequest="40" HeightRequest="40" CornerRadius="20" Padding="0"
+                        BackgroundColor="#331A2535" TextColor="#F2E8D5"
+                        IsVisible="{Binding ViewerMedia.IsMine}"
+                        Command="{Binding DeleteMediaCommand}" CommandParameter="{Binding ViewerMedia}" />
+            </Grid>
+        </Grid>
+
+    </Grid>
+</ContentPage>

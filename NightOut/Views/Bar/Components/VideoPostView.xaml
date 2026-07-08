@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView
+    x:Class="NightOut.Views.Bar.Components.VideoPostView"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:models="clr-namespace:NightOut.Models"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    x:DataType="models:BarActivityItem"
+    x:Name="VideoPostRoot">
+
+    <ContentView.Resources>
+        <toolkit:InvertedBoolConverter x:Key="Inv" />
+    </ContentView.Resources>
+
+    <Border Margin="0,0,0,14"
+            Padding="0"
+            BackgroundColor="{DynamicResource BgDeep}"
+            Stroke="{DynamicResource Border}"
+            StrokeThickness="1"
+            StrokeShape="RoundRectangle 24">
+
+        <VerticalStackLayout Spacing="0">
+            <Grid Padding="14,14,14,10"
+                  ColumnDefinitions="50,*,Auto"
+                  ColumnSpacing="10">
+                <Border WidthRequest="48"
+                        HeightRequest="48"
+                        Stroke="{DynamicResource BgCard}"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 24"
+                        BackgroundColor="{DynamicResource BgElevated}">
+                    <Grid>
+                        <Image Source="{Binding AvatarUrl}"
+                               Aspect="AspectFill"
+                               IsVisible="{Binding HasAvatarUrl}" />
+                        <Label Text="{Binding Initials}"
+                               TextColor="White"
+                               FontFamily="DMSans-Bold"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center"
+                               IsVisible="{Binding HasAvatarUrl, Converter={StaticResource Inv}}" />
+                    </Grid>
+                </Border>
+
+                <VerticalStackLayout Grid.Column="1" Spacing="1" VerticalOptions="Center">
+                    <HorizontalStackLayout Spacing="6">
+                        <Label Text="{Binding Username}"
+                               TextColor="White"
+                               FontFamily="DMSans-Bold"
+                               FontSize="15" />
+                        <Label Text="●"
+                               TextColor="{DynamicResource Success}"
+                               FontSize="10"
+                               VerticalOptions="Center"
+                               IsVisible="{Binding OpenToMeet}" />
+                    </HorizontalStackLayout>
+                    <Label Text="{Binding TimeAgo}"
+                           TextColor="{DynamicResource TextSecondary}"
+                           FontSize="12" />
+                </VerticalStackLayout>
+
+                <Label Grid.Column="2"
+                       Text="•••"
+                       TextColor="{DynamicResource TextSecondary}"
+                       FontSize="18"
+                       VerticalOptions="Start" />
+            </Grid>
+
+            <Label Text="{Binding DisplayText}"
+                   TextColor="White"
+                   FontSize="15"
+                   LineBreakMode="WordWrap"
+                   Padding="14,0,14,12"
+                   IsVisible="{Binding HasDisplayText}" />
+
+            <!-- V3 : seule une vidéo crée une WebView grâce au TemplateSelector. -->
+            <Border HeightRequest="360"
+                    StrokeThickness="0"
+                    BackgroundColor="#2A1B10">
+                <WebView Source="{Binding VideoSource}" />
+            </Border>
+
+            <Grid Padding="14,12,14,4"
+                  ColumnDefinitions="Auto,Auto,Auto,*,Auto"
+                  ColumnSpacing="20">
+
+                <HorizontalStackLayout Spacing="6">
+                    <HorizontalStackLayout.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding Source={x:Reference VideoPostRoot}, Path=LikeCommand}"
+                                              CommandParameter="{Binding .}" />
+                    </HorizontalStackLayout.GestureRecognizers>
+                    <Label Text="♥"
+                           TextColor="{DynamicResource Error}"
+                           FontSize="24" />
+                </HorizontalStackLayout>
+
+                <Label Grid.Column="1"
+                       Text="💬"
+                       TextColor="{DynamicResource TextPrimary}"
+                       FontSize="20">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding Source={x:Reference VideoPostRoot}, Path=OpenCommentsCommand}"
+                                              CommandParameter="{Binding .}" />
+                    </Label.GestureRecognizers>
+                </Label>
+
+                <Label Grid.Column="2"
+                       Text="↗"
+                       TextColor="{DynamicResource TextPrimary}"
+                       FontSize="22" />
+
+                <Button Grid.Column="4"
+                        Text="Ajouter"
+                        Command="{Binding Source={x:Reference VideoPostRoot}, Path=AddFriendCommand}"
+                        CommandParameter="{Binding .}"
+                        IsVisible="{Binding CanAddAsFriend}"
+                        BackgroundColor="{DynamicResource BgPanel}"
+                        BorderColor="{DynamicResource Accent}"
+                        BorderWidth="1"
+                        TextColor="{DynamicResource Accent}"
+                        FontSize="12"
+                        CornerRadius="14"
+                        HeightRequest="34"
+                        Padding="10,0" />
+            </Grid>
+
+            <VerticalStackLayout Padding="14,0,14,14" Spacing="4">
+                <Label Text="{Binding LikeLabel}"
+                       TextColor="{DynamicResource TextPrimary}"
+                       FontSize="13"
+                       FontFamily="DMSans-Bold" />
+                <Label Text="{Binding CommentLabel}"
+                       TextColor="{DynamicResource TextMuted}"
+                       FontSize="13">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding Source={x:Reference VideoPostRoot}, Path=OpenCommentsCommand}"
+                                              CommandParameter="{Binding .}" />
+                    </Label.GestureRecognizers>
+                </Label>
+            </VerticalStackLayout>
+        </VerticalStackLayout>
+    </Border>
+</ContentView>

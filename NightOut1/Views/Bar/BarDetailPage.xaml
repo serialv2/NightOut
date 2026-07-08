@@ -1,0 +1,651 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="NightOut.Views.Bar.BarDetailPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:NightOut.ViewModels"
+    xmlns:models="clr-namespace:NightOut.Models"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    xmlns:zxing="clr-namespace:ZXing.Net.Maui.Controls;assembly=ZXing.Net.MAUI.Controls"
+    x:DataType="vm:BarDetailViewModel"
+    x:Name="PageRoot"
+    Shell.NavBarIsVisible="False"
+    BackgroundColor="#05070B">
+
+    <ContentPage.Resources>
+        <toolkit:InvertedBoolConverter x:Key="Inv" />
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="*">
+        <ScrollView>
+            <VerticalStackLayout Spacing="0" Padding="0,0,0,26">
+
+                <ActivityIndicator IsRunning="{Binding IsBusy}"
+                                   IsVisible="{Binding IsBusy}"
+                                   Color="#FFB627"
+                                   Margin="0,70,0,20" />
+
+                <!-- HERO façon Spotiz Premium -->
+                <Grid HeightRequest="405"
+                      IsVisible="{Binding IsBusy, Converter={StaticResource Inv}}">
+                    <Image Source="{Binding CoverUrl}"
+                           Aspect="AspectFill"
+                           IsVisible="{Binding HasCover}" />
+
+                    <Grid IsVisible="{Binding HasCover, Converter={StaticResource Inv}}">
+                        <Grid.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                <GradientStop Color="#21112C" Offset="0" />
+                                <GradientStop Color="#05070B" Offset="1" />
+                            </LinearGradientBrush>
+                        </Grid.Background>
+                    </Grid>
+
+                    <BoxView>
+                        <BoxView.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                <GradientStop Color="#22000000" Offset="0" />
+                                <GradientStop Color="#66000000" Offset="0.38" />
+                                <GradientStop Color="#F205070B" Offset="1" />
+                            </LinearGradientBrush>
+                        </BoxView.Background>
+                    </BoxView>
+
+                    <!-- top buttons -->
+                    <Grid Padding="20,54,20,0"
+                          ColumnDefinitions="48,*,48,48"
+                          ColumnSpacing="10"
+                          VerticalOptions="Start">
+                        <Border BackgroundColor="#660B111B"
+                                Stroke="#334457"
+                                StrokeThickness="1"
+                                StrokeShape="RoundRectangle 24"
+                                WidthRequest="46"
+                                HeightRequest="46">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding GoBackCommand}" />
+                            </Border.GestureRecognizers>
+                            <Label Text="‹" TextColor="White" FontSize="34"
+                                   HorizontalOptions="Center" VerticalOptions="Center" Margin="0,-4,0,0" />
+                        </Border>
+
+                        <Border Grid.Column="2"
+                                BackgroundColor="#660B111B"
+                                Stroke="#334457"
+                                StrokeThickness="1"
+                                StrokeShape="RoundRectangle 24"
+                                WidthRequest="46"
+                                HeightRequest="46">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding RefreshCommand}" />
+                            </Border.GestureRecognizers>
+                            <Label Text="↻" TextColor="White" FontSize="20"
+                                   HorizontalOptions="Center" VerticalOptions="Center" />
+                        </Border>
+
+                        <Border Grid.Column="3"
+                                BackgroundColor="#660B111B"
+                                Stroke="#334457"
+                                StrokeThickness="1"
+                                StrokeShape="RoundRectangle 24"
+                                WidthRequest="46"
+                                HeightRequest="46">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding ToggleFollowBarCommand}" />
+                            </Border.GestureRecognizers>
+                            <Label Text="♡" TextColor="White" FontSize="24"
+                                   HorizontalOptions="Center" VerticalOptions="Center" />
+                        </Border>
+                    </Grid>
+
+                    <!-- identity -->
+                    <VerticalStackLayout VerticalOptions="End" Padding="20,0,20,26" Spacing="16">
+                        <Grid ColumnDefinitions="96,*" ColumnSpacing="16">
+                            <Border WidthRequest="92" HeightRequest="92"
+                                    BackgroundColor="#101722"
+                                    Stroke="#FFB627"
+                                    StrokeThickness="1.4"
+                                    StrokeShape="RoundRectangle 28"
+                                    VerticalOptions="End">
+                                <Grid>
+                                    <Image Source="{Binding LogoUrl}" Aspect="AspectFill" IsVisible="{Binding HasLogo}" />
+                                    <Label Text="{Binding BarName}" TextColor="#FFB627" FontSize="11" FontAttributes="Bold"
+                                           HorizontalOptions="Center" VerticalOptions="Center" HorizontalTextAlignment="Center"
+                                           IsVisible="{Binding HasLogo, Converter={StaticResource Inv}}" />
+                                </Grid>
+                            </Border>
+
+                            <VerticalStackLayout Grid.Column="1" VerticalOptions="End" Spacing="6">
+                                <HorizontalStackLayout Spacing="6">
+                                    <Label Text="{Binding BarName}" FontFamily="DMSans-Bold" FontSize="30" TextColor="White" LineBreakMode="TailTruncation" />
+                                    <Label Text="●" TextColor="#FFB627" FontSize="15" VerticalOptions="Center" />
+                                </HorizontalStackLayout>
+                                <Label Text="{Binding BarType}" TextColor="#C9D4E1" FontSize="15" />
+                            </VerticalStackLayout>
+                        </Grid>
+
+                        <FlexLayout Wrap="Wrap" Direction="Row" AlignItems="Start">
+                            <Border Margin="0,0,8,8" Padding="10,6" BackgroundColor="#1A301F" StrokeThickness="0" StrokeShape="RoundRectangle 16">
+                                <Label Text="{Binding OpenStatusShortText}" TextColor="#22C55E" FontSize="14" FontAttributes="Bold" />
+                            </Border>
+                            <Border Margin="0,0,8,8" Padding="10,6" BackgroundColor="#151F2D" StrokeThickness="0" StrokeShape="RoundRectangle 16">
+                                <Label Text="{Binding PresentCountLabel}" TextColor="#F2E8D5" FontSize="14" />
+                            </Border>
+                            <Border Margin="0,0,8,8" Padding="10,6" BackgroundColor="#2A1E0B" StrokeThickness="0" StrokeShape="RoundRectangle 16">
+                                <Label Text="{Binding AmbianceLabel}" TextColor="#FFB627" FontSize="14" FontAttributes="Bold" />
+                            </Border>
+                        </FlexLayout>
+
+                        <!-- Action principale fiche bar : les actions pratiques restent sur la vignette carte -->
+                        <Grid ColumnDefinitions="*,2.2*,*">
+                            <Button Grid.Column="1"
+                                    Text="★ Suivre"
+                                    Command="{Binding ToggleFollowBarCommand}"
+                                    BackgroundColor="{Binding FollowButtonBackgroundColor}"
+                                    TextColor="{Binding FollowButtonTextColor}"
+                                    FontFamily="DMSans-Bold"
+                                    CornerRadius="18"
+                                    HeightRequest="54"
+                                    HorizontalOptions="Fill" />
+                        </Grid>
+                    </VerticalStackLayout>
+                </Grid>
+
+                <!-- RÉCOMPENSES : action commerciale visible, hors onglet Infos -->
+                <VerticalStackLayout Margin="20,0,20,18"
+                                     Spacing="10"
+                                     IsVisible="{Binding HasRewards}">
+                    <Border Padding="16"
+                            BackgroundColor="#0F141D"
+                            Stroke="#55FFB627"
+                            StrokeThickness="1"
+                            StrokeShape="RoundRectangle 24">
+                        <VerticalStackLayout Spacing="14">
+                            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                                <Border WidthRequest="44" HeightRequest="44"
+                                        BackgroundColor="#2A1E0B"
+                                        Stroke="#33FFB627"
+                                        StrokeThickness="1"
+                                        StrokeShape="RoundRectangle 22">
+                                    <Label Text="🎁"
+                                           FontSize="22"
+                                           HorizontalOptions="Center"
+                                           VerticalOptions="Center" />
+                                </Border>
+
+                                <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                    <Label Text="Récompenses disponibles"
+                                           TextColor="White"
+                                           FontFamily="DMSans-Bold"
+                                           FontSize="18" />
+                                    <Label Text="Utilise tes points directement dans ce bar"
+                                           TextColor="#9AA8B8"
+                                           FontSize="12" />
+                                </VerticalStackLayout>
+
+                                <Border Grid.Column="2"
+                                        Padding="10,6"
+                                        BackgroundColor="#17120A"
+                                        Stroke="#FFB627"
+                                        StrokeThickness="1"
+                                        StrokeShape="RoundRectangle 16">
+                                    <Label Text="Spotiz"
+                                           TextColor="#FFB627"
+                                           FontFamily="DMSans-Bold"
+                                           FontSize="12" />
+                                </Border>
+                            </Grid>
+
+                            <!-- QR / code généré après clic sur Utiliser -->
+                            <Border BackgroundColor="#F2E8D5"
+                                    StrokeThickness="0"
+                                    StrokeShape="RoundRectangle 22"
+                                    Padding="16"
+                                    IsVisible="{Binding HasRewardIntent}">
+                                <VerticalStackLayout Spacing="10" HorizontalOptions="Center">
+                                    <Grid ColumnDefinitions="*,Auto" HorizontalOptions="Fill">
+                                        <VerticalStackLayout Spacing="2">
+                                            <Label Text="{Binding RewardIntentTitle}"
+                                                   TextColor="#0A1018"
+                                                   FontFamily="DMSans-Bold"
+                                                   FontSize="16" />
+                                            <Label Text="{Binding RewardIntentCostLabel}"
+                                                   TextColor="#A06200"
+                                                   FontFamily="DMSans-Bold"
+                                                   FontSize="12" />
+                                        </VerticalStackLayout>
+                                        <Label Grid.Column="1"
+                                               Text="×"
+                                               TextColor="#0A1018"
+                                               FontSize="24"
+                                               VerticalOptions="Start">
+                                            <Label.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding CloseRewardIntentCommand}" />
+                                            </Label.GestureRecognizers>
+                                        </Label>
+                                    </Grid>
+
+                                    <Label Text="QR CODE À PRÉSENTER AU BAR"
+                                           TextColor="#0A1018"
+                                           FontFamily="DMSans-Bold"
+                                           FontSize="11"
+                                           HorizontalOptions="Center" />
+
+                                    <zxing:BarcodeGeneratorView WidthRequest="185"
+                                                                HeightRequest="185"
+                                                                Format="QrCode"
+                                                                Value="{Binding RewardIntentQrPayload}"
+                                                                ForegroundColor="#0A1018"
+                                                                BackgroundColor="#F2E8D5"
+                                                                HorizontalOptions="Center" />
+
+                                    <Label Text="Code secours"
+                                           TextColor="#3D5068"
+                                           FontFamily="DMSans-SemiBold"
+                                           FontSize="10"
+                                           HorizontalOptions="Center" />
+                                    <Label Text="{Binding RewardIntentShortCode}"
+                                           TextColor="#0A1018"
+                                           FontFamily="DMSans-Bold"
+                                           FontSize="24"
+                                           CharacterSpacing="4"
+                                           HorizontalOptions="Center" />
+                                    <Label Text="{Binding RewardIntentExpiresLabel}"
+                                           TextColor="#3D5068"
+                                           FontSize="11"
+                                           HorizontalOptions="Center" />
+                                </VerticalStackLayout>
+                            </Border>
+
+                            <!-- Liste des récompenses -->
+                            <CollectionView ItemsSource="{Binding Rewards}"
+                                            SelectionMode="None"
+                                            MaximumHeightRequest="260">
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate x:DataType="models:BarReward">
+                                        <Border Margin="0,0,0,8"
+                                                Padding="12"
+                                                BackgroundColor="#121A27"
+                                                Stroke="#273447"
+                                                StrokeThickness="1"
+                                                StrokeShape="RoundRectangle 18">
+                                            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                                                <VerticalStackLayout Spacing="3" VerticalOptions="Center">
+                                                    <Label Text="{Binding Title}"
+                                                           TextColor="White"
+                                                           FontFamily="DMSans-Bold"
+                                                           FontSize="14" />
+                                                    <Label Text="{Binding DescriptionLabel}"
+                                                           TextColor="#9AA8B8"
+                                                           FontSize="11"
+                                                           LineBreakMode="WordWrap"
+                                                           MaxLines="2" />
+                                                    <Label Text="{Binding CostLabel}"
+                                                           TextColor="#FFB627"
+                                                           FontFamily="DMSans-Bold"
+                                                           FontSize="12" />
+                                                </VerticalStackLayout>
+
+                                                <Button Grid.Column="1"
+                                                        Text="Utiliser"
+                                                        Command="{Binding BindingContext.PrepareRewardCommand, Source={x:Reference PageRoot}}"
+                                                        CommandParameter="{Binding .}"
+                                                        BackgroundColor="#FFB627"
+                                                        TextColor="#07111F"
+                                                        FontFamily="DMSans-Bold"
+                                                        FontSize="12"
+                                                        CornerRadius="16"
+                                                        Padding="12,8"
+                                                        VerticalOptions="Center" />
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                            </CollectionView>
+                        </VerticalStackLayout>
+                    </Border>
+                </VerticalStackLayout>
+
+                <!-- ONGLET RÉEL AMBIANCE / INFOS -->
+                <Grid Margin="20,0,20,18" HeightRequest="58" ColumnDefinitions="*,*"
+                      IsVisible="{Binding IsBusy, Converter={StaticResource Inv}}">
+                    <Border Grid.ColumnSpan="2" BackgroundColor="#101722" Stroke="#273447" StrokeThickness="1" StrokeShape="RoundRectangle 18" />
+
+                    <!-- Ambiance active -->
+                    <Border BackgroundColor="#17120A" Stroke="#FFB627" StrokeThickness="1" StrokeShape="RoundRectangle 18"
+                            IsVisible="{Binding IsAmbianceTabSelected}">
+                        <Label Text="🔥 Ambiance" TextColor="#FFB627" FontFamily="DMSans-Bold" FontSize="15"
+                               HorizontalOptions="Center" VerticalOptions="Center" />
+                    </Border>
+
+                    <!-- Infos active -->
+                    <Border Grid.Column="1" BackgroundColor="#17120A" Stroke="#FFB627" StrokeThickness="1" StrokeShape="RoundRectangle 18"
+                            IsVisible="{Binding IsInfosTabSelected}">
+                        <Label Text="ⓘ Infos" TextColor="#FFB627" FontFamily="DMSans-Bold" FontSize="15"
+                               HorizontalOptions="Center" VerticalOptions="Center" />
+                    </Border>
+
+                    <!-- Zones cliquables -->
+                    <Grid>
+                        <Grid.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding SelectAmbianceTabCommand}" />
+                        </Grid.GestureRecognizers>
+                        <Label Text="🔥 Ambiance" TextColor="#D6DEE8" FontFamily="DMSans-Bold" FontSize="15"
+                               HorizontalOptions="Center" VerticalOptions="Center"
+                               IsVisible="{Binding IsAmbianceTabSelected, Converter={StaticResource Inv}}" />
+                    </Grid>
+                    <Grid Grid.Column="1">
+                        <Grid.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding SelectInfosTabCommand}" />
+                        </Grid.GestureRecognizers>
+                        <Label Text="ⓘ Infos" TextColor="#D6DEE8" FontFamily="DMSans-Bold" FontSize="15"
+                               HorizontalOptions="Center" VerticalOptions="Center"
+                               IsVisible="{Binding IsInfosTabSelected, Converter={StaticResource Inv}}" />
+                    </Grid>
+                </Grid>
+
+                <VerticalStackLayout IsVisible="{Binding IsAmbianceTabSelected}" Spacing="0">
+                <!-- AMBIANCE DU MOMENT / COMPOSER -->
+                <Border Margin="20,0,20,14" Padding="16"
+                        BackgroundColor="#0B111B" Stroke="#1D2939" StrokeThickness="1"
+                        StrokeShape="RoundRectangle 24"
+                        IsVisible="{Binding IsBusy, Converter={StaticResource Inv}}">
+                    <VerticalStackLayout Spacing="14">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="🔥 Ambiance du moment" TextColor="White" FontFamily="DMSans-Bold" FontSize="22" />
+                                <Label Text="{Binding FeedSubtitle}" TextColor="#9AA8B8" FontSize="13" />
+                            </VerticalStackLayout>
+                            <Border Grid.Column="1" Padding="10,6" BackgroundColor="#40151B" StrokeThickness="0" StrokeShape="RoundRectangle 16">
+                                <Label Text="● EN DIRECT" TextColor="#FF5265" FontSize="11" FontFamily="DMSans-Bold" />
+                            </Border>
+                        </Grid>
+
+                        <HorizontalStackLayout Spacing="-10" IsVisible="{Binding HasFriendsHere}">
+                            <CollectionView ItemsSource="{Binding FriendsHere}" HeightRequest="38" WidthRequest="170" SelectionMode="None">
+                                <CollectionView.ItemsLayout>
+                                    <LinearItemsLayout Orientation="Horizontal" ItemSpacing="-9" />
+                                </CollectionView.ItemsLayout>
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate x:DataType="models:Profile">
+                                        <Border WidthRequest="36" HeightRequest="36" Stroke="#0B111B" StrokeThickness="2" StrokeShape="RoundRectangle 18" BackgroundColor="#22324A">
+                                            <Image Source="{Binding AvatarUrl}" Aspect="AspectFill" />
+                                        </Border>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                            </CollectionView>
+                            <Border Padding="10,0" HeightRequest="36" BackgroundColor="#182234" Stroke="#2A3C55" StrokeThickness="1" StrokeShape="RoundRectangle 18">
+                                <Label Text="{Binding FriendsHerePlusLabel}" TextColor="White" FontSize="13" VerticalOptions="Center" />
+                            </Border>
+                        </HorizontalStackLayout>
+
+                        <Border BackgroundColor="#0E141E" Stroke="#2A3442" StrokeThickness="1" StrokeShape="RoundRectangle 18">
+                            <Grid RowDefinitions="Auto,56" ColumnDefinitions="*,56">
+                                <Editor Grid.ColumnSpan="2" Text="{Binding MessageText}"
+                                        Placeholder="Publier un message, une photo ou une vidéo..."
+                                        PlaceholderColor="#7F8B99" TextColor="White"
+                                        AutoSize="TextChanges" MinimumHeightRequest="72"
+                                        BackgroundColor="Transparent" Margin="12,8" />
+                                <Grid Grid.Row="1" Grid.ColumnSpan="2" BackgroundColor="#070B11" ColumnDefinitions="*,*,56">
+                                    <Button Text="▣ Photo" Command="{Binding PostPhotoCommand}"
+                                            BackgroundColor="Transparent" TextColor="White" FontFamily="DMSans-Bold" />
+                                    <Button Grid.Column="1" Text="▣ Vidéo" Command="{Binding PostVideoCommand}"
+                                            BackgroundColor="Transparent" TextColor="White" FontFamily="DMSans-Bold" />
+                                    <Button Grid.Column="2" Text="➤" Command="{Binding PostMessageCommand}"
+                                            BackgroundColor="#FFB627" TextColor="#07111F" FontSize="20"
+                                            CornerRadius="24" Margin="7" />
+                                </Grid>
+                            </Grid>
+                        </Border>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- FEED -->
+                <CollectionView ItemsSource="{Binding Feed}"
+                                Margin="20,0,20,0"
+                                SelectionMode="None"
+                                IsVisible="{Binding IsBusy, Converter={StaticResource Inv}}">
+                    <CollectionView.EmptyView>
+                        <Border Padding="22" BackgroundColor="#0B111B" Stroke="#1D2939" StrokeThickness="1" StrokeShape="RoundRectangle 24">
+                            <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
+                                <Label Text="Aucune ambiance pour le moment" TextColor="White" FontFamily="DMSans-Bold" FontSize="18" HorizontalTextAlignment="Center" />
+                                <Label Text="Sois le premier à partager une photo, une vidéo ou un message." TextColor="#9AA8B8" FontSize="13" HorizontalTextAlignment="Center" />
+                            </VerticalStackLayout>
+                        </Border>
+                    </CollectionView.EmptyView>
+
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="models:BarActivityItem">
+                            <Border Margin="0,0,0,16"
+                                    Padding="0"
+                                    BackgroundColor="#0B111B"
+                                    Stroke="#1D2939"
+                                    StrokeThickness="1"
+                                    StrokeShape="RoundRectangle 24">
+                                <VerticalStackLayout Spacing="0">
+                                    <Grid ColumnDefinitions="52,*,Auto" ColumnSpacing="10" Padding="14,14,14,10">
+                                        <Border WidthRequest="48" HeightRequest="48"
+                                                Stroke="#FFFFFF"
+                                                StrokeThickness="1.4"
+                                                StrokeShape="RoundRectangle 24"
+                                                BackgroundColor="#22324A">
+                                            <Grid>
+                                                <Image Source="{Binding AvatarUrl}" Aspect="AspectFill" IsVisible="{Binding HasAvatarUrl}" />
+                                                <Label Text="{Binding Initials}" TextColor="White" FontFamily="DMSans-Bold" HorizontalOptions="Center" VerticalOptions="Center" IsVisible="{Binding HasAvatarUrl, Converter={StaticResource Inv}}" />
+                                            </Grid>
+                                        </Border>
+                                        <VerticalStackLayout Grid.Column="1" Spacing="1">
+                                            <HorizontalStackLayout Spacing="6">
+                                                <Label Text="{Binding Username}" TextColor="White" FontFamily="DMSans-Bold" FontSize="15" />
+                                                <Label Text="●" TextColor="#22C55E" FontSize="10" VerticalOptions="Center" IsVisible="{Binding OpenToMeet}" />
+                                            </HorizontalStackLayout>
+                                            <Label Text="{Binding TimeAgo}" TextColor="#9AA8B8" FontSize="12" />
+                                        </VerticalStackLayout>
+                                        <Label Grid.Column="2" Text="•••" TextColor="#9AA8B8" FontSize="18" />
+                                    </Grid>
+
+                                    <Label Text="{Binding DisplayText}"
+                                           TextColor="White"
+                                           FontSize="15"
+                                           LineBreakMode="WordWrap"
+                                           IsVisible="{Binding HasDisplayText}"
+                                           Margin="14,0,14,12" />
+
+                                    <!-- Photo style réseau social : hauteur naturelle, pas de découpe, limite max -->
+                                    <Border IsVisible="{Binding IsPhoto}"
+                                            Margin="0,0,0,0"
+                                            Padding="0"
+                                            StrokeThickness="0"
+                                            StrokeShape="RoundRectangle 0"
+                                            BackgroundColor="#05070B">
+                                        <Grid BackgroundColor="#05070B"
+                                              MinimumHeightRequest="180"
+                                              MaximumHeightRequest="560">
+                                            <Image Source="{Binding MediaUrl}"
+                                                   Aspect="AspectFit"
+                                                   BackgroundColor="#05070B"
+                                                   HorizontalOptions="Fill"
+                                                   VerticalOptions="Center"
+                                                   MaximumHeightRequest="560" />
+                                        </Grid>
+                                    </Border>
+
+                                    <!-- Lecteur vidéo HTML5 intégré, format feed premium -->
+                                    <Border IsVisible="{Binding IsVideo}"
+                                            HeightRequest="360"
+                                            StrokeThickness="0"
+                                            StrokeShape="RoundRectangle 0"
+                                            BackgroundColor="#000000">
+                                        <Grid BackgroundColor="#000000">
+                                            <WebView Source="{Binding VideoSource}" />
+                                        </Grid>
+                                    </Border>
+
+                                    <Border IsVisible="{Binding IsCheckin}" Margin="14,0,14,0" Padding="14" StrokeThickness="0" StrokeShape="RoundRectangle 18">
+                                        <Border.Background>
+                                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                                <GradientStop Color="#4B1E83" Offset="0" />
+                                                <GradientStop Color="#B5264D" Offset="1" />
+                                            </LinearGradientBrush>
+                                        </Border.Background>
+                                        <Grid ColumnDefinitions="44,*">
+                                            <Border WidthRequest="38" HeightRequest="38" BackgroundColor="#6D38FF" StrokeThickness="0" StrokeShape="RoundRectangle 19">
+                                                <Label Text="⌖" TextColor="White" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center" />
+                                            </Border>
+                                            <VerticalStackLayout Grid.Column="1" Spacing="1">
+                                                <Label Text="Check-in" TextColor="#D8C9FF" FontSize="12" />
+                                                <Label Text="{Binding Content}" TextColor="White" FontFamily="DMSans-Bold" FontSize="15" />
+                                            </VerticalStackLayout>
+                                        </Grid>
+                                    </Border>
+
+                                    <!-- Actions style Instagram / Spotiz -->
+                                    <VerticalStackLayout Margin="14,12,14,14" Spacing="8">
+                                        <Grid ColumnDefinitions="Auto,Auto,Auto,*,Auto" ColumnSpacing="18">
+                                            <Label Text="♥"
+                                                   TextColor="#FF3B4F"
+                                                   FontSize="25"
+                                                   VerticalOptions="Center">
+                                                <Label.GestureRecognizers>
+                                                    <TapGestureRecognizer Command="{Binding BindingContext.ToggleLikeCommand, Source={x:Reference PageRoot}}" CommandParameter="{Binding .}" />
+                                                </Label.GestureRecognizers>
+                                            </Label>
+
+                                            <Label Grid.Column="1"
+                                                   Text="💬"
+                                                   TextColor="#E7EDF5"
+                                                   FontSize="21"
+                                                   VerticalOptions="Center">
+                                                <Label.GestureRecognizers>
+                                                    <TapGestureRecognizer Command="{Binding BindingContext.OpenCommentsCommand, Source={x:Reference PageRoot}}" CommandParameter="{Binding .}" />
+                                                </Label.GestureRecognizers>
+                                            </Label>
+
+                                            <Label Grid.Column="2"
+                                                   Text="↗"
+                                                   TextColor="#E7EDF5"
+                                                   FontSize="24"
+                                                   VerticalOptions="Center" />
+
+                                            <Button Grid.Column="4"
+                                                    Text="Ajouter"
+                                                    Command="{Binding BindingContext.AddFriendCommand, Source={x:Reference PageRoot}}"
+                                                    CommandParameter="{Binding .}"
+                                                    IsVisible="{Binding CanAddAsFriend}"
+                                                    BackgroundColor="#151F2D"
+                                                    BorderColor="#FFB627"
+                                                    BorderWidth="1"
+                                                    TextColor="#FFB627"
+                                                    FontSize="12"
+                                                    CornerRadius="14"
+                                                    HeightRequest="34"
+                                                    Padding="10,0" />
+                                        </Grid>
+
+                                        <Label Text="{Binding LikeLabel}"
+                                               TextColor="White"
+                                               FontFamily="DMSans-Bold"
+                                               FontSize="13"
+                                               IsVisible="{Binding IsMedia}" />
+
+                                        <Label Text="{Binding CommentLabel}"
+                                               TextColor="#7F8B99"
+                                               FontSize="13">
+                                            <Label.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding BindingContext.OpenCommentsCommand, Source={x:Reference PageRoot}}" CommandParameter="{Binding .}" />
+                                            </Label.GestureRecognizers>
+                                        </Label>
+                                    </VerticalStackLayout>
+                                </VerticalStackLayout>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+                <Button Text="Voir plus de publications⌄"
+                        Margin="20,0,20,22"
+                        BackgroundColor="#0B111B"
+                        BorderColor="#1D2939"
+                        BorderWidth="1"
+                        TextColor="White"
+                        FontFamily="DMSans-Bold"
+                        CornerRadius="18"
+                        HeightRequest="52"
+                        Command="{Binding RefreshCommand}"
+                        IsVisible="{Binding IsBusy, Converter={StaticResource Inv}}" />
+                </VerticalStackLayout>
+
+                <!-- INFOS PRATIQUES / ÉVÉNEMENTS : onglet séparé -->
+                <VerticalStackLayout x:Name="InfosSection" Spacing="14" Padding="20,0,20,0" IsVisible="{Binding IsInfosTabSelected}">
+                    <Border Padding="18" BackgroundColor="#0B111B" Stroke="#1D2939" StrokeThickness="1" StrokeShape="RoundRectangle 24">
+                        <VerticalStackLayout Spacing="16">
+                            <Label Text="Infos pratiques" TextColor="White" FontFamily="DMSans-Bold" FontSize="21" />
+                            <Grid ColumnDefinitions="28,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto" RowSpacing="14">
+                                <Label Text="⌖" TextColor="#D6DEE8" FontSize="19" />
+                                <Label Grid.Column="1" Text="{Binding BarAddress}" TextColor="#D6DEE8" FontSize="15" />
+
+                                <Label Grid.Row="1" Text="◷" TextColor="#FFB627" FontSize="19" />
+                                <Label Grid.Row="1" Grid.Column="1" Text="{Binding OpenStatusText}" TextColor="#D6DEE8" FontSize="15" />
+
+                                <Label Grid.Row="2" Text="☎" TextColor="#D6DEE8" FontSize="18" IsVisible="{Binding HasPhone}" />
+                                <Label Grid.Row="2" Grid.Column="1" Text="{Binding BarPhone}" TextColor="#D6DEE8" FontSize="15" IsVisible="{Binding HasPhone}" />
+
+                                <Label Grid.Row="3" Text="◎" TextColor="#FF4AA2" FontSize="18" IsVisible="{Binding HasInstagram}" />
+                                <Label Grid.Row="3" Grid.Column="1" Text="{Binding BarInstagram}" TextColor="#D6DEE8" FontSize="15" IsVisible="{Binding HasInstagram}" />
+
+                                <Label Grid.Row="4" Text="⌁" TextColor="#D6DEE8" FontSize="18" IsVisible="{Binding HasWebsite}" />
+                                <Label Grid.Row="4" Grid.Column="1" Text="{Binding BarWebsite}" TextColor="#D6DEE8" FontSize="15" IsVisible="{Binding HasWebsite}" />
+                            </Grid>
+
+                            <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="10" Margin="0,8,0,0">
+                                <Button Text="➤\nItinéraire" Command="{Binding GoToMapsCommand}" BackgroundColor="#121A27" TextColor="White" CornerRadius="18" HeightRequest="72" />
+                                <Button Grid.Column="1" Text="☎\nAppeler" Command="{Binding CallBarCommand}" BackgroundColor="#121A27" TextColor="White" CornerRadius="18" HeightRequest="72" />
+                                <Button Grid.Column="2" Text="◎\nInstagram" Command="{Binding OpenInstagramCommand}" BackgroundColor="#121A27" TextColor="White" CornerRadius="18" HeightRequest="72" IsVisible="{Binding HasInstagram}" />
+                                <Button Grid.Column="3" Text="⌁\nSite" Command="{Binding OpenWebsiteCommand}" BackgroundColor="#121A27" TextColor="White" CornerRadius="18" HeightRequest="72" IsVisible="{Binding HasWebsite}" />
+                            </Grid>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <Border Padding="18" BackgroundColor="#0B111B" Stroke="#1D2939" StrokeThickness="1" StrokeShape="RoundRectangle 24" IsVisible="{Binding HasDescription}">
+                        <VerticalStackLayout Spacing="8">
+                            <Label Text="À propos" TextColor="White" FontFamily="DMSans-Bold" FontSize="19" />
+                            <Label Text="{Binding BarDescription}" TextColor="#D6DEE8" FontSize="15" LineBreakMode="WordWrap" />
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <Border Padding="18" BackgroundColor="#0B111B" Stroke="#1D2939" StrokeThickness="1" StrokeShape="RoundRectangle 24" IsVisible="{Binding HasAnyOfficialEvents}">
+                        <VerticalStackLayout Spacing="14">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <Label Text="Événements à venir" TextColor="White" FontFamily="DMSans-Bold" FontSize="21" />
+                                <Label Grid.Column="1" Text="Voir tout" TextColor="#FFB627" FontSize="14" VerticalOptions="Center" />
+                            </Grid>
+
+                            <CollectionView ItemsSource="{Binding UpcomingOfficialEvents}" SelectionMode="None" HeightRequest="250">
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate x:DataType="models:OfficialEvent">
+                                        <Border Margin="0,0,0,10" Padding="12" BackgroundColor="#101722" Stroke="#29364A" StrokeThickness="1" StrokeShape="RoundRectangle 18">
+                                            <Border.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding BindingContext.OpenOfficialEventCommand, Source={x:Reference PageRoot}}" CommandParameter="{Binding .}" />
+                                            </Border.GestureRecognizers>
+                                            <Grid ColumnDefinitions="72,*" ColumnSpacing="12">
+                                                <Border WidthRequest="72" HeightRequest="72" StrokeThickness="0" StrokeShape="RoundRectangle 14" BackgroundColor="#182234">
+                                                    <Image Source="{Binding FlyerUrl}" Aspect="AspectFill" />
+                                                </Border>
+                                                <VerticalStackLayout Grid.Column="1" Spacing="3" VerticalOptions="Center">
+                                                    <Label Text="{Binding ShortDateLabel}" TextColor="#FFB627" FontSize="12" FontFamily="DMSans-Bold" />
+                                                    <Label Text="{Binding Title}" TextColor="White" FontSize="16" FontFamily="DMSans-Bold" />
+                                                    <Label Text="{Binding BarDisplay}" TextColor="#C9D4E1" FontSize="13" />
+                                                    <Label Text="{Binding GoingCount, StringFormat='{0} participants intéressés'}" TextColor="#9AA8B8" FontSize="12" />
+                                                </VerticalStackLayout>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                            </CollectionView>
+                        </VerticalStackLayout>
+                    </Border>
+                </VerticalStackLayout>
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

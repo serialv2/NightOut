@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView
+    x:Class="NightOut.Views.Bar.Components.BarInfosView"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:models="clr-namespace:NightOut.Models"
+    x:Name="InfosRoot">
+
+    <VerticalStackLayout Spacing="14">
+        <Border Padding="18"
+                BackgroundColor="#0B111B"
+                Stroke="#1D2939"
+                StrokeThickness="1"
+                StrokeShape="RoundRectangle 24">
+            <VerticalStackLayout Spacing="16">
+                <Label Text="Infos pratiques"
+                       TextColor="White"
+                       FontFamily="DMSans-Bold"
+                       FontSize="21" />
+
+                <Grid ColumnDefinitions="28,*"
+                      RowDefinitions="Auto,Auto,Auto,Auto,Auto"
+                      RowSpacing="14">
+                    <Label Text="⌖" TextColor="#D6DEE8" FontSize="19" />
+                    <Label Grid.Column="1"
+                           Text="{Binding Source={x:Reference InfosRoot}, Path=BarAddress}"
+                           TextColor="#D6DEE8"
+                           FontSize="15" />
+
+                    <Label Grid.Row="1" Text="◷" TextColor="#FFB627" FontSize="19" />
+                    <Label Grid.Row="1"
+                           Grid.Column="1"
+                           Text="{Binding Source={x:Reference InfosRoot}, Path=OpenStatusText}"
+                           TextColor="#D6DEE8"
+                           FontSize="15" />
+
+                    <Label Grid.Row="2"
+                           Text="☎"
+                           TextColor="#D6DEE8"
+                           FontSize="18"
+                           IsVisible="{Binding Source={x:Reference InfosRoot}, Path=HasPhone}" />
+                    <Label Grid.Row="2"
+                           Grid.Column="1"
+                           Text="{Binding Source={x:Reference InfosRoot}, Path=BarPhone}"
+                           TextColor="#D6DEE8"
+                           FontSize="15"
+                           IsVisible="{Binding Source={x:Reference InfosRoot}, Path=HasPhone}" />
+
+                    <Label Grid.Row="3"
+                           Text="◎"
+                           TextColor="#FF4AA2"
+                           FontSize="18"
+                           IsVisible="{Binding Source={x:Reference InfosRoot}, Path=HasInstagram}" />
+                    <Label Grid.Row="3"
+                           Grid.Column="1"
+                           Text="{Binding Source={x:Reference InfosRoot}, Path=BarInstagram}"
+                           TextColor="#D6DEE8"
+                           FontSize="15"
+                           IsVisible="{Binding Source={x:Reference InfosRoot}, Path=HasInstagram}" />
+
+                    <Label Grid.Row="4"
+                           Text="⌁"
+                           TextColor="#D6DEE8"
+                           FontSize="18"
+                           IsVisible="{Binding Source={x:Reference InfosRoot}, Path=HasWebsite}" />
+                    <Label Grid.Row="4"
+                           Grid.Column="1"
+                           Text="{Binding Source={x:Reference InfosRoot}, Path=BarWebsite}"
+                           TextColor="#D6DEE8"
+                           FontSize="15"
+                           IsVisible="{Binding Source={x:Reference InfosRoot}, Path=HasWebsite}" />
+                </Grid>
+
+                <Grid ColumnDefinitions="*,*,*,*"
+                      ColumnSpacing="10"
+                      Margin="0,8,0,0">
+                    <Button Text="➤&#10;Itinéraire"
+                            Command="{Binding Source={x:Reference InfosRoot}, Path=GoToMapsCommand}"
+                            BackgroundColor="#121A27"
+                            TextColor="White"
+                            CornerRadius="18"
+                            HeightRequest="72" />
+                    <Button Grid.Column="1"
+                            Text="☎&#10;Appeler"
+                            Command="{Binding Source={x:Reference InfosRoot}, Path=CallBarCommand}"
+                            BackgroundColor="#121A27"
+                            TextColor="White"
+                            CornerRadius="18"
+                            HeightRequest="72" />
+                    <Button Grid.Column="2"
+                            Text="◎&#10;Instagram"
+                            Command="{Binding Source={x:Reference InfosRoot}, Path=OpenInstagramCommand}"
+                            BackgroundColor="#121A27"
+                            TextColor="White"
+                            CornerRadius="18"
+                            HeightRequest="72"
+                            IsVisible="{Binding Source={x:Reference InfosRoot}, Path=HasInstagram}" />
+                    <Button Grid.Column="3"
+                            Text="⌁&#10;Site"
+                            Command="{Binding Source={x:Reference InfosRoot}, Path=OpenWebsiteCommand}"
+                            BackgroundColor="#121A27"
+                            TextColor="White"
+                            CornerRadius="18"
+                            HeightRequest="72"
+                            IsVisible="{Binding Source={x:Reference InfosRoot}, Path=HasWebsite}" />
+                </Grid>
+            </VerticalStackLayout>
+        </Border>
+
+        <Border Padding="18"
+                BackgroundColor="#0B111B"
+                Stroke="#1D2939"
+                StrokeThickness="1"
+                StrokeShape="RoundRectangle 24"
+                IsVisible="{Binding Source={x:Reference InfosRoot}, Path=HasDescription}">
+            <VerticalStackLayout Spacing="8">
+                <Label Text="À propos"
+                       TextColor="White"
+                       FontFamily="DMSans-Bold"
+                       FontSize="19" />
+                <Label Text="{Binding Source={x:Reference InfosRoot}, Path=BarDescription}"
+                       TextColor="#D6DEE8"
+                       FontSize="15"
+                       LineBreakMode="WordWrap" />
+            </VerticalStackLayout>
+        </Border>
+
+        <Border Padding="18"
+                BackgroundColor="#0B111B"
+                Stroke="#1D2939"
+                StrokeThickness="1"
+                StrokeShape="RoundRectangle 24"
+                IsVisible="{Binding Source={x:Reference InfosRoot}, Path=HasAnyOfficialEvents}">
+            <VerticalStackLayout Spacing="14">
+                <Grid ColumnDefinitions="*,Auto">
+                    <Label Text="Événements à venir"
+                           TextColor="White"
+                           FontFamily="DMSans-Bold"
+                           FontSize="21" />
+                    <Label Grid.Column="1"
+                           Text="Voir tout"
+                           TextColor="#FFB627"
+                           FontSize="14"
+                           VerticalOptions="Center" />
+                </Grid>
+
+                <CollectionView ItemsSource="{Binding Source={x:Reference InfosRoot}, Path=UpcomingOfficialEvents}"
+                                SelectionMode="None"
+                                HeightRequest="250">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="models:OfficialEvent">
+                            <Border Margin="0,0,0,10"
+                                    Padding="12"
+                                    BackgroundColor="#101722"
+                                    Stroke="#29364A"
+                                    StrokeThickness="1"
+                                    StrokeShape="RoundRectangle 18">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding Source={x:Reference InfosRoot}, Path=OpenOfficialEventCommand}"
+                                                          CommandParameter="{Binding .}" />
+                                </Border.GestureRecognizers>
+                                <Grid ColumnDefinitions="72,*" ColumnSpacing="12">
+                                    <Border WidthRequest="72"
+                                            HeightRequest="72"
+                                            StrokeThickness="0"
+                                            StrokeShape="RoundRectangle 14"
+                                            BackgroundColor="#182234">
+                                        <Image Source="{Binding FlyerUrl}" Aspect="AspectFill" />
+                                    </Border>
+                                    <VerticalStackLayout Grid.Column="1" Spacing="3" VerticalOptions="Center">
+                                        <Label Text="{Binding ShortDateLabel}"
+                                               TextColor="#FFB627"
+                                               FontSize="12"
+                                               FontFamily="DMSans-Bold" />
+                                        <Label Text="{Binding Title}"
+                                               TextColor="White"
+                                               FontSize="16"
+                                               FontFamily="DMSans-Bold" />
+                                        <Label Text="{Binding BarDisplay}"
+                                               TextColor="#C9D4E1"
+                                               FontSize="13" />
+                                        <Label Text="{Binding GoingCount, StringFormat='{0} participants intéressés'}"
+                                               TextColor="#9AA8B8"
+                                               FontSize="12" />
+                                    </VerticalStackLayout>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </VerticalStackLayout>
+        </Border>
+    </VerticalStackLayout>
+</ContentView>

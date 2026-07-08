@@ -1,0 +1,437 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="NightOut.Views.Events.EphemeralEventsPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:controls="clr-namespace:NightOut.Views.Controls"
+    xmlns:models="clr-namespace:NightOut.Models"
+    xmlns:vm="clr-namespace:NightOut.ViewModels"
+    x:DataType="vm:EphemeralEventsViewModel"
+    Shell.NavBarIsVisible="False"
+    Shell.TabBarIsVisible="False"
+    BackgroundColor="{DynamicResource BgDeep}">
+
+    <Grid RowDefinitions="*,Auto">
+        <RefreshView Grid.Row="0"
+                     Command="{Binding LoadCommand}"
+                     IsRefreshing="{Binding IsBusy}">
+            <ScrollView>
+                <VerticalStackLayout Padding="18,28,18,24" Spacing="18">
+
+                    <!-- HEADER : suppression du bouton B inutile -->
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="14" Padding="0,8,0,4">
+                        <VerticalStackLayout Grid.Column="0" Spacing="2" VerticalOptions="Center">
+                            <VerticalStackLayout.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding SelectCityCommand}" />
+                            </VerticalStackLayout.GestureRecognizers>
+                            <HorizontalStackLayout Spacing="6" HorizontalOptions="Center">
+                                <Label Text="{Binding SelectedCityName}"
+                                       FontSize="15"
+                                       TextColor="{DynamicResource TextSecondary}"
+                                       VerticalOptions="Center" />
+                                <Label Text="⌄" FontSize="15" TextColor="{DynamicResource Accent}" VerticalOptions="Center" />
+                            </HorizontalStackLayout>
+                            <Label Text="Sorties éphémères"
+                                   FontSize="29"
+                                   FontAttributes="Bold"
+                                   TextColor="{DynamicResource TextPrimary}"
+                                   HorizontalOptions="Center" />
+                            <Label Text="{Binding Subtitle}"
+                                   FontSize="13"
+                                   TextColor="{DynamicResource TextSecondary}"
+                                   HorizontalOptions="Center" />
+                        </VerticalStackLayout>
+
+                        <Border Grid.Column="1" WidthRequest="50" HeightRequest="50"
+                                Stroke="{DynamicResource Border}"
+                                StrokeThickness="1"
+                                BackgroundColor="{DynamicResource BgCard}"
+                                StrokeShape="RoundRectangle 25">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding SearchCommand}" />
+                            </Border.GestureRecognizers>
+                            <Label Text="🔍" FontSize="22" HorizontalOptions="Center" VerticalOptions="Center" />
+                        </Border>
+                    </Grid>
+
+                    <!-- FILTRES -->
+                    <CollectionView ItemsSource="{Binding Filters}"
+                                    SelectionMode="None"
+                                    HeightRequest="56">
+                        <CollectionView.ItemsLayout>
+                            <LinearItemsLayout Orientation="Horizontal" ItemSpacing="10" />
+                        </CollectionView.ItemsLayout>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="x:String">
+                                <Border Stroke="{DynamicResource Border}"
+                                        StrokeThickness="1"
+                                        BackgroundColor="{DynamicResource BgCard}"
+                                        StrokeShape="RoundRectangle 999"
+                                        Padding="18,10">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.SelectFilterCommand}"
+                                                              CommandParameter="{Binding .}" />
+                                    </Border.GestureRecognizers>
+                                    <Label Text="{Binding .}" FontSize="14" TextColor="{DynamicResource TextPrimary}" />
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+
+                    <!-- HERO agrandi : boutons visibles + profil organisateur -->
+                    <Border Stroke="{DynamicResource BorderMid}"
+                            StrokeThickness="1"
+                            BackgroundColor="{DynamicResource BgCard}"
+                            StrokeShape="RoundRectangle 28"
+                            Padding="0">
+                        <Grid HeightRequest="430">
+                            <BoxView>
+                                <BoxView.Background>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                        <GradientStop Color="{DynamicResource BgCard}" Offset="0" />
+                                        <GradientStop Color="{DynamicResource BgCard}" Offset="0.55" />
+                                        <GradientStop Color="{DynamicResource BgDeep}" Offset="1" />
+                                    </LinearGradientBrush>
+                                </BoxView.Background>
+                            </BoxView>
+
+                            <Ellipse WidthRequest="220" HeightRequest="220" Fill="#22D0735C"
+                                     HorizontalOptions="End" VerticalOptions="Start" Margin="0,-55,-70,0" />
+                            <Ellipse WidthRequest="160" HeightRequest="160" Fill="#22D28B62"
+                                     HorizontalOptions="Start" VerticalOptions="End" Margin="-60,0,0,-60" />
+
+                            <VerticalStackLayout Padding="18" Spacing="12" VerticalOptions="Fill">
+                                <Border StrokeThickness="0"
+                                        BackgroundColor="#33D0735C"
+                                        StrokeShape="RoundRectangle 999"
+                                        Padding="11,6"
+                                        HorizontalOptions="Start">
+                                    <Label Text="{Binding HeroEvent.BadgeText}"
+                                           FontSize="12"
+                                           FontAttributes="Bold"
+                                           TextColor="{DynamicResource Error}" />
+                                </Border>
+
+                                <Label Text="{Binding HeroEvent.Title}"
+                                       FontSize="31"
+                                       FontAttributes="Bold"
+                                       TextColor="{DynamicResource Accent}"
+                                       LineBreakMode="TailTruncation" />
+
+                                <HorizontalStackLayout Spacing="8">
+                                    <Label Text="📍" FontSize="18" TextColor="{DynamicResource Accent}" />
+                                    <Label Text="{Binding HeroEvent.PlaceDisplay}"
+                                           FontSize="18"
+                                           TextColor="{DynamicResource TextPrimary}"
+                                           LineBreakMode="TailTruncation" />
+                                </HorizontalStackLayout>
+
+                                <HorizontalStackLayout Spacing="22">
+                                    <HorizontalStackLayout Spacing="6">
+                                        <Label Text="🕒" FontSize="15" />
+                                        <Label Text="{Binding HeroEvent.TimeLabel}" FontSize="14" TextColor="{DynamicResource TextSecondary}" />
+                                    </HorizontalStackLayout>
+                                    <HorizontalStackLayout Spacing="6">
+                                        <Label Text="👥" FontSize="15" />
+                                        <Label Text="{Binding HeroEvent.ParticipantsLabel}" FontSize="14" TextColor="{DynamicResource TextSecondary}" />
+                                    </HorizontalStackLayout>
+                                </HorizontalStackLayout>
+
+                                <HorizontalStackLayout Spacing="-8" BindableLayout.ItemsSource="{Binding HeroEvent.ParticipantInitials}">
+                                    <BindableLayout.ItemTemplate>
+                                        <DataTemplate x:DataType="x:String">
+                                            <Border WidthRequest="36" HeightRequest="36"
+                                                    Stroke="{DynamicResource BgDeep}"
+                                                    StrokeThickness="2"
+                                                    BackgroundColor="{DynamicResource BgElevated}"
+                                                    StrokeShape="RoundRectangle 18">
+                                                <Label Text="{Binding .}" FontSize="12" FontAttributes="Bold" TextColor="{DynamicResource TextPrimary}"
+                                                       HorizontalOptions="Center" VerticalOptions="Center" />
+                                            </Border>
+                                        </DataTemplate>
+                                    </BindableLayout.ItemTemplate>
+                                </HorizontalStackLayout>
+
+                                <!-- Organisateur / statistiques visibles -->
+                                <Border Stroke="{DynamicResource Border}" StrokeThickness="1" BackgroundColor="{DynamicResource BgElevated}" StrokeShape="RoundRectangle 18" Padding="12,10">
+                                    <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10" RowSpacing="8">
+                                        <Border WidthRequest="38" HeightRequest="38" StrokeThickness="0" BackgroundColor="{DynamicResource Border}" StrokeShape="RoundRectangle 19">
+                                            <Label Text="{Binding HeroEvent.CreatorInitial}" FontSize="14" FontAttributes="Bold" TextColor="{DynamicResource TextPrimary}" HorizontalOptions="Center" VerticalOptions="Center" />
+                                        </Border>
+                                        <VerticalStackLayout Grid.Column="1" Spacing="1" VerticalOptions="Center">
+                                            <Label Text="{Binding HeroEvent.CreatorDisplayName, StringFormat='Organisé par {0}'}" FontSize="12" FontAttributes="Bold" TextColor="{DynamicResource TextPrimary}" LineBreakMode="TailTruncation" />
+                                            <Label Text="{Binding HeroEvent.CreatorStatsLabel}" FontSize="10" TextColor="{DynamicResource TextSecondary}" LineBreakMode="TailTruncation" />
+                                        </VerticalStackLayout>
+                                        <VerticalStackLayout Grid.Column="2" Spacing="1" VerticalOptions="Center" HorizontalOptions="End">
+                                            <Label Text="{Binding HeroEvent.CreatorRatingLabel}" FontSize="12" FontAttributes="Bold" TextColor="{DynamicResource Accent}" HorizontalOptions="End" />
+                                            <Label Text="{Binding HeroEvent.CreatorBadgeLabel}" FontSize="9" TextColor="{DynamicResource TextSecondary}" HorizontalOptions="End" />
+                                        </VerticalStackLayout>
+
+                                        <Border Grid.Row="1" Grid.ColumnSpan="3"
+                                                Stroke="{DynamicResource Border}"
+                                                StrokeThickness="1"
+                                                BackgroundColor="{DynamicResource BgCard}"
+                                                StrokeShape="RoundRectangle 14"
+                                                Padding="12,8">
+                                            <Border.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding ViewCreatorStatsCommand}" CommandParameter="{Binding HeroEvent}" />
+                                            </Border.GestureRecognizers>
+                                            <Label Text="Voir le profil / stats organisateur"
+                                                   FontSize="12"
+                                                   FontAttributes="Bold"
+                                                   TextColor="{DynamicResource Accent}"
+                                                   HorizontalOptions="Center" />
+                                        </Border>
+                                    </Grid>
+                                </Border>
+
+                                <!-- Actions principales -->
+                                <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="10" Margin="0,2,0,0">
+                                    <Border Grid.Column="0" StrokeThickness="0" StrokeShape="RoundRectangle 20" Padding="12,12">
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding JoinCommand}" CommandParameter="{Binding HeroEvent}" />
+                                        </Border.GestureRecognizers>
+                                        <Border.Background>
+                                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                                <GradientStop Color="{DynamicResource Error}" Offset="0" />
+                                                <GradientStop Color="{DynamicResource Error}" Offset="1" />
+                                            </LinearGradientBrush>
+                                        </Border.Background>
+                                        <Label Text="J'y vais" FontSize="15" FontAttributes="Bold" TextColor="White" HorizontalOptions="Center" />
+                                    </Border>
+
+                                    <Border Grid.Column="1" Stroke="{DynamicResource Accent}" StrokeThickness="1" BackgroundColor="{DynamicResource BgElevated}" StrokeShape="RoundRectangle 20" Padding="12,12">
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding OpenCommand}" CommandParameter="{Binding HeroEvent}" />
+                                        </Border.GestureRecognizers>
+                                        <Label Text="Voir" FontSize="15" FontAttributes="Bold" TextColor="{DynamicResource Accent}" HorizontalOptions="Center" />
+                                    </Border>
+
+                                    <Border Grid.Column="2" Stroke="{DynamicResource Accent}" StrokeThickness="1" BackgroundColor="{DynamicResource BgElevated}" StrokeShape="RoundRectangle 20" Padding="12,12">
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding RateCreatorCommand}" CommandParameter="{Binding HeroEvent}" />
+                                        </Border.GestureRecognizers>
+                                        <Label Text="Noter" FontSize="15" FontAttributes="Bold" TextColor="{DynamicResource Accent}" HorizontalOptions="Center" />
+                                    </Border>
+
+                                    <Border Grid.Column="3" Stroke="{DynamicResource Error}" StrokeThickness="1" BackgroundColor="{DynamicResource BgDeep}" StrokeShape="RoundRectangle 20" Padding="12,12" IsVisible="{Binding HeroEvent.CanCancel}">
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding CancelCommand}" CommandParameter="{Binding HeroEvent}" />
+                                        </Border.GestureRecognizers>
+                                        <Label Text="Annuler" FontSize="15" FontAttributes="Bold" TextColor="{DynamicResource Error}" HorizontalOptions="Center" />
+                                    </Border>
+                                </Grid>
+                            </VerticalStackLayout>
+                        </Grid>
+                    </Border>
+
+                    <!-- SECTION -->
+                    <Grid ColumnDefinitions="*,Auto" Margin="0,8,0,0">
+                        <Label Text="Autour de toi"
+                               FontSize="24"
+                               FontAttributes="Bold"
+                               TextColor="{DynamicResource TextPrimary}" />
+                        <HorizontalStackLayout Grid.Column="1" Spacing="8" VerticalOptions="Center">
+                            <HorizontalStackLayout.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding ShowAllCommand}" />
+                            </HorizontalStackLayout.GestureRecognizers>
+                            <Label Text="Voir tout" FontSize="14" FontAttributes="Bold" TextColor="{DynamicResource Error}" />
+                            <Label Text="›" FontSize="24" TextColor="{DynamicResource Error}" />
+                        </HorizontalStackLayout>
+                    </Grid>
+
+                    <!-- EMPTY -->
+                    <Border IsVisible="{Binding IsEmpty}"
+                            Stroke="{DynamicResource Border}"
+                            StrokeThickness="1"
+                            BackgroundColor="{DynamicResource BgElevated}"
+                            StrokeShape="RoundRectangle 22"
+                            Padding="18">
+                        <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
+                            <Label Text="🌙" FontSize="42" HorizontalOptions="Center" />
+                            <Label Text="Aucune sortie pour le moment"
+                                   FontSize="17" FontAttributes="Bold" TextColor="{DynamicResource TextPrimary}" />
+                            <Label Text="Crée la première sortie éphémère autour de toi."
+                                   FontSize="13" TextColor="{DynamicResource TextSecondary}" HorizontalTextAlignment="Center" />
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- LISTE : cartes agrandies avec J'y vais / Voir / Profil -->
+                    <CollectionView ItemsSource="{Binding Events}" SelectionMode="None">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="models:EphemeralEvent">
+                                <Border Margin="0,0,0,14"
+                                        Stroke="{DynamicResource Border}"
+                                        StrokeThickness="1"
+                                        BackgroundColor="{DynamicResource BgCard}"
+                                        StrokeShape="RoundRectangle 24"
+                                        Padding="12">
+                                    <Grid RowDefinitions="Auto,Auto,Auto" RowSpacing="10">
+                                        <Grid ColumnDefinitions="82,*" ColumnSpacing="12">
+                                            <Border WidthRequest="82" HeightRequest="82"
+                                                    StrokeThickness="0"
+                                                    BackgroundColor="{DynamicResource BgElevated}"
+                                                    StrokeShape="RoundRectangle 18"
+                                                    VerticalOptions="Start">
+                                                <Grid>
+                                                    <BoxView>
+                                                        <BoxView.Background>
+                                                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                                                <GradientStop Color="{DynamicResource BgElevated}" Offset="0" />
+                                                                <GradientStop Color="{DynamicResource BgElevated}" Offset="0.55" />
+                                                                <GradientStop Color="{DynamicResource BgDeep}" Offset="1" />
+                                                            </LinearGradientBrush>
+                                                        </BoxView.Background>
+                                                    </BoxView>
+                                                    <Label Text="🌃" FontSize="30" HorizontalOptions="Center" VerticalOptions="Center" />
+                                                </Grid>
+                                            </Border>
+
+                                            <VerticalStackLayout Grid.Column="1" Spacing="5" VerticalOptions="Start">
+                                                <Border StrokeThickness="0"
+                                                        BackgroundColor="#33D0735C"
+                                                        StrokeShape="RoundRectangle 999"
+                                                        Padding="8,3"
+                                                        HorizontalOptions="Start">
+                                                    <Label Text="{Binding BadgeText}" FontSize="10" FontAttributes="Bold" TextColor="{DynamicResource Error}" />
+                                                </Border>
+                                                <Label Text="{Binding Title}"
+                                                       FontSize="18"
+                                                       FontAttributes="Bold"
+                                                       TextColor="{DynamicResource TextPrimary}"
+                                                       LineBreakMode="TailTruncation" />
+                                                <Label Text="{Binding PlaceDisplay}"
+                                                       FontSize="13"
+                                                       TextColor="{DynamicResource TextSecondary}"
+                                                       LineBreakMode="TailTruncation" />
+                                                <HorizontalStackLayout Spacing="8">
+                                                    <HorizontalStackLayout Spacing="-7" BindableLayout.ItemsSource="{Binding ParticipantInitials}">
+                                                        <BindableLayout.ItemTemplate>
+                                                            <DataTemplate x:DataType="x:String">
+                                                                <Border WidthRequest="22" HeightRequest="22"
+                                                                        Stroke="{DynamicResource BgCard}"
+                                                                        StrokeThickness="1"
+                                                                        BackgroundColor="{DynamicResource Border}"
+                                                                        StrokeShape="RoundRectangle 11">
+                                                                    <Label Text="{Binding .}" FontSize="8" FontAttributes="Bold" TextColor="{DynamicResource TextPrimary}"
+                                                                           HorizontalOptions="Center" VerticalOptions="Center" />
+                                                                </Border>
+                                                            </DataTemplate>
+                                                        </BindableLayout.ItemTemplate>
+                                                    </HorizontalStackLayout>
+                                                    <Label Text="{Binding ParticipantsLabel}" FontSize="12" TextColor="{DynamicResource TextSecondary}" VerticalOptions="Center" />
+                                                </HorizontalStackLayout>
+                                            </VerticalStackLayout>
+                                        </Grid>
+
+                                        <Border Grid.Row="1"
+                                                Stroke="{DynamicResource Border}"
+                                                StrokeThickness="1"
+                                                BackgroundColor="{DynamicResource BgElevated}"
+                                                StrokeShape="RoundRectangle 16"
+                                                Padding="10,8">
+                                            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
+                                                <Border WidthRequest="30" HeightRequest="30" StrokeThickness="0" BackgroundColor="{DynamicResource Border}" StrokeShape="RoundRectangle 15">
+                                                    <Label Text="{Binding CreatorInitial}" FontSize="11" FontAttributes="Bold" TextColor="{DynamicResource TextPrimary}" HorizontalOptions="Center" VerticalOptions="Center" />
+                                                </Border>
+                                                <VerticalStackLayout Grid.Column="1" Spacing="1" VerticalOptions="Center">
+                                                    <Label Text="{Binding CreatorDisplayName, StringFormat='Organisé par {0}'}" FontSize="11" FontAttributes="Bold" TextColor="{DynamicResource TextPrimary}" LineBreakMode="TailTruncation" />
+                                                    <Label Text="{Binding CreatorStatsLabel}" FontSize="10" TextColor="{DynamicResource TextSecondary}" LineBreakMode="TailTruncation" />
+                                                </VerticalStackLayout>
+                                                <VerticalStackLayout Grid.Column="2" Spacing="1" VerticalOptions="Center" HorizontalOptions="End">
+                                                    <Label Text="{Binding CreatorRatingLabel}" FontSize="11" FontAttributes="Bold" TextColor="{DynamicResource Accent}" HorizontalOptions="End" />
+                                                    <Label Text="{Binding CreatorBadgeLabel}" FontSize="9" TextColor="{DynamicResource TextSecondary}" HorizontalOptions="End" />
+                                                </VerticalStackLayout>
+                                            </Grid>
+                                        </Border>
+
+                                        <Grid Grid.Row="2" ColumnDefinitions="*,*,*,*" ColumnSpacing="8">
+                                            <Border Grid.Column="0"
+                                                    Stroke="{DynamicResource Error}"
+                                                    StrokeThickness="1"
+                                                    BackgroundColor="{DynamicResource BgDeep}"
+                                                    StrokeShape="RoundRectangle 18"
+                                                    Padding="10,10">
+                                                <Border.GestureRecognizers>
+                                                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.JoinCommand}"
+                                                                          CommandParameter="{Binding .}" />
+                                                </Border.GestureRecognizers>
+                                                <Label Text="J'y vais" FontSize="13" FontAttributes="Bold" TextColor="{DynamicResource Error}" HorizontalOptions="Center" />
+                                            </Border>
+
+                                            <Border Grid.Column="1"
+                                                    Stroke="{DynamicResource Border}"
+                                                    StrokeThickness="1"
+                                                    BackgroundColor="{DynamicResource BgCard}"
+                                                    StrokeShape="RoundRectangle 18"
+                                                    Padding="10,10">
+                                                <Border.GestureRecognizers>
+                                                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.ViewCreatorStatsCommand}"
+                                                                          CommandParameter="{Binding .}" />
+                                                </Border.GestureRecognizers>
+                                                <Label Text="Profil" FontSize="13" FontAttributes="Bold" TextColor="{DynamicResource Accent}" HorizontalOptions="Center" />
+                                            </Border>
+
+                                            <Border Grid.Column="2"
+                                                    Stroke="{DynamicResource Accent}"
+                                                    StrokeThickness="1"
+                                                    BackgroundColor="{DynamicResource BgCard}"
+                                                    StrokeShape="RoundRectangle 18"
+                                                    Padding="10,10">
+                                                <Border.GestureRecognizers>
+                                                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.OpenCommand}"
+                                                                          CommandParameter="{Binding .}" />
+                                                </Border.GestureRecognizers>
+                                                <Label Text="Voir" FontSize="13" FontAttributes="Bold" TextColor="{DynamicResource Accent}" HorizontalOptions="Center" />
+                                            </Border>
+
+                                            <Border Grid.Column="3"
+                                                    Stroke="{DynamicResource Error}"
+                                                    StrokeThickness="1"
+                                                    BackgroundColor="{DynamicResource BgDeep}"
+                                                    StrokeShape="RoundRectangle 18"
+                                                    Padding="10,10"
+                                                    IsVisible="{Binding CanCancel}">
+                                                <Border.GestureRecognizers>
+                                                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.CancelCommand}"
+                                                                          CommandParameter="{Binding .}" />
+                                                </Border.GestureRecognizers>
+                                                <Label Text="Annuler" FontSize="13" FontAttributes="Bold" TextColor="{DynamicResource Error}" HorizontalOptions="Center" />
+                                            </Border>
+                                        </Grid>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+
+                    <BoxView HeightRequest="80" Opacity="0" />
+                </VerticalStackLayout>
+            </ScrollView>
+        </RefreshView>
+
+        <!-- CTA flottant -->
+        <Grid Grid.Row="0" VerticalOptions="End" Padding="20,0,20,18" InputTransparent="False">
+            <Border HeightRequest="58"
+                    StrokeThickness="0"
+                    StrokeShape="RoundRectangle 29">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding CreateCommand}" />
+                </Border.GestureRecognizers>
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                        <GradientStop Color="{DynamicResource Accent}" Offset="0" />
+                        <GradientStop Color="{DynamicResource Error}" Offset="0.55" />
+                        <GradientStop Color="{DynamicResource Second}" Offset="1" />
+                    </LinearGradientBrush>
+                </Border.Background>
+                <HorizontalStackLayout HorizontalOptions="Center" VerticalOptions="Center" Spacing="12">
+                    <Label Text="+" FontSize="31" FontAttributes="Bold" TextColor="White" VerticalOptions="Center" />
+                    <Label Text="Créer une sortie éphémère" FontSize="17" FontAttributes="Bold" TextColor="White" VerticalOptions="Center" />
+                </HorizontalStackLayout>
+            </Border>
+        </Grid>
+
+        <controls:BottomNavBar Grid.Row="1" ActiveTab="Events" />
+    </Grid>
+</ContentPage>

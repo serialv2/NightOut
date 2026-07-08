@@ -11,6 +11,9 @@ using NightOut.Views.Profile;
 using NightOut.Views.Notifications;
 using NightOut.Views.Pro;
 using NightOut.Views.City;
+#if ANDROID
+using NightOut.Platforms.Android;
+#endif
 
 namespace NightOut;
 
@@ -43,6 +46,7 @@ public partial class AppShell : Shell
     private static void RegisterRoutes()
     {
         Routing.RegisterRoute("BarDetailPage",            typeof(BarDetailPage));
+        Routing.RegisterRoute("BarPostCommentsPage",     typeof(BarPostCommentsPage));
      
         Routing.RegisterRoute("LoginPage",                typeof(LoginPage));
         Routing.RegisterRoute("RegisterPage",             typeof(RegisterPage));
@@ -52,13 +56,17 @@ public partial class AppShell : Shell
         Routing.RegisterRoute("GroupDetailPage",          typeof(GroupDetailPage));
         Routing.RegisterRoute("ConversationPage",         typeof(ConversationPage));
         Routing.RegisterRoute("EditProfilePage",          typeof(EditProfilePage));
+        Routing.RegisterRoute("SettingsPage",             typeof(SettingsPage));
         Routing.RegisterRoute("PrivacySettingsPage",      typeof(PrivacySettingsPage));
         Routing.RegisterRoute("NotificationSettingsPage", typeof(NotificationSettingsPage));
         Routing.RegisterRoute("NotificationsPage",         typeof(NotificationsPage));
         Routing.RegisterRoute("ProDashboardPage",         typeof(ProDashboardPage));
         Routing.RegisterRoute("ProOfficialEventsPage",   typeof(ProOfficialEventsPage));
         Routing.RegisterRoute("ProStatsPage",            typeof(ProStatsPage));
+        Routing.RegisterRoute("RewardQrScannerPage",     typeof(RewardQrScannerPage));
         Routing.RegisterRoute("OfficialEventDetailPage", typeof(OfficialEventDetailPage));
+        Routing.RegisterRoute("EphemeralEventsPage",     typeof(EphemeralEventsPage));
+        Routing.RegisterRoute("CreateEphemeralEventPage", typeof(CreateEphemeralEventPage));
         Routing.RegisterRoute("ModerationPage",           typeof(ModerationPage));
         Routing.RegisterRoute("CitySelectPage",           typeof(CitySelectPage));
     }
@@ -78,6 +86,7 @@ public partial class AppShell : Shell
             await RefreshUnreadCountAsync();
             await RefreshFriendPendingCountAsync();
             await RefreshDirectMessageUnreadCountAsync();
+            await RefreshEventUnreadCountAsync();
             await SeedKnownNotificationsAsync();
 
             // Realtime Supabase : fonctionne quand le canal est bien reçu.
@@ -94,6 +103,19 @@ public partial class AppShell : Shell
             // ce fallback garantit que les badges et toasts se mettent quand même à jour.
             StartPollingFallback();
         });
+    }
+
+    protected override bool OnBackButtonPressed()
+    {
+#if ANDROID
+        if (Navigation.ModalStack.Count == 0 && Navigation.NavigationStack.Count <= 1)
+        {
+            Microsoft.Maui.ApplicationModel.Platform.CurrentActivity?.MoveTaskToBack(true);
+            return true;
+        }
+#endif
+
+        return base.OnBackButtonPressed();
     }
 
     private async Task SeedKnownNotificationsAsync()
@@ -160,6 +182,7 @@ public partial class AppShell : Shell
             await RefreshUnreadCountAsync();
             await RefreshFriendPendingCountAsync();
             await RefreshDirectMessageUnreadCountAsync();
+            await RefreshEventUnreadCountAsync();
             return;
         }
 
@@ -203,6 +226,9 @@ public partial class AppShell : Shell
                 DirectMessageEvents.RaiseConversationsChanged();
             }
 
+            if (notification.Type is "ephemeral_event_friend" or "ephemeral_event_group" or "ephemeral_event_cancelled")
+                await RefreshEventUnreadCountAsync();
+
             // Ne pas réafficher les anciennes notifications à chaque démarrage de l'app.
             // On affiche uniquement les nouvelles notifications reçues après le lancement.
             var createdUtc = notification.CreatedAt == default
@@ -215,10 +241,10 @@ public partial class AppShell : Shell
 
             // Pour les messages privés, on évite le toast gris en bas quand l'app est ouverte :
             // le badge de conversation + le badge Messages suffisent.
-            // Les notifications Android restent réservées au cas app fermée / arrière-plan.
+            // Hors premier plan, seul Firebase/Android doit afficher une vraie notification système.
             var isDirectMessage = notification.Type is "private_message" or "direct_message";
 
-            if (showToast && !notification.IsRead && isFreshNotification && !isDirectMessage)
+            if (showToast && IsAppForeground() && !notification.IsRead && isFreshNotification && !isDirectMessage)
                 await ShowNotificationToastAsync(notification);
         }
         catch (Exception ex)
@@ -267,6 +293,19 @@ public partial class AppShell : Shell
         }
     }
 
+    private async Task RefreshEventUnreadCountAsync()
+    {
+        try
+        {
+            var count = await _notifications.GetUnreadCountByTypeAsync("ephemeral_event_friend", "ephemeral_event_group", "ephemeral_event_cancelled");
+            EventInteractionEvents.SetUnreadCount(count);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[AppShell] RefreshEventUnreadCount erreur : {ex.Message}");
+        }
+    }
+
     private static async Task ShowNotificationToastAsync(NightOut.Models.NightOutNotification notification)
     {
         try
@@ -279,5 +318,14 @@ public partial class AppShell : Shell
         {
             System.Diagnostics.Debug.WriteLine($"[AppShell] Toast notification erreur : {ex.Message}");
         }
+    }
+
+    private static bool IsAppForeground()
+    {
+#if ANDROID
+        return AppForegroundState.IsForeground;
+#else
+        return true;
+#endif
     }
 }

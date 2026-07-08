@@ -4,15 +4,14 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:vm="clr-namespace:NightOut.ViewModels"
-    xmlns:models="clr-namespace:NightOut.Models"
     xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     xmlns:controls="clr-namespace:NightOut.Views.Controls"
     x:DataType="vm:MapViewModel"
     Shell.NavBarIsVisible="False"
-    BackgroundColor="#0A1018">
+    BackgroundColor="{DynamicResource BgDeep}">
 
     <ContentPage.Resources>
-        <toolkit:InvertedBoolConverter x:Key="InvertedBoolConverter"/>
+        <toolkit:InvertedBoolConverter x:Key="InvertedBoolConverter" />
     </ContentPage.Resources>
 
     <Grid RowDefinitions="*,Auto">
@@ -21,250 +20,335 @@
             x:Name="MapWebView"
             Grid.Row="0"
             Navigated="OnMapNavigated"
-            BackgroundColor="#0A1018" />
+            BackgroundColor="{DynamicResource BgDeep}" />
 
-
-        <!-- FAB modération admin (⚙️) — visible uniquement pour les administrateurs -->
-        <Button
-            Grid.Row="0"
-            Text="⚙️"
-            FontSize="18"
-            WidthRequest="44" HeightRequest="44"
-            CornerRadius="22"
-            BackgroundColor="#1A2535"
-            TextColor="#7A8FA6"
-            HorizontalOptions="End"
-            VerticalOptions="End"
-            Margin="0,0,16,20"
-            Clicked="OnModerationClicked"
-            IsVisible="{Binding CanShowModerationButton}" />
-
-        <!-- ══ BOTTOM SHEET (natif MAUI) ══ -->
+        <!-- ════════════════════════════════════════════════════════════════
+             FICHE RAPIDE DU BAR SUR LA CARTE
+             Objectif : toutes les infos pratiques restent ici.
+             La page BarDetailPage devient ensuite le vrai salon / feed live.
+        ═════════════════════════════════════════════════════════════════ -->
         <Border
             Grid.Row="0"
             VerticalOptions="End"
             Margin="10,0,10,10"
-            BackgroundColor="#131F2B"
-            Stroke="#2EFFB627"
+            BackgroundColor="{DynamicResource BgPanel}"
+            Stroke="#33CEA358"
             StrokeThickness="1"
-            StrokeShape="RoundRectangle 26"
+            StrokeShape="RoundRectangle 28"
             IsVisible="{Binding IsBottomSheetVisible}">
-            <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto" Padding="16,14,16,16" RowSpacing="12">
 
-                <!-- Poignée + croix de fermeture -->
-                <Grid Grid.Row="0" ColumnDefinitions="*,Auto,*">
-                    <BoxView
-                        Grid.Column="1"
-                        WidthRequest="34" HeightRequest="3"
-                        Color="#2EFFB627"
-                        HorizontalOptions="Center"
-                        VerticalOptions="Center"
-                        CornerRadius="2">
-                        <BoxView.GestureRecognizers>
-                            <TapGestureRecognizer Command="{Binding CloseBottomSheetCommand}"/>
-                        </BoxView.GestureRecognizers>
-                    </BoxView>
-                    <Button
-                        Grid.Column="2"
-                        Text="✕"
-                        FontSize="16"
-                        FontAttributes="Bold"
-                        BackgroundColor="Transparent"
-                        TextColor="#7A8FA6"
-                        WidthRequest="36" HeightRequest="36"
-                        Padding="0"
-                        HorizontalOptions="End"
-                        VerticalOptions="Center"
-                        Command="{Binding CloseBottomSheetCommand}"/>
-                </Grid>
+            <ScrollView MaximumHeightRequest="560">
+                <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto"
+                      Padding="18,14,18,18"
+                      RowSpacing="14">
 
-                <Grid Grid.Row="1" ColumnDefinitions="46,*" ColumnSpacing="12">
-                    <Border Grid.Column="0" WidthRequest="46" HeightRequest="46"
-                            BackgroundColor="#1AFFB627" Stroke="#2EFFB627" StrokeThickness="1" StrokeShape="RoundRectangle 8">
-                        <Label Text="{Binding SelectedBar.PrimaryCategory.Icon}" FontSize="22"
-                               HorizontalOptions="Center" VerticalOptions="Center"/>
-                    </Border>
-                    <Grid Grid.Column="1" RowDefinitions="Auto,Auto,Auto" RowSpacing="3">
-                        <Label Grid.Row="0" Text="{Binding SelectedBar.Name}"
-                               FontFamily="PlayfairDisplay-BoldItalic" FontSize="17"
-                               TextColor="#F2E8D5" LineBreakMode="TailTruncation"/>
-                        <Label Grid.Row="1" Text="{Binding SelectedBar.TonightEvent.Name}"
-                               FontFamily="DMSans-Regular" FontSize="11"
-                               TextColor="#7A8FA6" LineBreakMode="TailTruncation"/>
-                        <HorizontalStackLayout Grid.Row="2" Spacing="5">
-                            <Border BackgroundColor="Transparent" Stroke="#1AFFB627" StrokeThickness="1" StrokeShape="RoundRectangle 999">
-                                <Label Text="{Binding SelectedBar.TonightEvent.EntryLabel}"
-                                       FontSize="10" FontFamily="DMSans-Regular" TextColor="#7A8FA6" Padding="8,2"/>
-                            </Border>
-                        </HorizontalStackLayout>
+                    <!-- Poignée + fermeture -->
+                    <Grid Grid.Row="0" ColumnDefinitions="*,Auto,*">
+                        <BoxView
+                            Grid.Column="1"
+                            WidthRequest="40"
+                            HeightRequest="4"
+                            Color="#33CEA358"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Center"
+                            CornerRadius="2">
+                            <BoxView.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding CloseBottomSheetCommand}" />
+                            </BoxView.GestureRecognizers>
+                        </BoxView>
+
+                        <Button
+                            Grid.Column="2"
+                            Text="✕"
+                            FontSize="16"
+                            FontAttributes="Bold"
+                            BackgroundColor="Transparent"
+                            TextColor="{DynamicResource TextSecondary}"
+                            WidthRequest="36"
+                            HeightRequest="36"
+                            Padding="0"
+                            HorizontalOptions="End"
+                            VerticalOptions="Center"
+                            Command="{Binding CloseBottomSheetCommand}" />
                     </Grid>
-                </Grid>
 
-                <Border Grid.Row="2" BackgroundColor="#14FF6B35" Stroke="#40FF6B35"
-                        StrokeThickness="1" StrokeShape="RoundRectangle 8"
-                        IsVisible="{Binding SelectedBar.HasPromo}">
-                    <HorizontalStackLayout Padding="12,8" Spacing="8">
-                        <Label Text="🎁" FontSize="13" VerticalOptions="Center"/>
-                        <Label Text="{Binding SelectedBar.ActivePromo.Text}"
-                               FontSize="11" FontFamily="DMSans-Regular"
-                               TextColor="#FF6B35" VerticalOptions="Center" LineBreakMode="TailTruncation"/>
-                    </HorizontalStackLayout>
-                </Border>
+                    <!-- Header bar -->
+                    <Grid Grid.Row="1" ColumnDefinitions="70,*" ColumnSpacing="14">
 
-                <Border Grid.Row="3" BackgroundColor="#1A2535" Stroke="Transparent" StrokeShape="RoundRectangle 8">
-                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12" Padding="14,10">
-                        <StackLayout Grid.Column="0">
-                            <Label Text="{Binding SelectedBar.TotalPresent}"
-                                   FontFamily="PlayfairDisplay-BoldItalic" FontSize="28" TextColor="#FFB627"/>
-                            <Label Text="présents" FontSize="9" FontFamily="DMSans-Regular" TextColor="#3D5068"/>
-                        </StackLayout>
-                        <Grid Grid.Column="1" RowDefinitions="Auto,Auto" RowSpacing="6">
-                            <Grid Grid.Row="0" ColumnDefinitions="*,Auto">
-                                <Label Grid.Column="0" Text="Ambiance" FontSize="10" FontFamily="DMSans-Regular" TextColor="#7A8FA6"/>
-                                <Label Grid.Column="1" Text="{Binding SelectedBar.GaugeLabel}"
-                                       FontSize="10" FontFamily="DMSans-SemiBold" TextColor="#FFB627"/>
+                        <Border Grid.Column="0"
+                                WidthRequest="70"
+                                HeightRequest="70"
+                                BackgroundColor="{DynamicResource BgElevated}"
+                                Stroke="#66CEA358"
+                                StrokeThickness="1"
+                                StrokeShape="RoundRectangle 22">
+                            <Grid>
+                                <Label Text="{Binding SelectedBar.PrimaryCategory.Icon}"
+                                       FontSize="28"
+                                       HorizontalOptions="Center"
+                                       VerticalOptions="Center" />
+                                <Image Source="{Binding SelectedBar.LogoUrl}"
+                                       Aspect="AspectFill" />
                             </Grid>
-                            <ProgressBar Grid.Row="1" Progress="{Binding SelectedBar.GaugeRatio}" ProgressColor="#FFB627"/>
-                        </Grid>
-                    </Grid>
-                </Border>
+                        </Border>
 
-                <Grid Grid.Row="4" ColumnDefinitions="*,*,Auto,Auto" ColumnSpacing="8">
-                    <Border Grid.Column="0" StrokeShape="RoundRectangle 14" StrokeThickness="0" HeightRequest="46">
+                        <VerticalStackLayout Grid.Column="1" Spacing="6" VerticalOptions="Center">
+                            <HorizontalStackLayout Spacing="6">
+                                <Label Text="{Binding SelectedBarName}"
+                                       FontFamily="DMSans-Bold"
+                                       FontSize="22"
+                                       TextColor="{DynamicResource TextPrimary}"
+                                       LineBreakMode="TailTruncation" />
+                                <Label Text="✓"
+                                       FontSize="15"
+                                       TextColor="{DynamicResource Accent}"
+                                       VerticalOptions="Center"
+                                       IsVisible="{Binding SelectedBar.IsVerified}" />
+                            </HorizontalStackLayout>
+
+                            <Label Text="{Binding SelectedBarCategoryText}"
+                                   FontFamily="DMSans-Regular"
+                                   FontSize="13"
+                                   TextColor="{DynamicResource TextSecondary}" />
+
+                            <HorizontalStackLayout Spacing="8">
+                                <Border BackgroundColor="{DynamicResource BgElevated}" StrokeThickness="0" StrokeShape="RoundRectangle 999">
+                                    <HorizontalStackLayout Padding="8,4" Spacing="5">
+                                        <BoxView WidthRequest="8" HeightRequest="8" CornerRadius="4" Color="{DynamicResource Success}" VerticalOptions="Center" />
+                                        <Label Text="{Binding SelectedBarOpenText}" FontFamily="DMSans-Bold" FontSize="11" TextColor="{DynamicResource Success}" />
+                                    </HorizontalStackLayout>
+                                </Border>
+
+                                <Border BackgroundColor="{DynamicResource BgElevated}" StrokeThickness="0" StrokeShape="RoundRectangle 999">
+                                    <Label Text="{Binding SelectedBarPresenceText}" Padding="9,4" FontFamily="DMSans-Medium" FontSize="11" TextColor="{DynamicResource TextPrimary}" />
+                                </Border>
+
+                                <Border BackgroundColor="{DynamicResource BgCard}" StrokeThickness="0" StrokeShape="RoundRectangle 999">
+                                    <Label Text="{Binding SelectedBarAmbianceText, StringFormat='🔥 {0}'}" Padding="9,4" FontFamily="DMSans-Medium" FontSize="11" TextColor="{DynamicResource Accent}" />
+                                </Border>
+                            </HorizontalStackLayout>
+                        </VerticalStackLayout>
+                    </Grid>
+
+                    <!-- Jauge ambiance -->
+                    <Border Grid.Row="2"
+                            BackgroundColor="{DynamicResource BgElevated}"
+                            Stroke="Transparent"
+                            StrokeShape="RoundRectangle 18"
+                            Padding="14,12">
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14">
+                            <VerticalStackLayout Grid.Column="0" Spacing="0">
+                                <Label Text="{Binding SelectedBar.TotalPresent}"
+                                       FontFamily="PlayfairDisplay-BoldItalic"
+                                       FontSize="30"
+                                       TextColor="{DynamicResource Accent}" />
+                                <Label Text="présents"
+                                       FontFamily="DMSans-Regular"
+                                       FontSize="10"
+                                       TextColor="{DynamicResource TextMuted}" />
+                            </VerticalStackLayout>
+
+                            <Grid Grid.Column="1" RowDefinitions="Auto,Auto" RowSpacing="8" VerticalOptions="Center">
+                                <Grid Grid.Row="0" ColumnDefinitions="*,Auto">
+                                    <Label Text="Ambiance"
+                                           FontFamily="DMSans-Regular"
+                                           FontSize="12"
+                                           TextColor="{DynamicResource TextSecondary}" />
+                                    <Label Grid.Column="1"
+                                           Text="{Binding SelectedBarAmbianceText}"
+                                           FontFamily="DMSans-Bold"
+                                           FontSize="12"
+                                           TextColor="{DynamicResource Accent}" />
+                                </Grid>
+
+                                <ProgressBar Grid.Row="1"
+                                             Progress="{Binding SelectedBarGaugeRatio}"
+                                             ProgressColor="{DynamicResource Accent}" />
+                            </Grid>
+                        </Grid>
+                    </Border>
+
+                    <!-- Actions principales -->
+                    <Grid Grid.Row="3" ColumnDefinitions="*,*" ColumnSpacing="10">
+                        <Border Grid.Column="0"
+                                BackgroundColor="{Binding SelectedBarCheckinButtonBackgroundColor}"
+                                Stroke="{Binding SelectedBarCheckinButtonBorderColor}"
+                                StrokeShape="RoundRectangle 18"
+                                StrokeThickness="1"
+                                HeightRequest="52">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding ToggleCheckinCommand}" />
+                            </Border.GestureRecognizers>
+                            <Label Text="{Binding SelectedBarCheckinButtonText}"
+                                   FontFamily="DMSans-Bold"
+                                   FontSize="15"
+                                   TextColor="{Binding SelectedBarCheckinButtonTextColor}"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center" />
+                        </Border>
+
+                        <Border Grid.Column="1"
+                                BackgroundColor="{DynamicResource BgElevated}"
+                                Stroke="#44CEA358"
+                                StrokeThickness="1"
+                                StrokeShape="RoundRectangle 18"
+                                HeightRequest="52">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding GoToBarAsync}" />
+                            </Border.GestureRecognizers>
+                            <HorizontalStackLayout Spacing="8" HorizontalOptions="Center" VerticalOptions="Center">
+                                <Label Text="➤" FontSize="16" TextColor="{DynamicResource Accent}" />
+                                <Label Text="Itinéraire" FontFamily="DMSans-Bold" FontSize="14" TextColor="{DynamicResource Accent}" />
+                            </HorizontalStackLayout>
+                        </Border>
+                    </Grid>
+
+                    <!-- Infos pratiques condensées -->
+                    <Border Grid.Row="4"
+                            BackgroundColor="{DynamicResource BgCard}"
+                            Stroke="{DynamicResource BgElevated}"
+                            StrokeThickness="1"
+                            StrokeShape="RoundRectangle 22"
+                            Padding="16">
+                        <VerticalStackLayout Spacing="14">
+                            <Label Text="Infos rapides"
+                                   FontFamily="DMSans-Bold"
+                                   FontSize="17"
+                                   TextColor="{DynamicResource TextPrimary}" />
+
+                            <Grid ColumnDefinitions="24,*" RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="12" ColumnSpacing="10">
+                                <Label Grid.Row="0" Grid.Column="0" Text="📍" FontSize="16" VerticalOptions="Start" />
+                                <Label Grid.Row="0" Grid.Column="1" Text="{Binding SelectedBarAddressText}" FontFamily="DMSans-Regular" FontSize="13" TextColor="{DynamicResource TextPrimary}" LineBreakMode="WordWrap" />
+
+                                <Label Grid.Row="1" Grid.Column="0" Text="☎" FontSize="16" VerticalOptions="Center" />
+                                <Label Grid.Row="1" Grid.Column="1" Text="{Binding SelectedBarPhoneText}" FontFamily="DMSans-Regular" FontSize="13" TextColor="{DynamicResource TextPrimary}" />
+
+                                <Label Grid.Row="2" Grid.Column="0" Text="📷" FontSize="16" VerticalOptions="Center" />
+                                <Label Grid.Row="2" Grid.Column="1" Text="{Binding SelectedBarInstagramText}" FontFamily="DMSans-Regular" FontSize="13" TextColor="{DynamicResource TextPrimary}" />
+
+                                <Label Grid.Row="3" Grid.Column="0" Text="🌐" FontSize="16" VerticalOptions="Center" />
+                                <Label Grid.Row="3" Grid.Column="1" Text="{Binding SelectedBarWebsiteText}" FontFamily="DMSans-Regular" FontSize="13" TextColor="{DynamicResource TextPrimary}" LineBreakMode="TailTruncation" />
+                            </Grid>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- Boutons rapides secondaires -->
+                    <Grid Grid.Row="5" ColumnDefinitions="*,*,*" ColumnSpacing="10">
+                        <Border Grid.Column="0" BackgroundColor="{DynamicResource BgElevated}" StrokeThickness="0" StrokeShape="RoundRectangle 18" HeightRequest="48">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding CallSelectedBarCommand}" />
+                            </Border.GestureRecognizers>
+                            <VerticalStackLayout Spacing="1" HorizontalOptions="Center" VerticalOptions="Center">
+                                <Label Text="☎" FontSize="16" HorizontalOptions="Center" />
+                                <Label Text="Appeler" FontFamily="DMSans-Medium" FontSize="11" TextColor="{DynamicResource TextPrimary}" />
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <Border Grid.Column="1" BackgroundColor="{DynamicResource BgElevated}" StrokeThickness="0" StrokeShape="RoundRectangle 18" HeightRequest="48">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding OpenSelectedBarInstagramCommand}" />
+                            </Border.GestureRecognizers>
+                            <VerticalStackLayout Spacing="1" HorizontalOptions="Center" VerticalOptions="Center">
+                                <Label Text="📷" FontSize="16" HorizontalOptions="Center" />
+                                <Label Text="Instagram" FontFamily="DMSans-Medium" FontSize="11" TextColor="{DynamicResource TextPrimary}" />
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <Border Grid.Column="2" BackgroundColor="{DynamicResource BgElevated}" StrokeThickness="0" StrokeShape="RoundRectangle 18" HeightRequest="48">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding OpenSelectedBarWebsiteCommand}" />
+                            </Border.GestureRecognizers>
+                            <VerticalStackLayout Spacing="1" HorizontalOptions="Center" VerticalOptions="Center">
+                                <Label Text="🌐" FontSize="16" HorizontalOptions="Center" />
+                                <Label Text="Site" FontFamily="DMSans-Medium" FontSize="11" TextColor="{DynamicResource TextPrimary}" />
+                            </VerticalStackLayout>
+                        </Border>
+                    </Grid>
+
+                    <!-- Description courte -->
+                    <Border Grid.Row="6"
+                            BackgroundColor="{DynamicResource BgCard}"
+                            Stroke="{DynamicResource BgElevated}"
+                            StrokeThickness="1"
+                            StrokeShape="RoundRectangle 20"
+                            Padding="14">
+                        <VerticalStackLayout Spacing="7">
+                            <Label Text="À propos"
+                                   FontFamily="DMSans-Bold"
+                                   FontSize="15"
+                                   TextColor="{DynamicResource TextPrimary}" />
+                            <Label Text="{Binding SelectedBarDescriptionText}"
+                                   FontFamily="DMSans-Regular"
+                                   FontSize="12"
+                                   TextColor="{DynamicResource TextSecondary}"
+                                   LineBreakMode="WordWrap"
+                                   MaxLines="3" />
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- Entrée vers le salon/feed premium -->
+                    <Border Grid.Row="7"
+                            StrokeShape="RoundRectangle 20"
+                            StrokeThickness="0"
+                            HeightRequest="54">
                         <Border.Background>
                             <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                                <GradientStop Color="#FFB627" Offset="0"/>
-                                <GradientStop Color="#FF6B35" Offset="1"/>
+                                <GradientStop Color="{DynamicResource Accent}" Offset="0" />
+                                <GradientStop Color="{DynamicResource Accent}" Offset="0.55" />
+                                <GradientStop Color="{DynamicResource Second}" Offset="1" />
                             </LinearGradientBrush>
                         </Border.Background>
                         <Border.GestureRecognizers>
-                            <TapGestureRecognizer Command="{Binding ToggleCheckinCommand}"/>
+                            <TapGestureRecognizer Command="{Binding GoToBarDetailCommand}" />
                         </Border.GestureRecognizers>
-                        <Label Text="Check-in" FontFamily="DMSans-Bold" FontSize="13"
-                               TextColor="#0A1018" HorizontalOptions="Center" VerticalOptions="Center"/>
-                    </Border>
-                    <Border Grid.Column="1" BackgroundColor="#1A2535" Stroke="#2EFFB627"
-                            StrokeThickness="1" StrokeShape="RoundRectangle 14" HeightRequest="46" Padding="8,0">
-                        <Border.GestureRecognizers>
-                            <TapGestureRecognizer Command="{Binding GoToBarDetailCommand}"/>
-                        </Border.GestureRecognizers>
-                        <HorizontalStackLayout Spacing="5" VerticalOptions="Center" HorizontalOptions="Center">
-                            <Label Text="📄" FontSize="14" VerticalOptions="Center"/>
-                            <Label Text="Voir la fiche" FontSize="12" FontFamily="DMSans-Medium"
-                                   TextColor="#FFB627" VerticalOptions="Center"/>
+                        <HorizontalStackLayout Spacing="8" HorizontalOptions="Center" VerticalOptions="Center">
+                            <Label Text="🔥" FontSize="17" />
+                            <Label Text="Entrer dans le bar"
+                                   FontFamily="DMSans-Bold"
+                                   FontSize="15"
+                                   TextColor="{DynamicResource BgDeep}" />
                         </HorizontalStackLayout>
                     </Border>
-                    <Border Grid.Column="2" BackgroundColor="#1A2535" Stroke="#1AFFB627"
-                            StrokeThickness="1" StrokeShape="RoundRectangle 14" WidthRequest="46" HeightRequest="46"
-                            IsVisible="{Binding CanPostMedia}">
-                        <Border.GestureRecognizers>
-                            <TapGestureRecognizer Command="{Binding TakePhotoCommand}"/>
-                        </Border.GestureRecognizers>
-                        <Label Text="📸" FontSize="16" HorizontalOptions="Center" VerticalOptions="Center"/>
-                    </Border>
-                    <Border Grid.Column="3" BackgroundColor="#1A2535" Stroke="#1AFFB627"
-                            StrokeThickness="1" StrokeShape="RoundRectangle 14" WidthRequest="46" HeightRequest="46"
-                            IsVisible="{Binding CanPostMedia}">
-                        <Border.GestureRecognizers>
-                            <TapGestureRecognizer Command="{Binding TakeVideoCommand}"/>
-                        </Border.GestureRecognizers>
-                        <Label Text="🎥" FontSize="16" HorizontalOptions="Center" VerticalOptions="Center"/>
-                    </Border>
                 </Grid>
-
-                <!-- ══ GALERIE MÉDIAS (stories 24h) ══ -->
-                <VerticalStackLayout Grid.Row="5" Spacing="8">
-                    <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
-                        <Label Grid.Column="0" Text="📸 En direct" VerticalOptions="Center"
-                               FontFamily="DMSans-SemiBold" FontSize="12" TextColor="#7A8FA6"/>
-                        <Button Grid.Column="1" Text="📷" FontSize="13"
-                                WidthRequest="40" HeightRequest="32" CornerRadius="16" Padding="0"
-                                BackgroundColor="#1AFFB627" TextColor="#FFB627"
-                                IsVisible="{Binding CanPostMedia}"
-                                Command="{Binding TakePhotoCommand}"/>
-                        <Button Grid.Column="2" Text="🎥" FontSize="13"
-                                WidthRequest="40" HeightRequest="32" CornerRadius="16" Padding="0"
-                                BackgroundColor="#1AFFB627" TextColor="#FFB627"
-                                IsVisible="{Binding CanPostMedia}"
-                                Command="{Binding TakeVideoCommand}"/>
-                    </Grid>
-
-                    <CollectionView x:Name="MediaCollection"
-                                    ItemsSource="{Binding BarMedia}"
-                                    HeightRequest="92">
-                        <CollectionView.ItemsLayout>
-                            <LinearItemsLayout Orientation="Horizontal" ItemSpacing="8"/>
-                        </CollectionView.ItemsLayout>
-                        <CollectionView.EmptyView>
-                            <Label Text="Aucun média — publie le premier !"
-                                   FontSize="10" FontFamily="DMSans-Regular" TextColor="#3D5068"
-                                   VerticalOptions="Center"/>
-                        </CollectionView.EmptyView>
-                        <CollectionView.ItemTemplate>
-                            <DataTemplate x:DataType="models:BarPhoto">
-                                <Grid WidthRequest="84" HeightRequest="84" IsVisible="{Binding HasPreviewUrl}">
-                                    <Border StrokeShape="RoundRectangle 10" StrokeThickness="0">
-                                        <Image Source="{Binding PreviewUrl}" Aspect="AspectFill"/>
-                                    </Border>
-                                    <Border StrokeShape="RoundRectangle 10" Stroke="#2EFFB627" StrokeThickness="1" BackgroundColor="Transparent"/>
-                                    <Label Text="▶" FontSize="22" TextColor="White"
-                                           HorizontalOptions="Center" VerticalOptions="Center"
-                                           IsVisible="{Binding IsVideo}"/>
-                                    <Label Text="🚩" FontSize="11" HorizontalOptions="End" VerticalOptions="Start" Margin="0,3,3,0">
-                                        <Label.GestureRecognizers>
-                                            <TapGestureRecognizer
-                                                Command="{Binding BindingContext.ReportMediaCommand, Source={x:Reference MediaCollection}}"
-                                                CommandParameter="{Binding .}"/>
-                                        </Label.GestureRecognizers>
-                                    </Label>
-                                    <Grid.GestureRecognizers>
-                                        <TapGestureRecognizer
-                                            Command="{Binding BindingContext.OpenMediaViewerCommand, Source={x:Reference MediaCollection}}"
-                                            CommandParameter="{Binding .}"/>
-                                    </Grid.GestureRecognizers>
-                                </Grid>
-                            </DataTemplate>
-                        </CollectionView.ItemTemplate>
-                    </CollectionView>
-                </VerticalStackLayout>
-
-            </Grid>
+            </ScrollView>
         </Border>
 
         <!-- ══ BOTTOM NAV COMMUNE ══ -->
-        <controls:BottomNavBar Grid.Row="1" ActiveTab="Map"/>
+        <controls:BottomNavBar Grid.Row="1" ActiveTab="Map" />
 
-        <!-- ══ VISIONNEUR MÉDIA PLEIN ÉCRAN ══ -->
+        <!-- ══ VISIONNEUR MÉDIA PLEIN ÉCRAN — conservé pour compatibilité avec tes fonctions existantes ══ -->
         <Grid Grid.Row="0" Grid.RowSpan="2"
-              BackgroundColor="#E60A1018"
+              BackgroundColor="#E6F5F2EE"
               IsVisible="{Binding IsMediaViewerVisible}">
             <Grid.GestureRecognizers>
-                <TapGestureRecognizer Command="{Binding CloseMediaViewerCommand}"/>
+                <TapGestureRecognizer Command="{Binding CloseMediaViewerCommand}" />
             </Grid.GestureRecognizers>
 
-            <Image Source="{Binding ViewerMedia.PhotoUrl}" Aspect="AspectFit"
+            <Image Source="{Binding ViewerMedia.PhotoUrl}"
+                   Aspect="AspectFit"
                    Margin="12,80,12,40"
-                   IsVisible="{Binding ViewerMedia.IsVideo, Converter={StaticResource InvertedBoolConverter}}"/>
+                   IsVisible="{Binding ViewerMedia.IsVideo, Converter={StaticResource InvertedBoolConverter}}" />
 
-            <WebView x:Name="MediaWebView" Margin="12,80,12,40"
+            <WebView x:Name="MediaWebView"
+                     Margin="12,80,12,40"
                      IsVisible="{Binding ViewerMedia.IsVideo}"
-                     BackgroundColor="Transparent"/>
+                     BackgroundColor="Transparent" />
 
             <Grid VerticalOptions="Start" ColumnDefinitions="Auto,*,Auto,Auto"
                   Padding="16,50,16,0" ColumnSpacing="10">
                 <Button Grid.Column="0" Text="✕" FontSize="18" FontAttributes="Bold"
                         WidthRequest="40" HeightRequest="40" CornerRadius="20" Padding="0"
-                        BackgroundColor="#331A2535" TextColor="#F2E8D5"
-                        Command="{Binding CloseMediaViewerCommand}"/>
+                        BackgroundColor="#33F2EEE8" TextColor="{DynamicResource TextPrimary}"
+                        Command="{Binding CloseMediaViewerCommand}" />
                 <Button Grid.Column="2" Text="🚩 Signaler" FontSize="12"
                         HeightRequest="40" CornerRadius="20" Padding="14,0"
-                        BackgroundColor="#33B5482F" TextColor="#FF8A6F"
-                        Command="{Binding ReportMediaCommand}" CommandParameter="{Binding ViewerMedia}"/>
+                        BackgroundColor="#33A8523C" TextColor="{DynamicResource Error}"
+                        Command="{Binding ReportMediaCommand}" CommandParameter="{Binding ViewerMedia}" />
                 <Button Grid.Column="3" Text="🗑" FontSize="14"
                         WidthRequest="40" HeightRequest="40" CornerRadius="20" Padding="0"
-                        BackgroundColor="#331A2535" TextColor="#F2E8D5"
+                        BackgroundColor="#33F2EEE8" TextColor="{DynamicResource TextPrimary}"
                         IsVisible="{Binding ViewerMedia.IsMine}"
-                        Command="{Binding DeleteMediaCommand}" CommandParameter="{Binding ViewerMedia}"/>
+                        Command="{Binding DeleteMediaCommand}" CommandParameter="{Binding ViewerMedia}" />
             </Grid>
         </Grid>
 

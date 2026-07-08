@@ -7,7 +7,7 @@
     xmlns:models="clr-namespace:NightOut.Models"
     Shell.NavBarIsVisible="False"
     Shell.TabBarIsVisible="False"
-    BackgroundColor="#0A1018">
+    BackgroundColor="{DynamicResource BgDeep}">
 
     <Grid RowDefinitions="*,Auto">
 
@@ -22,10 +22,10 @@
                             <Label Text="🎉 Événements"
                                    FontSize="28"
                                    FontAttributes="Bold"
-                                   TextColor="#F2E8D5" />
+                                   TextColor="{DynamicResource TextPrimary}" />
                             <Label Text="Les soirées officielles des bars NightOut"
                                    FontSize="13"
-                                   TextColor="#7E8CA0" />
+                                   TextColor="{DynamicResource TextSecondary}" />
                         </VerticalStackLayout>
 
                         <Button Grid.Column="1"
@@ -33,42 +33,42 @@
                                 WidthRequest="44"
                                 HeightRequest="44"
                                 CornerRadius="22"
-                                BackgroundColor="#182536"
-                                TextColor="#F2E8D5"
+                                BackgroundColor="{DynamicResource BgElevated}"
+                                TextColor="{DynamicResource TextPrimary}"
                                 Command="{Binding LoadCommand}" />
                     </Grid>
 
-                    <Border Stroke="#23344A"
+                    <Border Stroke="{DynamicResource Border}"
                             StrokeThickness="1"
-                            BackgroundColor="#101A27"
+                            BackgroundColor="{DynamicResource BgElevated}"
                             Padding="14">
                         <Border.StrokeShape>
                             <RoundRectangle CornerRadius="18" />
                         </Border.StrokeShape>
 
                         <VerticalStackLayout Spacing="8">
-                            <Label Text="Ville NightOut"
+                            <Label Text="Ville Spotiz"
                                    FontSize="13"
-                                   TextColor="#7E8CA0" />
+                                   TextColor="{DynamicResource TextSecondary}" />
 
                             <Picker ItemsSource="{Binding Cities}"
                                     SelectedItem="{Binding SelectedCity, Mode=TwoWay}"
                                     ItemDisplayBinding="{Binding Name}"
                                     Title="Choisir une ville"
-                                    TextColor="#F2E8D5"
-                                    TitleColor="#7E8CA0"
-                                    BackgroundColor="#182536" />
+                                    TextColor="{DynamicResource TextPrimary}"
+                                    TitleColor="{DynamicResource TextSecondary}"
+                                    BackgroundColor="{DynamicResource BgElevated}" />
 
                             <Label Text="Les événements affichés correspondent uniquement à la ville NightOut sélectionnée."
                                    FontSize="12"
-                                   TextColor="#7E8CA0" />
+                                   TextColor="{DynamicResource TextSecondary}" />
                         </VerticalStackLayout>
                     </Border>
 
                     <Border IsVisible="{Binding IsEmpty}"
-                            Stroke="#23344A"
+                            Stroke="{DynamicResource Border}"
                             StrokeThickness="1"
-                            BackgroundColor="#101A27"
+                            BackgroundColor="{DynamicResource BgElevated}"
                             Padding="18">
                         <Border.StrokeShape>
                             <RoundRectangle CornerRadius="18" />
@@ -78,11 +78,11 @@
                             <Label Text="Aucun événement officiel dans cette ville"
                                    FontSize="16"
                                    FontAttributes="Bold"
-                                   TextColor="#F2E8D5"
+                                   TextColor="{DynamicResource TextPrimary}"
                                    HorizontalOptions="Center" />
                             <Label Text="Change de ville NightOut ou reviens plus tard."
                                    FontSize="13"
-                                   TextColor="#7E8CA0"
+                                   TextColor="{DynamicResource TextSecondary}"
                                    HorizontalTextAlignment="Center" />
                         </VerticalStackLayout>
                     </Border>
@@ -92,9 +92,9 @@
                         <CollectionView.ItemTemplate>
                             <DataTemplate x:DataType="models:OfficialEvent">
                                 <Border Margin="0,0,0,14"
-                                        Stroke="#23344A"
+                                        Stroke="{DynamicResource Border}"
                                         StrokeThickness="1"
-                                        BackgroundColor="#101A27"
+                                        BackgroundColor="{DynamicResource BgElevated}"
                                         Padding="0">
                                     <Border.StrokeShape>
                                         <RoundRectangle CornerRadius="22" />
@@ -104,30 +104,30 @@
                                         <Image Grid.Row="0"
                                                Source="{Binding FlyerUrl}"
                                                Aspect="AspectFill"
-                                               BackgroundColor="#172234" />
+                                               BackgroundColor="{DynamicResource BgElevated}" />
 
                                         <VerticalStackLayout Grid.Row="1" Padding="16" Spacing="8">
                                             <Label Text="{Binding Title}"
                                                    FontSize="20"
                                                    FontAttributes="Bold"
-                                                   TextColor="#F2E8D5" />
+                                                   TextColor="{DynamicResource TextPrimary}" />
 
                                             <Label Text="{Binding ShortDateLabel}"
                                                    FontSize="13"
-                                                   TextColor="#FFB627" />
+                                                   TextColor="{DynamicResource Accent}" />
 
                                             <Label Text="{Binding BarDisplay}"
                                                    FontSize="14"
-                                                   TextColor="#F2E8D5" />
+                                                   TextColor="{DynamicResource TextPrimary}" />
 
                                             <Label Text="{Binding CityDisplay}"
                                                    FontSize="12"
-                                                   TextColor="#7E8CA0" />
+                                                   TextColor="{DynamicResource TextSecondary}" />
 
                                             <Grid ColumnDefinitions="*,Auto" Margin="0,6,0,0">
                                                 <Label Text="{Binding GoingCount, StringFormat='✅ {0} participants'}"
                                                        FontSize="12"
-                                                       TextColor="#7E8CA0"
+                                                       TextColor="{DynamicResource TextSecondary}"
                                                        VerticalOptions="Center" />
 
                                                 <Button Grid.Column="1"
@@ -135,8 +135,8 @@
                                                         HeightRequest="38"
                                                         Padding="18,0"
                                                         CornerRadius="19"
-                                                        BackgroundColor="#FFB627"
-                                                        TextColor="#0A1018"
+                                                        BackgroundColor="{DynamicResource Accent}"
+                                                        TextColor="{DynamicResource BgDeep}"
                                                         FontAttributes="Bold"
                                                         Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.OpenCommand}"
                                                         CommandParameter="{Binding .}" />

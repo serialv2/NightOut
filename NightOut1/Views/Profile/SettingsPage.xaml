@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="NightOut.Views.Profile.SettingsPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:NightOut.ViewModels"
+    x:DataType="vm:SettingsViewModel"
+    Shell.NavBarIsVisible="False"
+    BackgroundColor="#0A1018">
+
+    <ContentPage.Resources>
+        <Style x:Key="SectionLabel" TargetType="Label">
+            <Setter Property="FontFamily" Value="DMSans-SemiBold" />
+            <Setter Property="FontSize" Value="11" />
+            <Setter Property="TextColor" Value="#3D5068" />
+            <Setter Property="Margin" Value="0,22,0,8" />
+        </Style>
+        <Style x:Key="RowBorder" TargetType="Border">
+            <Setter Property="BackgroundColor" Value="#131C28" />
+            <Setter Property="StrokeShape" Value="RoundRectangle 16" />
+            <Setter Property="Stroke" Value="#1F2D3D" />
+            <Setter Property="StrokeThickness" Value="1" />
+            <Setter Property="Padding" Value="15,14" />
+            <Setter Property="Margin" Value="0,6,0,0" />
+        </Style>
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="Auto,*">
+        <Grid Grid.Row="0" BackgroundColor="#0D1520" Padding="20,52,20,18" ColumnDefinitions="46,*">
+            <Border WidthRequest="42" HeightRequest="42"
+                    BackgroundColor="#131C28"
+                    Stroke="#1F2D3D"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 21">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding GoBackCommand}" />
+                </Border.GestureRecognizers>
+                <Label Text="‹" TextColor="#F2E8D5" FontSize="32"
+                       HorizontalOptions="Center" VerticalOptions="Center" Margin="0,-4,0,0" />
+            </Border>
+
+            <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                <Label Text="Paramètres" TextColor="#F2E8D5" FontFamily="DMSans-Bold" FontSize="24" />
+                <Label Text="Compte, confidentialité et support" TextColor="#7E8CA0" FontSize="12" />
+            </VerticalStackLayout>
+        </Grid>
+
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Padding="20,10,20,28" Spacing="0">
+
+                <Label Style="{StaticResource SectionLabel}" Text="COMPTE" />
+
+                <Border Style="{StaticResource RowBorder}">
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                        <Label Text="👤" FontSize="18" VerticalOptions="Center" />
+                        <VerticalStackLayout Grid.Column="1" Spacing="2">
+                            <Label Text="Profil" TextColor="#F2E8D5" FontFamily="DMSans-SemiBold" FontSize="14" />
+                            <Label Text="Modifier tes informations personnelles" TextColor="#7E8CA0" FontSize="11" />
+                        </VerticalStackLayout>
+                        <Label Grid.Column="2" Text="›" TextColor="#FFB627" FontSize="22" VerticalOptions="Center" />
+                    </Grid>
+                </Border>
+
+                <Border Style="{StaticResource RowBorder}">
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                        <Label Text="🔔" FontSize="18" VerticalOptions="Center" />
+                        <VerticalStackLayout Grid.Column="1" Spacing="2">
+                            <Label Text="Notifications" TextColor="#F2E8D5" FontFamily="DMSans-SemiBold" FontSize="14" />
+                            <Label Text="Gérer les alertes Spotiz" TextColor="#7E8CA0" FontSize="11" />
+                        </VerticalStackLayout>
+                        <Label Grid.Column="2" Text="›" TextColor="#FFB627" FontSize="22" VerticalOptions="Center" />
+                    </Grid>
+                </Border>
+
+                <Label Style="{StaticResource SectionLabel}" Text="CONFIDENTIALITÉ" />
+
+                <Border Style="{StaticResource RowBorder}">
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                        <Label Text="🔐" FontSize="18" VerticalOptions="Center" />
+                        <VerticalStackLayout Grid.Column="1" Spacing="2">
+                            <Label Text="Confidentialité" TextColor="#F2E8D5" FontFamily="DMSans-SemiBold" FontSize="14" />
+                            <Label Text="Mode incognito, compte privé, visibilité" TextColor="#7E8CA0" FontSize="11" />
+                        </VerticalStackLayout>
+                        <Label Grid.Column="2" Text="›" TextColor="#FFB627" FontSize="22" VerticalOptions="Center" />
+                    </Grid>
+                </Border>
+
+                <Border Style="{StaticResource RowBorder}">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding OpenPrivacyCommand}" />
+                    </Border.GestureRecognizers>
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                        <Label Text="📄" FontSize="18" VerticalOptions="Center" />
+                        <VerticalStackLayout Grid.Column="1" Spacing="2">
+                            <Label Text="Politique de confidentialité" TextColor="#F2E8D5" FontFamily="DMSans-SemiBold" FontSize="14" />
+                            <Label Text="Voir comment Spotiz gère tes données" TextColor="#7E8CA0" FontSize="11" />
+                        </VerticalStackLayout>
+                        <Label Grid.Column="2" Text="↗" TextColor="#FFB627" FontSize="17" VerticalOptions="Center" />
+                    </Grid>
+                </Border>
+
+                <Border Style="{StaticResource RowBorder}">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding OpenTermsCommand}" />
+                    </Border.GestureRecognizers>
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                        <Label Text="⚖️" FontSize="18" VerticalOptions="Center" />
+                        <VerticalStackLayout Grid.Column="1" Spacing="2">
+                            <Label Text="Conditions d'utilisation" TextColor="#F2E8D5" FontFamily="DMSans-SemiBold" FontSize="14" />
+                            <Label Text="Règles d'utilisation de Spotiz" TextColor="#7E8CA0" FontSize="11" />
+                        </VerticalStackLayout>
+                        <Label Grid.Column="2" Text="↗" TextColor="#FFB627" FontSize="17" VerticalOptions="Center" />
+                    </Grid>
+                </Border>
+
+                <Label Style="{StaticResource SectionLabel}" Text="AIDE" />
+
+                <Border Style="{StaticResource RowBorder}">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding ContactSupportCommand}" />
+                    </Border.GestureRecognizers>
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                        <Label Text="💬" FontSize="18" VerticalOptions="Center" />
+                        <VerticalStackLayout Grid.Column="1" Spacing="2">
+                            <Label Text="Contacter le support" TextColor="#F2E8D5" FontFamily="DMSans-SemiBold" FontSize="14" />
+                            <Label Text="Signaler un problème ou demander de l'aide" TextColor="#7E8CA0" FontSize="11" />
+                        </VerticalStackLayout>
+                        <Label Grid.Column="2" Text="›" TextColor="#FFB627" FontSize="22" VerticalOptions="Center" />
+                    </Grid>
+                </Border>
+
+                <Label Style="{StaticResource SectionLabel}" Text="SESSION" />
+
+                <Border BackgroundColor="#1B1114"
+                        Stroke="#55313A"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 18"
+                        Padding="16,15"
+                        Margin="0,6,0,0">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding SignOutCommand}" />
+                    </Border.GestureRecognizers>
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                        <Label Text="🚪" FontSize="20" VerticalOptions="Center" />
+                        <VerticalStackLayout Grid.Column="1" Spacing="2">
+                            <Label Text="Se déconnecter" TextColor="#FF8A8A" FontFamily="DMSans-Bold" FontSize="15" />
+                            <Label Text="Quitter ce compte sur cet appareil" TextColor="#A66C6C" FontSize="11" />
+                        </VerticalStackLayout>
+                        <ActivityIndicator Grid.Column="2" IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="#FF8A8A" />
+                    </Grid>
+                </Border>
+
+                <Label Text="{Binding VersionLabel}" TextColor="#3D5068" FontSize="11" HorizontalTextAlignment="Center" Margin="0,28,0,0" />
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

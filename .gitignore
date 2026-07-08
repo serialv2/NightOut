@@ -1,0 +1,40 @@
+# Build outputs
+bin/
+obj/
+**/bin/
+**/obj/
+
+# Visual Studio / Rider local state
+.vs/
+.idea/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# .NET / MAUI generated files
+*.apk
+*.aab
+*.ipa
+*.app
+*.msix
+*.nupkg
+artifacts/
+
+# Android tooling
+*.keystore
+*.jks
+
+# Crash dumps and local diagnostics
+hs_err_pid*.log
+replay_pid*.log
+*.dmp
+
+# Local archives
+*.zip
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+*.swp
+*.tmp

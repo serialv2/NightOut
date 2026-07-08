@@ -11,15 +11,13 @@ public class AuthService(Client supabase) : IAuthService
     private const string SavedAccessTokenKey = "nightout_saved_access_token";
     private const string SavedRefreshTokenKey = "nightout_saved_refresh_token";
 
-    private const string GoogleRedirectUri = "nightout://auth-callback";
+    private const string GoogleRedirectUri = "spotiz://auth-callback";
 
     private Profile? _currentProfile;
 
-    public bool IsLoggedIn =>
-        supabase.Auth.CurrentUser != null;
+    public bool IsLoggedIn => supabase.Auth.CurrentUser != null;
 
-    public string? GetCurrentUserId() =>
-        supabase.Auth.CurrentUser?.Id;
+    public string? GetCurrentUserId() => supabase.Auth.CurrentUser?.Id;
 
     public async Task<bool> RestoreSessionAsync()
     {
@@ -29,7 +27,6 @@ public class AuthService(Client supabase) : IAuthService
             return true;
         }
 
-        // 1) Tentative de restauration via tokens Supabase OAuth / Google
         try
         {
             var accessToken = await Microsoft.Maui.Storage.SecureStorage.Default.GetAsync(SavedAccessTokenKey);
@@ -52,7 +49,6 @@ public class AuthService(Client supabase) : IAuthService
             RemoveSavedTokens();
         }
 
-        // 2) Fallback : restauration email/mot de passe déjà mise en place
         try
         {
             var email = await Microsoft.Maui.Storage.SecureStorage.Default.GetAsync(SavedEmailKey);
@@ -79,64 +75,150 @@ public class AuthService(Client supabase) : IAuthService
         }
     }
 
+    // ─────────────────────────────────────────────────────────────
+    // Anciennes signatures conservées
+    // ─────────────────────────────────────────────────────────────
+
     public async Task<Profile?> SignInAsync(string email, string password)
     {
-        var session = await supabase.Auth.SignIn(email, password);
-        if (session?.User == null) return null;
-
-        await SaveCredentialsAsync(email, password);
-        await SaveSessionTokensAsync(session.AccessToken, session.RefreshToken);
-
-        _currentProfile = await GetCurrentProfileAsync();
-        return _currentProfile;
+        var result = await SignInWithResultAsync(email, password);
+        return result.Profile;
     }
 
     public async Task<Profile?> SignUpAsync(string email, string password, string username, string accountType = "user")
     {
-        var options = new Supabase.Gotrue.SignUpOptions
-        {
-            Data = new Dictionary<string, object>
-            {
-                { "username", username },
-                { "account_type", NormalizeAccountType(accountType) },
-                { "professional_kind", NormalizeProfessionalKind(accountType) }
-            }
-        };
-
-        var session = await supabase.Auth.SignUp(email, password, options);
-        if (session?.User == null) return null;
-
-        await SaveCredentialsAsync(email, password);
-        await SaveSessionTokensAsync(session.AccessToken, session.RefreshToken);
-
-        // Attendre que le trigger handle_new_user crée le profil
-        await Task.Delay(1000);
-
-        _currentProfile = await GetCurrentProfileAsync();
-
-        // Si le profil n'est toujours pas dispo, retourner un profil minimal
-        if (_currentProfile == null)
-        {
-            _currentProfile = new Profile
-            {
-                Id = session.User.Id,
-                Username = username,
-                DisplayName = username
-            };
-
-            ApplyProfessionalFields(_currentProfile, accountType);
-        }
-
-        if (_currentProfile != null)
-        {
-            ApplyProfessionalFields(_currentProfile, accountType);
-            await SaveProfileProfessionalFieldsAsync(_currentProfile);
-        }
-
-        return _currentProfile;
+        var result = await SignUpWithResultAsync(email, password, username, accountType);
+        return result.Profile;
     }
 
     public async Task<Profile?> SignInWithGoogleAsync(string accountType = "user")
+    {
+        var result = await SignInWithGoogleResultAsync(accountType);
+        return result.Profile;
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // Nouvelles méthodes avec gestion d'erreur pro
+    // ─────────────────────────────────────────────────────────────
+
+    public async Task<AuthOperationResult> SignInWithResultAsync(string email, string password)
+    {
+        var validation = AuthErrorManager.ValidateLogin(email, password);
+        if (!string.IsNullOrWhiteSpace(validation))
+            return AuthOperationResult.Fail("validation_error", validation);
+
+        try
+        {
+            var normalizedEmail = AuthErrorManager.NormalizeEmail(email);
+            var session = await supabase.Auth.SignIn(normalizedEmail, password);
+
+            if (session?.User == null)
+            {
+                return AuthOperationResult.Fail(
+                    "empty_session",
+                    "Connexion impossible. Verifie tes identifiants puis reessaie.");
+            }
+
+            await SaveCredentialsAsync(normalizedEmail, password);
+            await SaveSessionTokensAsync(session.AccessToken, session.RefreshToken);
+
+            _currentProfile = await GetCurrentProfileAsync();
+
+            if (_currentProfile == null)
+            {
+                var repaired = await EnsureProfileExistsAsync(session.User.Id, normalizedEmail, null, "user");
+                if (repaired == null)
+                {
+                    await SignOutAsync();
+                    return AuthOperationResult.Fail(
+                        "profile_missing",
+                        "Ton compte existe, mais ton profil Spotiz est incomplet. Reessaie dans quelques secondes ou contacte le support.");
+                }
+
+                _currentProfile = repaired;
+            }
+
+            return AuthOperationResult.Success(_currentProfile);
+        }
+        catch (Exception ex)
+        {
+            return AuthErrorManager.FromException(ex, "signin");
+        }
+    }
+
+    public async Task<AuthOperationResult> SignUpWithResultAsync(string email, string password, string username, string accountType = "user")
+    {
+        var validation = AuthErrorManager.ValidateRegister(username, email, password, password, true);
+        if (!string.IsNullOrWhiteSpace(validation))
+            return AuthOperationResult.Fail("validation_error", validation);
+
+        try
+        {
+            var normalizedEmail = AuthErrorManager.NormalizeEmail(email);
+            var cleanUsername = CleanUsername(username);
+            var normalizedAccountType = NormalizeAccountType(accountType);
+
+            var options = new Supabase.Gotrue.SignUpOptions
+            {
+                Data = new Dictionary<string, object?>
+                {
+                    { "username", cleanUsername },
+                    { "account_type", normalizedAccountType },
+                    { "professional_kind", NormalizeProfessionalKind(normalizedAccountType) }
+                }
+            };
+
+            var session = await supabase.Auth.SignUp(normalizedEmail, password, options);
+
+            if (session?.User != null &&
+                (string.IsNullOrWhiteSpace(session.AccessToken) || string.IsNullOrWhiteSpace(session.RefreshToken)))
+            {
+                _currentProfile = null;
+                RemoveSavedCredentials();
+                RemoveSavedTokens();
+                await TrySignOutAfterPendingConfirmationAsync();
+                return AuthOperationResult.EmailConfirmationRequired(normalizedEmail);
+            }
+
+            if (session?.User == null)
+            {
+                _currentProfile = null;
+                RemoveSavedCredentials();
+                RemoveSavedTokens();
+                await TrySignOutAfterPendingConfirmationAsync();
+                return AuthOperationResult.Fail(
+                    "empty_signup_session",
+                    "Le compte n'a pas pu etre cree. Verifie les reglages email Supabase/Brevo puis reessaie.");
+            }
+
+            await SaveCredentialsAsync(normalizedEmail, password);
+            await SaveSessionTokensAsync(session.AccessToken, session.RefreshToken);
+
+            // Le trigger handle_new_user peut prendre un peu de temps.
+            _currentProfile = await WaitForProfileAsync(session.User.Id, TimeSpan.FromSeconds(4));
+
+            // Sécurité : si le trigger Supabase n'a pas créé le profil, l'app le répare.
+            _currentProfile ??= await EnsureProfileExistsAsync(session.User.Id, normalizedEmail, cleanUsername, normalizedAccountType);
+
+            if (_currentProfile == null)
+            {
+                return AuthOperationResult.Fail(
+                    "profile_creation_failed",
+                    "Ton compte a ete cree, mais le profil Spotiz n'a pas pu etre finalise. Ferme puis relance l'application.");
+            }
+
+            ApplyProfessionalFields(_currentProfile, normalizedAccountType);
+            await SaveProfileProfessionalFieldsAsync(_currentProfile);
+
+            return AuthOperationResult.Success(_currentProfile);
+        }
+        catch (Exception ex)
+        {
+            return AuthErrorManager.FromException(ex, "signup");
+        }
+    }
+
+    public async Task<AuthOperationResult> SignInWithGoogleResultAsync(string accountType = "user")
     {
         try
         {
@@ -155,65 +237,47 @@ public class AuthService(Client supabase) : IAuthService
             if (!TryGet(result, "access_token", out var accessToken) ||
                 !TryGet(result, "refresh_token", out var refreshToken))
             {
-                System.Diagnostics.Debug.WriteLine("[Auth] Google : access_token ou refresh_token manquant dans le callback.");
-                return null;
+                return AuthOperationResult.Fail(
+                    "google_missing_tokens",
+                    "Connexion Google impossible. Aucun jeton de connexion recu.");
             }
 
             var session = await supabase.Auth.SetSession(accessToken, refreshToken, true);
-            if (session?.User == null) return null;
+            if (session?.User == null)
+            {
+                return AuthOperationResult.Fail(
+                    "google_empty_session",
+                    "Connexion Google impossible. Reessaie dans quelques instants.");
+            }
 
             RemoveSavedCredentials();
             await SaveSessionTokensAsync(session.AccessToken, session.RefreshToken);
 
-            // Le trigger Supabase doit créer le profil. On lui laisse un court délai.
-            await Task.Delay(1000);
+            var email = session.User.Email ?? string.Empty;
+            var normalizedAccountType = NormalizeAccountType(accountType);
 
-            _currentProfile = await GetCurrentProfileAsync();
+            _currentProfile = await WaitForProfileAsync(session.User.Id, TimeSpan.FromSeconds(4));
+            _currentProfile ??= await EnsureProfileExistsAsync(session.User.Id, email, null, normalizedAccountType);
 
-            // Sécurité : si le trigger n'a pas encore répondu, on crée un profil minimal côté app.
             if (_currentProfile == null)
             {
-                var email = session.User.Email ?? string.Empty;
-                var username = BuildUsernameFromEmail(email);
-
-                _currentProfile = new Profile
-                {
-                    Id = session.User.Id,
-                    Username = username,
-                    DisplayName = username,
-                    Language = "fr",
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow
-                };
-
-                ApplyProfessionalFields(_currentProfile, accountType);
-
-                try
-                {
-                    await supabase.From<Profile>().Insert(_currentProfile);
-                }
-                catch (Exception ex)
-                {
-                    System.Diagnostics.Debug.WriteLine($"[Auth] Google : création profil minimale impossible : {ex.Message}");
-                }
+                return AuthOperationResult.Fail(
+                    "google_profile_creation_failed",
+                    "Connexion Google reussie, mais le profil Spotiz n'a pas pu etre finalise.");
             }
 
-            if (_currentProfile != null)
-            {
-                ApplyProfessionalFields(_currentProfile, accountType);
-                await SaveProfileProfessionalFieldsAsync(_currentProfile);
-            }
+            ApplyProfessionalFields(_currentProfile, normalizedAccountType);
+            await SaveProfileProfessionalFieldsAsync(_currentProfile);
 
-            return _currentProfile;
+            return AuthOperationResult.Success(_currentProfile);
         }
         catch (TaskCanceledException)
         {
-            return null;
+            return AuthOperationResult.Cancelled("Connexion Google annulee.");
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[Auth] SignInWithGoogleAsync erreur : {ex}");
-            return null;
+            return AuthErrorManager.FromException(ex, "google_auth");
         }
     }
 
@@ -230,11 +294,15 @@ public class AuthService(Client supabase) : IAuthService
     {
         try
         {
-            await supabase.Auth.ResetPasswordForEmail(email);
+            if (!AuthErrorManager.IsValidEmail(email))
+                return false;
+
+            await supabase.Auth.ResetPasswordForEmail(AuthErrorManager.NormalizeEmail(email));
             return true;
         }
-        catch
+        catch (Exception ex)
         {
+            System.Diagnostics.Debug.WriteLine($"[Auth] ResetPasswordAsync erreur : {ex.Message}");
             return false;
         }
     }
@@ -256,9 +324,94 @@ public class AuthService(Client supabase) : IAuthService
             _currentProfile = result;
             return _currentProfile;
         }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[Auth] GetCurrentProfileAsync profil introuvable : {ex.Message}");
+            return null;
+        }
+    }
+
+    private async Task<Profile?> WaitForProfileAsync(string userId, TimeSpan timeout)
+    {
+        var started = DateTime.UtcNow;
+
+        while (DateTime.UtcNow - started < timeout)
+        {
+            try
+            {
+                var profile = await supabase
+                    .From<Profile>()
+                    .Where(p => p.Id == userId)
+                    .Single();
+
+                if (profile != null)
+                    return profile;
+            }
+            catch
+            {
+                // Le trigger peut ne pas avoir terminé. On réessaie.
+            }
+
+            await Task.Delay(500);
+        }
+
+        return null;
+    }
+
+    private async Task<Profile?> EnsureProfileExistsAsync(string userId, string? email, string? username, string accountType)
+    {
+        try
+        {
+            var existing = await supabase
+                .From<Profile>()
+                .Where(p => p.Id == userId)
+                .Single();
+
+            if (existing != null)
+                return existing;
+        }
         catch
         {
-            return null;
+            // Profil absent : on tente une création minimale.
+        }
+
+        var finalUsername = string.IsNullOrWhiteSpace(username)
+            ? BuildUsernameFromEmail(email ?? string.Empty)
+            : CleanUsername(username);
+
+        var profile = new Profile
+        {
+            Id = userId,
+            Username = finalUsername,
+            DisplayName = finalUsername,
+            Language = "fr",
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+        };
+
+        ApplyProfessionalFields(profile, accountType);
+
+        try
+        {
+            await supabase.From<Profile>().Insert(profile);
+            return profile;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[Auth] EnsureProfileExistsAsync création impossible : {ex.Message}");
+
+            // Dernier essai : le trigger a peut-être créé le profil entre temps.
+            try
+            {
+                return await supabase
+                    .From<Profile>()
+                    .Where(p => p.Id == userId)
+                    .Single();
+            }
+            catch
+            {
+                return null;
+            }
         }
     }
 
@@ -314,6 +467,17 @@ public class AuthService(Client supabase) : IAuthService
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[Auth] SaveProfileProfessionalFieldsAsync erreur : {ex.Message}");
+        }
+    }
+
+    private async Task TrySignOutAfterPendingConfirmationAsync()
+    {
+        try
+        {
+            await supabase.Auth.SignOut();
+        }
+        catch
+        {
         }
     }
 
@@ -383,10 +547,21 @@ public class AuthService(Client supabase) : IAuthService
         return false;
     }
 
+    private static string CleanUsername(string username)
+    {
+        var cleaned = new string(username.Trim()
+            .Where(c => char.IsLetterOrDigit(c) || c == '_' || c == '.' || c == '-')
+            .ToArray());
+
+        return string.IsNullOrWhiteSpace(cleaned)
+            ? $"spotiz_{Random.Shared.Next(1000, 9999)}"
+            : cleaned;
+    }
+
     private static string BuildUsernameFromEmail(string email)
     {
         var baseName = string.IsNullOrWhiteSpace(email)
-            ? "nightout_user"
+            ? "spotiz_user"
             : email.Split('@')[0];
 
         var cleaned = new string(baseName
@@ -394,7 +569,7 @@ public class AuthService(Client supabase) : IAuthService
             .ToArray());
 
         if (string.IsNullOrWhiteSpace(cleaned))
-            cleaned = "nightout_user";
+            cleaned = "spotiz_user";
 
         return $"{cleaned}_{Random.Shared.Next(1000, 9999)}";
     }

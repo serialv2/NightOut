@@ -6,7 +6,7 @@
     xmlns:vm="clr-namespace:NightOut.ViewModels"
     x:DataType="vm:LoginViewModel"
     Shell.NavBarIsVisible="False"
-    BackgroundColor="#0A1018">
+    BackgroundColor="{DynamicResource BgDeep}">
 
     <ScrollView>
         <Grid RowDefinitions="Auto,*" MinimumHeightRequest="760">
@@ -18,8 +18,8 @@
 
                 <Grid.Background>
                     <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                        <GradientStop Color="#162235" Offset="0"/>
-                        <GradientStop Color="#0A1018" Offset="1"/>
+                        <GradientStop Color="{DynamicResource BgElevated}" Offset="0"/>
+                        <GradientStop Color="{DynamicResource BgDeep}" Offset="1"/>
                     </LinearGradientBrush>
                 </Grid.Background>
 
@@ -28,17 +28,17 @@
                     VerticalOptions="Center">
 
                     <Label
-                        Text="NightOut"
+                        Text="Spotiz"
                         FontFamily="PlayfairDisplay-BoldItalic"
                         FontSize="48"
-                        TextColor="#FFB627"
+                        TextColor="{DynamicResource Accent}"
                         HorizontalOptions="Center"/>
 
                     <Label
                         Text="Tes amis. Tes bars. Tes soirées."
                         FontFamily="DMSans-SemiBold"
                         FontSize="17"
-                        TextColor="#F2E8D5"
+                        TextColor="{DynamicResource TextPrimary}"
                         HorizontalOptions="Center"
                         HorizontalTextAlignment="Center"/>
 
@@ -46,7 +46,7 @@
                         Text="{Binding WelcomeText}"
                         FontFamily="DMSans-Regular"
                         FontSize="13"
-                        TextColor="#7A8FA6"
+                        TextColor="{DynamicResource TextSecondary}"
                         HorizontalOptions="Center"
                         HorizontalTextAlignment="Center"
                         Margin="0,4,0,0"/>
@@ -59,8 +59,8 @@
                 Margin="20,-22,20,24"
                 Padding="22"
                 StrokeThickness="1"
-                Stroke="#1F3147"
-                BackgroundColor="#111A27"
+                Stroke="{DynamicResource Border}"
+                BackgroundColor="{DynamicResource BgElevated}"
                 StrokeShape="RoundRectangle 28">
 
                 <VerticalStackLayout Spacing="14">
@@ -69,20 +69,20 @@
                         Text="Connexion"
                         FontFamily="DMSans-Bold"
                         FontSize="24"
-                        TextColor="#F2E8D5"/>
+                        TextColor="{DynamicResource TextPrimary}"/>
 
                     <Label
                         Text="Entre tes identifiants pour continuer."
                         FontFamily="DMSans-Regular"
                         FontSize="13"
-                        TextColor="#7A8FA6"
+                        TextColor="{DynamicResource TextSecondary}"
                         Margin="0,0,0,10"/>
 
                     <Label
                         Text="Adresse e-mail"
                         FontFamily="DMSans-Medium"
                         FontSize="12"
-                        TextColor="#7A8FA6"/>
+                        TextColor="{DynamicResource TextSecondary}"/>
 
                     <Border
                         Style="{StaticResource InputField}">
@@ -98,7 +98,7 @@
                         Text="Mot de passe"
                         FontFamily="DMSans-Medium"
                         FontSize="12"
-                        TextColor="#7A8FA6"
+                        TextColor="{DynamicResource TextSecondary}"
                         Margin="0,4,0,0"/>
 
                     <Border
@@ -117,7 +117,7 @@
                                 Grid.Column="1"
                                 Text="👁"
                                 FontSize="18"
-                                TextColor="#7A8FA6"
+                                TextColor="{DynamicResource TextSecondary}"
                                 VerticalOptions="Center"
                                 Padding="10,0">
                                 <Label.GestureRecognizers>
@@ -131,7 +131,7 @@
                         Text="Mot de passe oublié ?"
                         FontFamily="DMSans-Regular"
                         FontSize="12"
-                        TextColor="#FFB627"
+                        TextColor="{DynamicResource Accent}"
                         HorizontalOptions="End">
                         <Label.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding GoToForgotPasswordCommand}"/>
@@ -142,7 +142,7 @@
                         Text="{Binding ErrorMessage}"
                         FontFamily="DMSans-Regular"
                         FontSize="12"
-                        TextColor="#E53935"
+                        TextColor="{DynamicResource Error}"
                         HorizontalOptions="Center"
                         HorizontalTextAlignment="Center"
                         IsVisible="{Binding HasError}"
@@ -153,8 +153,8 @@
                         Margin="0,8,0,0">
                         <Border.Background>
                             <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                                <GradientStop Color="#FFB627" Offset="0"/>
-                                <GradientStop Color="#FF6B35" Offset="1"/>
+                                <GradientStop Color="{DynamicResource Accent}" Offset="0"/>
+                                <GradientStop Color="{DynamicResource Second}" Offset="1"/>
                             </LinearGradientBrush>
                         </Border.Background>
 
@@ -166,7 +166,7 @@
                             <ActivityIndicator
                                 IsRunning="{Binding IsBusy}"
                                 IsVisible="{Binding IsBusy}"
-                                Color="#0A1018"
+                                Color="{DynamicResource BgDeep}"
                                 HorizontalOptions="Center"
                                 VerticalOptions="Center"/>
 
@@ -174,7 +174,7 @@
                                 Text="Se connecter"
                                 FontFamily="DMSans-Bold"
                                 FontSize="15"
-                                TextColor="#0A1018"
+                                TextColor="{DynamicResource BgDeep}"
                                 HorizontalOptions="Center"
                                 VerticalOptions="Center"
                                 IsVisible="{Binding IsNotBusy}"/>
@@ -182,16 +182,16 @@
                     </Border>
 
                     <Grid ColumnDefinitions="*,Auto,*" Margin="0,10,0,2">
-                        <BoxView Grid.Column="0" HeightRequest="1" BackgroundColor="#263A55" VerticalOptions="Center"/>
-                        <Label Grid.Column="1" Text="ou" FontSize="12" TextColor="#7A8FA6" Margin="12,0"/>
-                        <BoxView Grid.Column="2" HeightRequest="1" BackgroundColor="#263A55" VerticalOptions="Center"/>
+                        <BoxView Grid.Column="0" HeightRequest="1" BackgroundColor="{DynamicResource Border}" VerticalOptions="Center"/>
+                        <Label Grid.Column="1" Text="ou" FontSize="12" TextColor="{DynamicResource TextSecondary}" Margin="12,0"/>
+                        <BoxView Grid.Column="2" HeightRequest="1" BackgroundColor="{DynamicResource Border}" VerticalOptions="Center"/>
                     </Grid>
 
                     <Border
                         HeightRequest="52"
-                        Stroke="#2D405B"
+                        Stroke="{DynamicResource Border}"
                         StrokeThickness="1"
-                        BackgroundColor="#0D1520"
+                        BackgroundColor="{DynamicResource BgCard}"
                         StrokeShape="RoundRectangle 18">
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding LoginWithGoogleCommand}"/>
@@ -203,7 +203,7 @@
                                 Text="G"
                                 FontFamily="DMSans-Bold"
                                 FontSize="20"
-                                TextColor="#F2E8D5"
+                                TextColor="{DynamicResource TextPrimary}"
                                 VerticalOptions="Center"/>
 
                             <Label
@@ -211,7 +211,7 @@
                                 Text="Continuer avec Google"
                                 FontFamily="DMSans-SemiBold"
                                 FontSize="15"
-                                TextColor="#F2E8D5"
+                                TextColor="{DynamicResource TextPrimary}"
                                 HorizontalOptions="Center"
                                 VerticalOptions="Center"/>
                         </Grid>
@@ -228,7 +228,7 @@
                             Text="Créer un compte"
                             FontFamily="DMSans-SemiBold"
                             FontSize="15"
-                            TextColor="#FFB627"
+                            TextColor="{DynamicResource Accent}"
                             HorizontalOptions="Center"
                             VerticalOptions="Center"/>
                     </Border>

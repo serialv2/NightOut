@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="NightOut.Views.Bar.BarPostCommentsPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:NightOut.ViewModels"
+    xmlns:models="clr-namespace:NightOut.Models"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    x:DataType="vm:BarPostCommentsViewModel"
+    Shell.NavBarIsVisible="False"
+    BackgroundColor="#05070B">
+
+    <ContentPage.Resources>
+        <toolkit:InvertedBoolConverter x:Key="Inv" />
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="Auto,*,Auto">
+
+        <!-- Header -->
+        <Grid Grid.Row="0"
+              BackgroundColor="#0D1520"
+              Padding="18,50,18,14"
+              ColumnDefinitions="48,*,48"
+              ColumnSpacing="10">
+
+            <Border BackgroundColor="#1A2535"
+                    Stroke="#273447"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 24"
+                    WidthRequest="46"
+                    HeightRequest="46">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding GoBackCommand}" />
+                </Border.GestureRecognizers>
+                <Label Text="‹"
+                       TextColor="#FFB627"
+                       FontSize="32"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center"
+                       Margin="0,-4,0,0" />
+            </Border>
+
+            <VerticalStackLayout Grid.Column="1" Spacing="0" VerticalOptions="Center">
+                <Label Text="Commentaires"
+                       TextColor="White"
+                       FontFamily="DMSans-Bold"
+                       FontSize="20"
+                       HorizontalTextAlignment="Center" />
+                <Label Text="Fil d'activité du bar"
+                       TextColor="#7A8FA6"
+                       FontSize="12"
+                       HorizontalTextAlignment="Center" />
+            </VerticalStackLayout>
+
+            <Border Grid.Column="2"
+                    BackgroundColor="#1A2535"
+                    Stroke="#273447"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 24"
+                    WidthRequest="46"
+                    HeightRequest="46">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding RefreshCommentsCommand}" />
+                </Border.GestureRecognizers>
+                <Label Text="↻"
+                       TextColor="White"
+                       FontSize="19"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center" />
+            </Border>
+        </Grid>
+
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Padding="18,16,18,20" Spacing="14">
+
+                <!-- Publication originale -->
+                <Border Padding="0"
+                        BackgroundColor="#0B111B"
+                        Stroke="#1D2939"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 24"
+                        IsVisible="{Binding HasPost}">
+                    <VerticalStackLayout Spacing="0">
+                        <Grid Padding="14,14,14,10"
+                              ColumnDefinitions="50,*,Auto"
+                              ColumnSpacing="10">
+                            <Border WidthRequest="48"
+                                    HeightRequest="48"
+                                    Stroke="#FFFFFF"
+                                    StrokeThickness="1"
+                                    StrokeShape="RoundRectangle 24"
+                                    BackgroundColor="#22324A">
+                                <Grid>
+                                    <Image Source="{Binding Post.AvatarUrl}"
+                                           Aspect="AspectFill"
+                                           IsVisible="{Binding Post.HasAvatarUrl}" />
+                                    <Label Text="{Binding Post.Initials}"
+                                           TextColor="White"
+                                           FontFamily="DMSans-Bold"
+                                           HorizontalOptions="Center"
+                                           VerticalOptions="Center"
+                                           IsVisible="{Binding Post.HasAvatarUrl, Converter={StaticResource Inv}}" />
+                                </Grid>
+                            </Border>
+
+                            <VerticalStackLayout Grid.Column="1" Spacing="1" VerticalOptions="Center">
+                                <Label Text="{Binding Post.Username}"
+                                       TextColor="White"
+                                       FontFamily="DMSans-Bold"
+                                       FontSize="15" />
+                                <Label Text="{Binding Post.TimeAgo}"
+                                       TextColor="#9AA8B8"
+                                       FontSize="12" />
+                            </VerticalStackLayout>
+
+                            <Label Grid.Column="2"
+                                   Text="Publication"
+                                   TextColor="#FFB627"
+                                   FontFamily="DMSans-Bold"
+                                   FontSize="11"
+                                   VerticalOptions="Center" />
+                        </Grid>
+
+                        <Label Text="{Binding Post.DisplayText}"
+                               TextColor="White"
+                               FontSize="15"
+                               LineBreakMode="WordWrap"
+                               Padding="14,0,14,12"
+                               IsVisible="{Binding Post.HasDisplayText}" />
+
+                        <Border IsVisible="{Binding Post.IsPhoto}"
+                                StrokeThickness="0"
+                                BackgroundColor="#05070B"
+                                MaximumHeightRequest="460">
+                            <Image Source="{Binding Post.MediaUrl}"
+                                   Aspect="AspectFit"
+                                   BackgroundColor="#05070B"
+                                   HorizontalOptions="Fill"
+                                   VerticalOptions="Center"
+                                   MaximumHeightRequest="460" />
+                        </Border>
+
+                        <Border IsVisible="{Binding Post.IsVideo}"
+                                HeightRequest="320"
+                                StrokeThickness="0"
+                                BackgroundColor="#000000">
+                            <WebView Source="{Binding Post.VideoSource}" />
+                        </Border>
+
+                        <Border IsVisible="{Binding Post.IsCheckin}"
+                                Margin="14,0,14,14"
+                                Padding="14"
+                                StrokeThickness="0"
+                                StrokeShape="RoundRectangle 18">
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                    <GradientStop Color="#4B1E83" Offset="0" />
+                                    <GradientStop Color="#B5264D" Offset="1" />
+                                </LinearGradientBrush>
+                            </Border.Background>
+                            <Grid ColumnDefinitions="44,*">
+                                <Border WidthRequest="38" HeightRequest="38" BackgroundColor="#6D38FF" StrokeThickness="0" StrokeShape="RoundRectangle 19">
+                                    <Label Text="⌖" TextColor="White" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center" />
+                                </Border>
+                                <VerticalStackLayout Grid.Column="1" Spacing="1">
+                                    <Label Text="Check-in" TextColor="#D8C9FF" FontSize="12" />
+                                    <Label Text="{Binding Post.Content}" TextColor="White" FontFamily="DMSans-Bold" FontSize="15" />
+                                </VerticalStackLayout>
+                            </Grid>
+                        </Border>
+
+                        <Label Text="{Binding Post.CommentLabel}"
+                               TextColor="#9AA8B8"
+                               FontSize="13"
+                               Padding="14,10,14,14" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <Label Text="Commentaires"
+                       TextColor="White"
+                       FontFamily="DMSans-Bold"
+                       FontSize="18"
+                       Margin="2,6,0,0" />
+
+                <ActivityIndicator IsRunning="{Binding IsBusy}"
+                                   IsVisible="{Binding IsBusy}"
+                                   Color="#FFB627"
+                                   HorizontalOptions="Center" />
+
+                <Label Text="Aucun commentaire pour le moment. Sois le premier à répondre."
+                       TextColor="#7A8FA6"
+                       FontSize="14"
+                       HorizontalTextAlignment="Center"
+                       Margin="10,18"
+                       IsVisible="{Binding IsEmpty}" />
+
+                <CollectionView ItemsSource="{Binding Comments}"
+                                SelectionMode="None">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="models:BarActivityComment">
+                            <Grid ColumnDefinitions="44,*"
+                                  ColumnSpacing="10"
+                                  Margin="0,0,0,16">
+                                <Border WidthRequest="40"
+                                        HeightRequest="40"
+                                        Stroke="#273447"
+                                        StrokeThickness="1"
+                                        StrokeShape="RoundRectangle 20"
+                                        BackgroundColor="#22324A">
+                                    <Grid>
+                                        <Image Source="{Binding AvatarUrl}"
+                                               Aspect="AspectFill"
+                                               IsVisible="{Binding HasAvatarUrl}" />
+                                        <Label Text="{Binding Initials}"
+                                               TextColor="White"
+                                               FontFamily="DMSans-Bold"
+                                               HorizontalOptions="Center"
+                                               VerticalOptions="Center"
+                                               IsVisible="{Binding HasAvatarUrl, Converter={StaticResource Inv}}" />
+                                    </Grid>
+                                </Border>
+
+                                <Border Grid.Column="1"
+                                        Padding="12"
+                                        BackgroundColor="#0B111B"
+                                        Stroke="#1D2939"
+                                        StrokeThickness="1"
+                                        StrokeShape="RoundRectangle 18">
+                                    <VerticalStackLayout Spacing="4">
+                                        <HorizontalStackLayout Spacing="8">
+                                            <Label Text="{Binding Username}"
+                                                   TextColor="White"
+                                                   FontFamily="DMSans-Bold"
+                                                   FontSize="14" />
+                                            <Label Text="{Binding TimeAgo}"
+                                                   TextColor="#7A8FA6"
+                                                   FontSize="12"
+                                                   VerticalOptions="Center" />
+                                        </HorizontalStackLayout>
+                                        <Label Text="{Binding Content}"
+                                               TextColor="#E7EDF5"
+                                               FontSize="14"
+                                               LineBreakMode="WordWrap" />
+                                    </VerticalStackLayout>
+                                </Border>
+                            </Grid>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Composer sticky -->
+        <Grid Grid.Row="2"
+              BackgroundColor="#0D1520"
+              Padding="14,10,14,24"
+              ColumnDefinitions="*,52"
+              ColumnSpacing="10">
+            <Border BackgroundColor="#131C28"
+                    Stroke="#273447"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 18"
+                    Padding="12,4">
+                <Editor Text="{Binding CommentText}"
+                        Placeholder="Ajouter un commentaire..."
+                        PlaceholderColor="#7A8FA6"
+                        TextColor="White"
+                        AutoSize="TextChanges"
+                        MinimumHeightRequest="44"
+                        MaximumHeightRequest="110"
+                        BackgroundColor="Transparent" />
+            </Border>
+
+            <Border Grid.Column="1"
+                    BackgroundColor="#FFB627"
+                    StrokeThickness="0"
+                    StrokeShape="RoundRectangle 26"
+                    WidthRequest="52"
+                    HeightRequest="52"
+                    VerticalOptions="End">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding PostCommentCommand}" />
+                </Border.GestureRecognizers>
+                <Label Text="➤"
+                       TextColor="#07111F"
+                       FontSize="22"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center" />
+            </Border>
+        </Grid>
+    </Grid>
+</ContentPage>

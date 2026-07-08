@@ -4,6 +4,7 @@ using NightOut.Models;
 using NightOut.Services;
 using NightOut.ViewModels.Base;
 using NightOut.Views.Auth;
+using NightOut.Views.Profile;
 using System.Collections.ObjectModel;
 
 namespace NightOut.ViewModels;
@@ -12,7 +13,9 @@ public partial class ProfileViewModel(
     IProfileService profileService,
     ICityService cityService,
     IAuthService authService,
-    IUserStatusService userStatusService) : BaseViewModel
+    IUserStatusService userStatusService,
+    IFriendService friendService,
+    IServiceProvider services) : BaseViewModel
 {
     // ── Profil chargé ────────────────────────────────────────────
     private Profile? _profile;
@@ -63,10 +66,10 @@ public partial class ProfileViewModel(
 
     public Color EventReliabilityColor => EventReliabilityScore switch
     {
-        >= 85 => Color.FromArgb("#1D8F5A"),
-        >= 70 => Color.FromArgb("#FFB627"),
-        >= 50 => Color.FromArgb("#FF8A3D"),
-        _ => Color.FromArgb("#E05252")
+        >= 85 => Color.FromArgb("#4C7339"),
+        >= 70 => Color.FromArgb("#CEA358"),
+        >= 50 => Color.FromArgb("#D3AC69"),
+        _ => Color.FromArgb("#CC7A66")
     };
 
     partial void OnEventReliabilityScoreChanged(int value)
@@ -246,6 +249,21 @@ public partial class ProfileViewModel(
         await GoToAsync("ProDashboardPage");
     }
 
+    [RelayCommand]
+    public async Task OpenSettingsAsync()
+    {
+        try
+        {
+            var settingsPage = services.GetRequiredService<SettingsPage>();
+            await Application.Current!.Windows[0].Page!.Navigation.PushAsync(settingsPage);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[ProfileVM] OpenSettings erreur : {ex}");
+            await ShowToastAsync("Impossible d'ouvrir les paramètres.");
+        }
+    }
+
     // ── Enregistrer ──────────────────────────────────────────────
     [RelayCommand]
     public async Task SaveAsync()
@@ -269,11 +287,14 @@ public partial class ProfileViewModel(
             _profile.Language = SelectedLanguage;
             _profile.IsPrivate = IsPrivate;
             _profile.SecretMode = SecretMode;
+            _profile.ShareLocationWithFriends = !SecretMode;
             _profile.OpenToMeet = OpenToMeet;
 
             var ok = await profileService.UpdateProfileAsync(_profile);
             if (ok)
             {
+                await friendService.SetMyMapVisibilityAsync(!SecretMode);
+
                 if (_profile.SecretMode)
                     await userStatusService.GoOfflineAsync();
                 else
@@ -291,16 +312,12 @@ public partial class ProfileViewModel(
         try
         {
             await profileService.SignOutAsync();
-            var services = IPlatformApplication.Current?.Services;
-            if (services != null)
+            var loginPage = services.GetRequiredService<LoginPage>();
+            Application.Current!.Windows[0].Page = new NavigationPage(loginPage)
             {
-                var loginPage = services.GetRequiredService<LoginPage>();
-                Application.Current!.MainPage = new NavigationPage(loginPage)
-                {
-                    BarBackgroundColor = Color.FromArgb("#0A1018"),
-                    BarTextColor = Color.FromArgb("#F2E8D5")
-                };
-            }
+                BarBackgroundColor = Color.FromArgb("#F5F2EE"),
+                BarTextColor = Color.FromArgb("#37241B")
+            };
         }
         catch (Exception ex)
         {

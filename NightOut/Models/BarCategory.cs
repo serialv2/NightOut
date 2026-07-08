@@ -26,7 +26,7 @@ namespace NightOut.Models
         public string Icon { get; set; } = string.Empty;
 
         [Column("color")]
-        public string Color { get; set; } = "#FFB627";
+        public string Color { get; set; } = "#CEA358";
 
         [Column("sort_order")]
         public int SortOrder { get; set; }
@@ -60,23 +60,23 @@ namespace NightOut.Models
         public static readonly BarCategory Default = new("bar", "Bar", "🍺")
         {
             Id = string.Empty,
-            Color = "#FFB627",
+            Color = "#CEA358",
             SortOrder = 1
         };
 
         public static readonly IReadOnlyList<BarCategory> Fallback = new List<BarCategory>
         {
-            new("bar",       "Bar",                  "🍺") { Color = "#FFB627", SortOrder = 1 },
-            new("cocktails", "Bar à cocktails",      "🍹") { Color = "#FF6B35", SortOrder = 2 },
-            new("nightclub", "Boîte de nuit",        "💃") { Color = "#9B5DE5", SortOrder = 3 },
-            new("live",      "Musique live",         "🎵") { Color = "#FF2D6B", SortOrder = 4 },
-            new("geek",      "Bar geek",             "🎮") { Color = "#4D9FFF", SortOrder = 5 },
-            new("rock",      "Bar rock",             "🤘") { Color = "#E53935", SortOrder = 6 },
-            new("karaoke",   "Karaoké",              "🎤") { Color = "#FFB627", SortOrder = 7 },
-            new("wine",      "Bar à vins",           "🍷") { Color = "#9B5DE5", SortOrder = 8 },
-            new("pub",       "Pub",                  "🍻") { Color = "#3DB87A", SortOrder = 9 },
-            new("venue",     "Salle événementielle", "🎪") { Color = "#FF6B35", SortOrder = 10 },
-            new("lounge",    "Lounge",               "🛋") { Color = "#FFB627", SortOrder = 11 },
+            new("bar",       "Bar",                  "🍺") { Color = "#CEA358", SortOrder = 1 },
+            new("cocktails", "Bar à cocktails",      "🍹") { Color = "#D27962", SortOrder = 2 },
+            new("nightclub", "Boîte de nuit",        "💃") { Color = "#D19471", SortOrder = 3 },
+            new("live",      "Musique live",         "🎵") { Color = "#D0735C", SortOrder = 4 },
+            new("geek",      "Bar geek",             "🎮") { Color = "#8BAAC1", SortOrder = 5 },
+            new("rock",      "Bar rock",             "🤘") { Color = "#CC674E", SortOrder = 6 },
+            new("karaoke",   "Karaoké",              "🎤") { Color = "#CEA358", SortOrder = 7 },
+            new("wine",      "Bar à vins",           "🍷") { Color = "#D19471", SortOrder = 8 },
+            new("pub",       "Pub",                  "🍻") { Color = "#659B4B", SortOrder = 9 },
+            new("venue",     "Salle événementielle", "🎪") { Color = "#D27962", SortOrder = 10 },
+            new("lounge",    "Lounge",               "🛋") { Color = "#CEA358", SortOrder = 11 },
         };
 
         // Compatibilité avec l'ancien code.

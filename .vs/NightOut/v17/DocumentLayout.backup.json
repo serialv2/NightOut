@@ -3,12 +3,7 @@
   "WorkspaceRootPath": "D:\\Users\\Steen\\source\\repos\\NightOut\\NightOut\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{DE83D055-7200-461F-86BD-CAF22A87FA67}|NightOut\\NightOut.csproj|d:\\users\\steen\\source\\repos\\nightout\\nightout\\nightout\\nightout.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
-      "RelativeMoniker": "D:0:0:{DE83D055-7200-461F-86BD-CAF22A87FA67}|NightOut\\NightOut.csproj|solutionrelative:nightout\\nightout.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{DE83D055-7200-461F-86BD-CAF22A87FA67}|NightOut\\NightOut.csproj|d:\\users\\steen\\source\\repos\\nightout\\nightout\\nightout\\services\\officialeventservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{DE83D055-7200-461F-86BD-CAF22A87FA67}|NightOut\\NightOut.csproj|solutionrelative:nightout\\services\\officialeventservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Program Files\\dotnet\\packs\\Microsoft.Android.Sdk.Windows\\35.0.105\\tools\\Xamarin.Android.D8.targets||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
     }
   ],
   "DocumentGroupContainers": [
@@ -18,44 +13,18 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 3,
+          "SelectedChildIndex": 0,
           "Children": [
-            {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{3ae79031-e1bc-11d0-8f78-00a0c9110057}"
-            },
-            {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{d78612c7-9962-4b83-95d9-268046dad23a}"
-            },
-            {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{34e76e81-ee4a-11d0-ae2e-00a0c90fffc3}"
-            },
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "NightOut.csproj",
-              "DocumentMoniker": "D:\\Users\\Steen\\source\\repos\\NightOut\\NightOut\\NightOut\\NightOut.csproj",
-              "RelativeDocumentMoniker": "NightOut\\NightOut.csproj",
-              "ToolTip": "D:\\Users\\Steen\\source\\repos\\NightOut\\NightOut\\NightOut\\NightOut.csproj",
-              "RelativeToolTip": "NightOut\\NightOut.csproj",
-              "ViewState": "AgIAAG0AAAAASS0IBcgrwH8AAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
-              "WhenOpened": "2026-06-14T13:15:01.388Z",
+              "Title": "Xamarin.Android.D8.targets",
+              "DocumentMoniker": "C:\\Program Files\\dotnet\\packs\\Microsoft.Android.Sdk.Windows\\35.0.105\\tools\\Xamarin.Android.D8.targets",
+              "ToolTip": "C:\\Program Files\\dotnet\\packs\\Microsoft.Android.Sdk.Windows\\35.0.105\\tools\\Xamarin.Android.D8.targets",
+              "ViewState": "AgIAAEgAAAAAAAAAAAAkwF0AAABDAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003801|",
+              "WhenOpened": "2026-07-05T09:48:31.489Z",
               "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "OfficialEventService.cs",
-              "DocumentMoniker": "D:\\Users\\Steen\\source\\repos\\NightOut\\NightOut\\NightOut\\Services\\OfficialEventService.cs",
-              "RelativeDocumentMoniker": "NightOut\\Services\\OfficialEventService.cs",
-              "ToolTip": "D:\\Users\\Steen\\source\\repos\\NightOut\\NightOut\\NightOut\\Services\\OfficialEventService.cs",
-              "RelativeToolTip": "NightOut\\Services\\OfficialEventService.cs",
-              "ViewState": "AgIAAHsCAAAAAAAAAAAYwJ4CAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-06-13T17:50:39.471Z"
             }
           ]
         }

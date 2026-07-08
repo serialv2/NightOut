@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="NightOut.Views.Pro.RewardQrScannerPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:zxing="clr-namespace:ZXing.Net.Maui.Controls;assembly=ZXing.Net.MAUI.Controls"
+    Shell.NavBarIsVisible="False"
+    BackgroundColor="{DynamicResource BgDeep}">
+
+    <Grid>
+        <zxing:CameraBarcodeReaderView
+            x:Name="BarcodeReader"
+            BarcodesDetected="OnBarcodesDetected"
+            IsDetecting="False" />
+
+        <BoxView BackgroundColor="#66F5F2EE"/>
+
+        <Grid RowDefinitions="Auto,*,Auto" Padding="20,50,20,30">
+            <Grid Grid.Row="0" ColumnDefinitions="44,*" ColumnSpacing="12">
+                <Border Grid.Column="0"
+                        BackgroundColor="{DynamicResource BgElevated}"
+                        StrokeThickness="0"
+                        StrokeShape="RoundRectangle 14"
+                        WidthRequest="44"
+                        HeightRequest="44">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnCloseTapped"/>
+                    </Border.GestureRecognizers>
+                    <Label Text="←"
+                           FontSize="20"
+                           TextColor="{DynamicResource TextPrimary}"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center"/>
+                </Border>
+
+                <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                    <Label Text="Scanner une récompense"
+                           FontFamily="DMSans-SemiBold"
+                           FontSize="20"
+                           TextColor="{DynamicResource TextPrimary}"/>
+                    <Label Text="Place le QR code du client dans le cadre."
+                           FontSize="12"
+                           TextColor="{DynamicResource TextSecondary}"/>
+                </VerticalStackLayout>
+            </Grid>
+
+            <Border Grid.Row="1"
+                    WidthRequest="260"
+                    HeightRequest="260"
+                    HorizontalOptions="Center"
+                    VerticalOptions="Center"
+                    BackgroundColor="#222A1B10"
+                    Stroke="{DynamicResource Accent}"
+                    StrokeThickness="3"
+                    StrokeShape="RoundRectangle 28">
+                <Grid>
+                    <Label Text="QR"
+                           FontFamily="DMSans-Bold"
+                           FontSize="34"
+                           TextColor="#5537241B"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center"/>
+                </Grid>
+            </Border>
+
+            <Border Grid.Row="2"
+                    BackgroundColor="{DynamicResource BgElevated}"
+                    Stroke="{DynamicResource Border}"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 18"
+                    Padding="14">
+                <Label Text="Le débit des points se fait seulement après validation serveur."
+                       FontSize="12"
+                       TextColor="{DynamicResource TextSecondary}"
+                       HorizontalTextAlignment="Center"/>
+            </Border>
+        </Grid>
+    </Grid>
+</ContentPage>

@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="NightOut.Views.Bar.RegisterBarPage"
+             BackgroundColor="#0A1018">
+
+    <ContentPage.Resources>
+        <Color x:Key="Bg">#0A1018</Color>
+        <Color x:Key="Card">#0F1923</Color>
+        <Color x:Key="Card2">#131F2B</Color>
+        <Color x:Key="Gold">#FFB627</Color>
+        <Color x:Key="Orange">#FF6B35</Color>
+        <Color x:Key="Green">#3DB87A</Color>
+        <Color x:Key="TextMain">#F2E8D5</Color>
+        <Color x:Key="TextMuted">#7A8FA6</Color>
+
+        <toolkit:InvertedBoolConverter x:Key="InvertedBoolConverter" />
+        <toolkit:IsStringNotNullOrEmptyConverter x:Key="IsStringNotNullOrEmptyConverter" />
+
+        <Style TargetType="Entry">
+            <Setter Property="TextColor" Value="{StaticResource TextMain}" />
+            <Setter Property="PlaceholderColor" Value="{StaticResource TextMuted}" />
+            <Setter Property="BackgroundColor" Value="{StaticResource Card2}" />
+            <Setter Property="HeightRequest" Value="46" />
+        </Style>
+        <Style TargetType="Editor">
+            <Setter Property="TextColor" Value="{StaticResource TextMain}" />
+            <Setter Property="PlaceholderColor" Value="{StaticResource TextMuted}" />
+            <Setter Property="BackgroundColor" Value="{StaticResource Card2}" />
+        </Style>
+        <Style TargetType="Label">
+            <Setter Property="TextColor" Value="{StaticResource TextMain}" />
+        </Style>
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="Auto,*">
+
+        <!-- Barre du haut -->
+        <Grid Grid.Row="0" ColumnDefinitions="Auto,*" Padding="12,14" BackgroundColor="{StaticResource Card}">
+            <Button Grid.Column="0" Text="✕" FontSize="18"
+                    BackgroundColor="Transparent" TextColor="{StaticResource TextMuted}"
+                    Command="{Binding CancelCommand}" />
+            <Label Grid.Column="1" Text="{Binding Title}" FontSize="18" FontAttributes="Bold"
+                   VerticalOptions="Center" Margin="6,0,0,0" />
+        </Grid>
+
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Padding="16" Spacing="14">
+
+                <Label Text="Nom de l'établissement *" TextColor="{StaticResource TextMuted}" />
+                <Entry Text="{Binding Name}" Placeholder="Ex: Le Macumba" />
+
+                <Label Text="Ville *" TextColor="{StaticResource TextMuted}" />
+                <Picker Title="Choisir une ville"
+                        TitleColor="{StaticResource TextMuted}"
+                        TextColor="{StaticResource TextMain}"
+                        BackgroundColor="{StaticResource Card2}"
+                        ItemsSource="{Binding Cities}"
+                        ItemDisplayBinding="{Binding Name}"
+                        SelectedItem="{Binding SelectedCity}" />
+
+                <!-- Adresse + géocodage -->
+                <Label Text="Adresse *" TextColor="{StaticResource TextMuted}" />
+                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                    <Entry Grid.Column="0" Text="{Binding Address}" Placeholder="Rue, ville..." />
+                    <Button Grid.Column="1" Text="Rechercher"
+                            BackgroundColor="{StaticResource Orange}" TextColor="White"
+                            Command="{Binding SearchAddressCommand}" />
+                </Grid>
+
+                <!-- Suggestions Mapbox -->
+                <CollectionView x:Name="SuggestionsList"
+                                ItemsSource="{Binding AddressSuggestions}"
+                                SelectionMode="None">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Border BackgroundColor="{StaticResource Card2}"
+                                    StrokeThickness="0" Margin="0,3"
+                                    Padding="12" StrokeShape="RoundRectangle 10">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer
+                                        Command="{Binding BindingContext.SelectSuggestionCommand, Source={x:Reference SuggestionsList}}"
+                                        CommandParameter="{Binding .}" />
+                                </Border.GestureRecognizers>
+                                <Label Text="{Binding PlaceName}" TextColor="#F2E8D5" FontSize="14" />
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+                <!-- Position confirmée -->
+                <Border IsVisible="{Binding HasCoordinates}"
+                        BackgroundColor="{StaticResource Card}" Padding="12"
+                        StrokeThickness="1" Stroke="{StaticResource Green}"
+                        StrokeShape="RoundRectangle 10">
+                    <Label TextColor="{StaticResource Green}" FontSize="13">
+                        <Label.Text>
+                            <MultiBinding StringFormat="📍 {0}">
+                                <Binding Path="ResolvedAddressLabel" />
+                            </MultiBinding>
+                        </Label.Text>
+                    </Label>
+                </Border>
+
+                <!-- Catégories -->
+                <Label Text="Catégories" TextColor="{StaticResource TextMuted}" Margin="0,4,0,0" />
+                <CollectionView ItemsSource="{Binding Categories}" SelectionMode="None">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Grid ColumnDefinitions="Auto,*" Padding="0,4">
+                                <CheckBox Grid.Column="0" IsChecked="{Binding IsSelected}"
+                                          Color="{StaticResource Gold}" />
+                                <Label Grid.Column="1" Text="{Binding Display}"
+                                       VerticalOptions="Center" FontSize="15" />
+                            </Grid>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+                <!-- Optionnels -->
+                <Label Text="Description" TextColor="{StaticResource TextMuted}" />
+                <Editor Text="{Binding Description}" AutoSize="TextChanges" HeightRequest="90"
+                        Placeholder="Ambiance, concept..." />
+
+                <Label Text="Téléphone" TextColor="{StaticResource TextMuted}" />
+                <Entry Text="{Binding Phone}" Keyboard="Telephone" Placeholder="03 ..." />
+
+                <Label Text="Site web" TextColor="{StaticResource TextMuted}" />
+                <Entry Text="{Binding Website}" Keyboard="Url" Placeholder="https://" />
+
+                <Label Text="Instagram" TextColor="{StaticResource TextMuted}" />
+                <Entry Text="{Binding Instagram}" Placeholder="@..." />
+
+                <Grid ColumnDefinitions="*,Auto" Padding="0,4">
+                    <Label Grid.Column="0" Text="Promo en cours" VerticalOptions="Center" />
+                    <Switch Grid.Column="1" IsToggled="{Binding HasPromo}"
+                            OnColor="{StaticResource Orange}" />
+                </Grid>
+                <Grid ColumnDefinitions="*,Auto" Padding="0,4">
+                    <Label Grid.Column="0" Text="Actif (visible sur la carte)" VerticalOptions="Center" />
+                    <Switch Grid.Column="1" IsToggled="{Binding IsActive}"
+                            OnColor="{StaticResource Green}" />
+                </Grid>
+
+                <!-- Statut -->
+                <Label Text="{Binding StatusMessage}" TextColor="{StaticResource Gold}"
+                       IsVisible="{Binding StatusMessage, Converter={StaticResource IsStringNotNullOrEmptyConverter}}"
+                       FontSize="13" />
+
+                <!-- Enregistrer -->
+                <Button Text="Enregistrer l'établissement"
+                        BackgroundColor="{StaticResource Gold}" TextColor="#0A1018"
+                        FontAttributes="Bold" HeightRequest="50" Margin="0,8,0,0"
+                        Command="{Binding SaveCommand}"
+                        IsEnabled="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}" />
+
+                <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}"
+                                   Color="{StaticResource Gold}" />
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

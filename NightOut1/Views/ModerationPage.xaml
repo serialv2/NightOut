@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:NightOut.ViewModels"
+             xmlns:models="clr-namespace:NightOut.Models"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="NightOut.Views.ModerationPage"
+             x:DataType="vm:ModerationViewModel"
+             BackgroundColor="#121212"
+             Title="Modération">
+
+    <ContentPage.Resources>
+        <!-- InvertedBoolConverter déclaré ici pour être autonome -->
+        <toolkit:InvertedBoolConverter x:Key="InvertedBoolConverter"/>
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="Auto,*">
+
+        <!-- En-tête -->
+        <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Padding="16,12,16,8">
+            <Label Grid.Column="0"
+                   Text="Établissements en attente"
+                   TextColor="#AAAAAA"
+                   FontSize="13"
+                   VerticalOptions="Center"/>
+            <Button Grid.Column="1"
+                    Text="↺"
+                    Command="{Binding RefreshCommand}"
+                    BackgroundColor="Transparent"
+                    TextColor="#AAAAAA"
+                    FontSize="20"
+                    Padding="8,0"/>
+        </Grid>
+
+        <!-- Indicateur de chargement -->
+        <ActivityIndicator Grid.Row="1"
+                           IsRunning="{Binding IsBusy}"
+                           IsVisible="{Binding IsBusy}"
+                           Color="#FF6B35"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center"/>
+
+        <!-- Liste des bars en attente -->
+        <CollectionView Grid.Row="1"
+                        x:Name="BarsList"
+                        ItemsSource="{Binding PendingBars}"
+                        IsVisible="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}"
+                        Margin="0,0,0,16">
+
+            <CollectionView.EmptyView>
+                <Label Text="{Binding EmptyMessage}"
+                       TextColor="#666666"
+                       FontSize="15"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center"
+                       Margin="24"/>
+            </CollectionView.EmptyView>
+
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:Bar">
+                    <Grid Padding="16,12"
+                          RowDefinitions="Auto,Auto,Auto"
+                          ColumnDefinitions="*,48,48">
+
+                        <BoxView Grid.Row="0" Grid.ColumnSpan="3"
+                                 HeightRequest="1"
+                                 Color="#222222"
+                                 Margin="0,0,0,8"/>
+
+                        <!-- Nom -->
+                        <Label Grid.Row="1" Grid.ColumnSpan="3"
+                               Text="{Binding Name}"
+                               TextColor="White"
+                               FontSize="16"
+                               FontAttributes="Bold"
+                               Margin="0,0,0,4"/>
+
+                        <!-- Adresse -->
+                        <Label Grid.Row="2" Grid.Column="0"
+                               Text="{Binding Address}"
+                               TextColor="#888888"
+                               FontSize="13"
+                               VerticalOptions="Center"
+                               LineBreakMode="TailTruncation"/>
+
+                        <!-- Approuver -->
+                        <Button Grid.Row="2" Grid.Column="1"
+                                Text="✅"
+                                FontSize="16"
+                                BackgroundColor="Transparent"
+                                Padding="0"
+                                Command="{Binding BindingContext.ApproveBarCommand, Source={x:Reference BarsList}}"
+                                CommandParameter="{Binding .}"/>
+
+                        <!-- Rejeter -->
+                        <Button Grid.Row="2" Grid.Column="2"
+                                Text="❌"
+                                FontSize="16"
+                                BackgroundColor="Transparent"
+                                Padding="0"
+                                Command="{Binding BindingContext.RejectBarCommand, Source={x:Reference BarsList}}"
+                                CommandParameter="{Binding .}"/>
+                    </Grid>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+    </Grid>
+</ContentPage>

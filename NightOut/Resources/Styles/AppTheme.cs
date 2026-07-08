@@ -13,99 +13,99 @@ public static class AppTheme
     // ══════════════════════════════════════════════
 
     /// Fond principal de l'app (le plus sombre)
-    public const string BgDeep = "#090814";
+    public const string BgDeep = "#F5F2EF";
 
     /// Fond des cartes / composants
-    public const string BgCard = "#121124";
+    public const string BgCard = "#F4F0EB";
 
     /// Fond des panneaux (bottom sheets, modals)
-    public const string BgPanel = "#191733";
+    public const string BgPanel = "#F2EEE9";
 
     /// Fond surélevé (inputs, blocs internes)
-    public const string BgElevated = "#211F42";
+    public const string BgElevated = "#F0ECE6";
 
     /// Fond des champs de saisie
-    public const string BgInput = "#29264F";
+    public const string BgInput = "#EFEAE3";
 
     // ══════════════════════════════════════════════
     // ACCENT PRINCIPAL — Violet
     // ══════════════════════════════════════════════
 
     /// Couleur accent principale
-    public const string Accent = "#A855F7";
+    public const string Accent = "#D79975";
 
     /// Accent foncé (pressed states)
-    public const string AccentDark = "#7E22CE";
+    public const string AccentDark = "#BA6636";
 
     /// Accent transparent 10% (backgrounds subtils)
-    public const string AccentDim = "#1AA855F7";
+    public const string AccentDim = "#1AD79975";
 
     /// Accent transparent 18% (hover states)
-    public const string AccentSoft = "#2EA855F7";
+    public const string AccentSoft = "#2ED79975";
 
     /// Accent transparent 30% (glows, borders actives)
-    public const string AccentGlow = "#4DA855F7";
+    public const string AccentGlow = "#4DD79975";
 
     // ══════════════════════════════════════════════
     // COULEUR SECONDAIRE — Or
     // ══════════════════════════════════════════════
 
     /// Couleur secondaire (promos, badges, gradients)
-    public const string Second = "#FFB627";
+    public const string Second = "#CEA358";
 
     /// Secondaire transparent 12%
-    public const string SecondDim = "#1FFFB627";
+    public const string SecondDim = "#1FCEA358";
 
     // ══════════════════════════════════════════════
     // TEXTES
     // ══════════════════════════════════════════════
 
     /// Texte principal (titres, contenu important)
-    public const string TextPrimary = "#F4EEFF";
+    public const string TextPrimary = "#37241B";
 
     /// Texte secondaire (sous-titres, descriptions)
-    public const string TextSecondary = "#9CA3C7";
+    public const string TextSecondary = "#604A39";
 
     /// Texte atténué (placeholders, labels discrets)
-    public const string TextMuted = "#555B7A";
+    public const string TextMuted = "#C9BAAB";
 
     // ══════════════════════════════════════════════
     // BORDURES
     // ══════════════════════════════════════════════
 
     /// Bordure subtile (séparateurs, contours légers)
-    public const string Border = "#1AA855F7";
+    public const string Border = "#1AD79975";
 
     /// Bordure moyenne
-    public const string BorderMid = "#2EA855F7";
+    public const string BorderMid = "#2ED79975";
 
     /// Bordure forte (éléments actifs, sélectionnés)
-    public const string BorderStrong = "#4DA855F7";
+    public const string BorderStrong = "#4DD79975";
 
     // ══════════════════════════════════════════════
     // JAUGES DE FRÉQUENTATION
     // ══════════════════════════════════════════════
 
     /// Jauge basse fréquentation — Tranquille
-    public const string GaugeLow = "#34D399";
+    public const string GaugeLow = "#659B4B";
 
     /// Jauge moyenne fréquentation — Animé
-    public const string GaugeMid = "#FFB627";
+    public const string GaugeMid = "#CEA358";
 
     /// Jauge haute fréquentation — Chaud
-    public const string GaugeHot = "#FF6B35";
+    public const string GaugeHot = "#D27962";
 
     /// Jauge très haute fréquentation — En feu
-    public const string GaugeFire = "#FF2D6B";
+    public const string GaugeFire = "#D0735C";
 
     // ══════════════════════════════════════════════
     // ÉTATS SYSTÈME
     // ══════════════════════════════════════════════
 
-    public const string Success = "#34D399";
-    public const string Warning = "#FFB627";
-    public const string Error = "#EF4444";
-    public const string Info = "#60A5FA";
+    public const string Success = "#659B4B";
+    public const string Warning = "#CEA358";
+    public const string Error = "#D17862";
+    public const string Info = "#94B1C6";
 
     // ══════════════════════════════════════════════
     // TYPOGRAPHIE — Tailles
@@ -199,8 +199,8 @@ public static class AppTheme
     // ══════════════════════════════════════════════
 
     public const string MapboxStyleUrl = "mapbox://styles/mapbox/dark-v11";
-    public const string MapBgColor = "#090814";
-    public const string MapStreetColor = "#211F42";
-    public const string MapStreetMinor = "#191733";
-    public const string MapLabelColor = "#555B7A";
+    public const string MapBgColor = "#F5F2EF";
+    public const string MapStreetColor = "#F0ECE6";
+    public const string MapStreetMinor = "#F2EEE9";
+    public const string MapLabelColor = "#C9BAAB";
 }

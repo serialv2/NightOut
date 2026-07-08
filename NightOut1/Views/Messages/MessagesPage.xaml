@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="NightOut.Views.Messages.MessagesPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:controls="clr-namespace:NightOut.Views.Controls"
+    Shell.NavBarIsVisible="False"
+    Shell.TabBarIsVisible="False"
+    BackgroundColor="#0A1018">
+
+    <Grid RowDefinitions="*,Auto">
+        <RefreshView Grid.Row="0" Command="{Binding RefreshCommand}" IsRefreshing="{Binding IsBusy}">
+            <ScrollView>
+                <VerticalStackLayout Padding="20,54,20,24" Spacing="18">
+
+                    <Grid ColumnDefinitions="*,Auto">
+                        <VerticalStackLayout Grid.Column="0" Spacing="2">
+                            <Label Text="Messages"
+                                   FontSize="30"
+                                   FontAttributes="Bold"
+                                   TextColor="#F2E8D5" />
+                            <Label Text="Discute avec tes amis Spotiz"
+                                   FontSize="13"
+                                   TextColor="#7A8FA6" />
+                        </VerticalStackLayout>
+
+                        <Button Grid.Column="1"
+                                Text="↻"
+                                WidthRequest="44"
+                                HeightRequest="44"
+                                CornerRadius="22"
+                                BackgroundColor="#162235"
+                                TextColor="#FFB627"
+                                Command="{Binding RefreshCommand}" />
+                    </Grid>
+
+                    <Border BackgroundColor="#111A27"
+                            Stroke="#1F3147"
+                            StrokeThickness="1"
+                            StrokeShape="RoundRectangle 18"
+                            Padding="14,2">
+                        <Entry Text="{Binding SearchText}"
+                               Placeholder="Rechercher un ami..."
+                               PlaceholderColor="#52657D"
+                               TextColor="#F2E8D5"
+                               ClearButtonVisibility="WhileEditing" />
+                    </Border>
+
+                    <Label Text="{Binding StatusMessage}"
+                           TextColor="#7A8FA6"
+                           FontSize="13"
+                           HorizontalTextAlignment="Center"
+                           IsVisible="{Binding IsEmpty}" />
+
+                    <VerticalStackLayout Spacing="10" IsVisible="{Binding HasConversations}">
+                        <Label Text="Conversations"
+                               FontSize="17"
+                               FontAttributes="Bold"
+                               TextColor="#F2E8D5" />
+
+                        <CollectionView ItemsSource="{Binding Conversations}"
+                                        SelectionMode="None">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Margin="0,0,0,10"
+                                            Padding="14"
+                                            BackgroundColor="#111A27"
+                                            Stroke="#1F3147"
+                                            StrokeThickness="1"
+                                            StrokeShape="RoundRectangle 20">
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.OpenConversationCommand}"
+                                                CommandParameter="{Binding .}" />
+                                        </Border.GestureRecognizers>
+
+                                        <Grid ColumnDefinitions="48,*,Auto" ColumnSpacing="12">
+                                            <controls:UserAvatar Grid.Column="0"
+                                                                 AvatarSize="46"
+                                                                 Name="{Binding Username}"
+                                                                 AvatarUrl="{Binding AvatarUrl}" />
+
+                                            <VerticalStackLayout Grid.Column="1" Spacing="4" VerticalOptions="Center">
+                                                <Label Text="{Binding Username}"
+                                                       FontSize="16"
+                                                       FontAttributes="Bold"
+                                                       TextColor="#F2E8D5" />
+                                                <Label Text="{Binding LastMessage}"
+                                                       FontSize="13"
+                                                       TextColor="#7A8FA6"
+                                                       LineBreakMode="TailTruncation" />
+                                            </VerticalStackLayout>
+
+                                            <VerticalStackLayout Grid.Column="2" Spacing="4" VerticalOptions="Center" HorizontalOptions="End">
+                                                <Label Text="{Binding LastAtLabel}"
+                                                       TextColor="#52657D"
+                                                       FontSize="11"
+                                                       HorizontalTextAlignment="End" />
+                                                <Border IsVisible="{Binding HasUnread}"
+                                                        BackgroundColor="#EF4444"
+                                                        StrokeThickness="0"
+                                                        StrokeShape="RoundRectangle 10"
+                                                        HeightRequest="20"
+                                                        MinimumWidthRequest="20"
+                                                        Padding="6,0"
+                                                        HorizontalOptions="End">
+                                                    <Label Text="{Binding UnreadCount}"
+                                                           TextColor="White"
+                                                           FontAttributes="Bold"
+                                                           FontSize="11"
+                                                           HorizontalOptions="Center"
+                                                           VerticalOptions="Center" />
+                                                </Border>
+                                            </VerticalStackLayout>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </VerticalStackLayout>
+
+                    <VerticalStackLayout Spacing="10" IsVisible="{Binding HasFriendsWithoutConversation}">
+                        <Label Text="Démarrer une conversation"
+                               FontSize="17"
+                               FontAttributes="Bold"
+                               TextColor="#F2E8D5" />
+
+                        <CollectionView ItemsSource="{Binding FriendsWithoutConversation}"
+                                        SelectionMode="None">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Margin="0,0,0,10"
+                                            Padding="14"
+                                            BackgroundColor="#0D1520"
+                                            Stroke="#1F3147"
+                                            StrokeThickness="1"
+                                            StrokeShape="RoundRectangle 18">
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.OpenConversationCommand}"
+                                                CommandParameter="{Binding .}" />
+                                        </Border.GestureRecognizers>
+
+                                        <Grid ColumnDefinitions="44,*,Auto" ColumnSpacing="12">
+                                            <controls:UserAvatar Grid.Column="0"
+                                                                 AvatarSize="42"
+                                                                 Name="{Binding DisplayNameOrUsername}"
+                                                                 AvatarUrl="{Binding AvatarUrl}" />
+
+                                            <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                                                <Label Text="{Binding DisplayNameOrUsername}"
+                                                       FontSize="15"
+                                                       FontAttributes="Bold"
+                                                       TextColor="#F2E8D5" />
+                                                <Label Text="{Binding Username}"
+                                                       FontSize="12"
+                                                       TextColor="#7A8FA6" />
+                                            </VerticalStackLayout>
+
+                                            <Label Grid.Column="2"
+                                                   Text="Écrire"
+                                                   TextColor="#FFB627"
+                                                   FontAttributes="Bold"
+                                                   VerticalOptions="Center" />
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </VerticalStackLayout>
+
+                </VerticalStackLayout>
+            </ScrollView>
+        </RefreshView>
+
+        <controls:BottomNavBar Grid.Row="1" ActiveTab="Messages" />
+    </Grid>
+</ContentPage>

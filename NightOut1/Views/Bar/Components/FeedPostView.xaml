@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView
+    x:Class="NightOut.Views.Bar.Components.FeedPostView"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:models="clr-namespace:NightOut.Models"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    x:DataType="models:BarActivityItem"
+    x:Name="FeedPostRoot">
+
+    <ContentView.Resources>
+        <toolkit:InvertedBoolConverter x:Key="Inv" />
+    </ContentView.Resources>
+
+    <Border Margin="0,0,0,14"
+            Padding="0"
+            BackgroundColor="#0B111B"
+            Stroke="#1D2939"
+            StrokeThickness="1"
+            StrokeShape="RoundRectangle 24">
+
+        <VerticalStackLayout Spacing="0">
+
+            <!-- Header -->
+            <Grid Padding="14,14,14,10"
+                  ColumnDefinitions="50,*,Auto"
+                  ColumnSpacing="10">
+                <Border WidthRequest="48"
+                        HeightRequest="48"
+                        Stroke="#FFFFFF"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 24"
+                        BackgroundColor="#22324A">
+                    <Grid>
+                        <Image Source="{Binding AvatarUrl}"
+                               Aspect="AspectFill"
+                               IsVisible="{Binding HasAvatarUrl}" />
+                        <Label Text="{Binding Initials}"
+                               TextColor="White"
+                               FontFamily="DMSans-Bold"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center"
+                               IsVisible="{Binding HasAvatarUrl, Converter={StaticResource Inv}}" />
+                    </Grid>
+                </Border>
+
+                <VerticalStackLayout Grid.Column="1" Spacing="1" VerticalOptions="Center">
+                    <HorizontalStackLayout Spacing="6">
+                        <Label Text="{Binding Username}"
+                               TextColor="White"
+                               FontFamily="DMSans-Bold"
+                               FontSize="15" />
+                        <Label Text="●"
+                               TextColor="#22C55E"
+                               FontSize="10"
+                               VerticalOptions="Center"
+                               IsVisible="{Binding OpenToMeet}" />
+                    </HorizontalStackLayout>
+                    <Label Text="{Binding TimeAgo}"
+                           TextColor="#9AA8B8"
+                           FontSize="12" />
+                </VerticalStackLayout>
+
+                <Label Grid.Column="2"
+                       Text="•••"
+                       TextColor="#9AA8B8"
+                       FontSize="18"
+                       VerticalOptions="Start" />
+            </Grid>
+
+            <!-- Texte -->
+            <Label Text="{Binding DisplayText}"
+                   TextColor="White"
+                   FontSize="15"
+                   LineBreakMode="WordWrap"
+                   Padding="14,0,14,12"
+                   IsVisible="{Binding HasDisplayText}" />
+
+            <!-- Photo edge-to-edge.
+                 AspectFit évite de couper les visages.
+                 MaximumHeightRequest garde un format réseau social lisible. -->
+            <Border IsVisible="{Binding IsPhoto}"
+                    StrokeThickness="0"
+                    StrokeShape="RoundRectangle 0"
+                    BackgroundColor="#05070B"
+                    MaximumHeightRequest="560">
+                <Image Source="{Binding MediaUrl}"
+                       Aspect="AspectFit"
+                       BackgroundColor="#05070B"
+                       HorizontalOptions="Fill"
+                       VerticalOptions="Center" />
+            </Border>
+
+            <!-- Barre d'actions style réseau social -->
+            <Grid Padding="14,12,14,4"
+                  ColumnDefinitions="Auto,Auto,Auto,*,Auto"
+                  ColumnSpacing="20">
+
+                <HorizontalStackLayout Spacing="6">
+                    <HorizontalStackLayout.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding Source={x:Reference FeedPostRoot}, Path=LikeCommand}"
+                                              CommandParameter="{Binding .}" />
+                    </HorizontalStackLayout.GestureRecognizers>
+                    <Label Text="♥"
+                           TextColor="#FF3B4F"
+                           FontSize="24" />
+                </HorizontalStackLayout>
+
+                <HorizontalStackLayout Grid.Column="1" Spacing="6">
+                    <HorizontalStackLayout.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding Source={x:Reference FeedPostRoot}, Path=OpenCommentsCommand}"
+                                              CommandParameter="{Binding .}" />
+                    </HorizontalStackLayout.GestureRecognizers>
+                    <Label Text="💬"
+                           TextColor="#E7EDF5"
+                           FontSize="20" />
+                </HorizontalStackLayout>
+
+                <HorizontalStackLayout Grid.Column="2" Spacing="6">
+                    <Label Text="↗"
+                           TextColor="#E7EDF5"
+                           FontSize="22" />
+                </HorizontalStackLayout>
+
+                <Button Grid.Column="4"
+                        Text="Ajouter"
+                        Command="{Binding Source={x:Reference FeedPostRoot}, Path=AddFriendCommand}"
+                        CommandParameter="{Binding .}"
+                        IsVisible="{Binding CanAddAsFriend}"
+                        BackgroundColor="#151F2D"
+                        BorderColor="#FFB627"
+                        BorderWidth="1"
+                        TextColor="#FFB627"
+                        FontSize="12"
+                        CornerRadius="14"
+                        HeightRequest="34"
+                        Padding="10,0" />
+            </Grid>
+
+            <VerticalStackLayout Padding="14,0,14,14" Spacing="4">
+                <Label Text="{Binding LikeLabel}"
+                       TextColor="#E7EDF5"
+                       FontSize="13"
+                       FontFamily="DMSans-Bold" />
+                <Label Text="{Binding CommentLabel}"
+                       TextColor="#7F8B99"
+                       FontSize="13">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding Source={x:Reference FeedPostRoot}, Path=OpenCommentsCommand}"
+                                              CommandParameter="{Binding .}" />
+                    </Label.GestureRecognizers>
+                </Label>
+            </VerticalStackLayout>
+        </VerticalStackLayout>
+    </Border>
+</ContentView>

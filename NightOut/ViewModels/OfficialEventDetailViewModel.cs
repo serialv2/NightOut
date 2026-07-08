@@ -62,12 +62,12 @@ public partial class OfficialEventDetailViewModel(
     public string CheckInButtonText => HasCheckedIn ? "Présence confirmée" : "📍 Confirmer ma présence";
 
     public Color CheckInButtonBackgroundColor => HasCheckedIn
-        ? Color.FromArgb("#1D8F5A")
-        : Color.FromArgb("#FFB627");
+        ? Color.FromArgb("#4C7339")
+        : Color.FromArgb("#CEA358");
 
     public Color CheckInButtonTextColor => HasCheckedIn
-        ? Color.FromArgb("#FFFFFF")
-        : Color.FromArgb("#0A1018");
+        ? Color.FromArgb("#FAF6EF")
+        : Color.FromArgb("#F5F2EE");
 
     public string FollowButtonText => IsFollowingBar ? "🔕 Ne plus suivre ce bar" : "🔔 Suivre ce bar";
 
@@ -237,15 +237,15 @@ public partial class OfficialEventDetailViewModel(
     private Color GetParticipationButtonBackground(string status)
     {
         return MyParticipationStatus == status
-            ? Color.FromArgb("#FFB627")
-            : Color.FromArgb("#182536");
+            ? Color.FromArgb("#CEA358")
+            : Color.FromArgb("#F2EEE8");
     }
 
     private Color GetParticipationButtonText(string status)
     {
         return MyParticipationStatus == status
-            ? Color.FromArgb("#0A1018")
-            : Color.FromArgb("#F2E8D5");
+            ? Color.FromArgb("#F5F2EE")
+            : Color.FromArgb("#37241B");
     }
 
 

@@ -7,278 +7,113 @@
     xmlns:models="clr-namespace:NightOut.Models"
     x:DataType="vm:ProStatsViewModel"
     Shell.NavBarIsVisible="False"
-    BackgroundColor="#0A1018">
-
-    <ContentPage.Resources>
-        <Style x:Key="StatCard" TargetType="Border">
-            <Setter Property="BackgroundColor" Value="#131C28"/>
-            <Setter Property="Stroke" Value="#1F2D3D"/>
-            <Setter Property="StrokeThickness" Value="1"/>
-            <Setter Property="StrokeShape" Value="RoundRectangle 18"/>
-            <Setter Property="Padding" Value="14"/>
-        </Style>
-    </ContentPage.Resources>
+    BackgroundColor="{DynamicResource BgDeep}">
 
     <Grid RowDefinitions="Auto,*">
-
-        <Grid Grid.Row="0"
-              BackgroundColor="#0D1520"
-              Padding="20,50,20,22"
-              ColumnDefinitions="Auto,*"
-              ColumnSpacing="14">
-
-            <Border Grid.Column="0"
-                    BackgroundColor="#1A2535"
-                    StrokeThickness="0"
-                    StrokeShape="RoundRectangle 22"
-                    WidthRequest="44"
-                    HeightRequest="44">
+        <Grid Grid.Row="0" BackgroundColor="{DynamicResource BgCard}" Padding="20,50,20,22" ColumnDefinitions="Auto,*" ColumnSpacing="14">
+            <Border Grid.Column="0" BackgroundColor="{DynamicResource BgElevated}" StrokeThickness="0" StrokeShape="RoundRectangle 22" WidthRequest="44" HeightRequest="44">
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Command="{Binding BackCommand}"/>
                 </Border.GestureRecognizers>
-
-                <Label Text="‹"
-                       FontSize="28"
-                       TextColor="#FFB627"
-                       HorizontalOptions="Center"
-                       VerticalOptions="Center"/>
+                <Label Text="‹" FontSize="28" TextColor="{DynamicResource Accent}" HorizontalOptions="Center" VerticalOptions="Center"/>
             </Border>
-
             <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
-                <Label Text="Statistiques Pro"
-                       FontFamily="DMSans-SemiBold"
-                       FontSize="22"
-                       TextColor="#F2E8D5"/>
-
-                <Label Text="{Binding ProName}"
-                       FontFamily="DMSans-Regular"
-                       FontSize="13"
-                       TextColor="#3D5068"/>
+                <Label Text="Statistiques Pro" FontFamily="DMSans-SemiBold" FontSize="22" TextColor="{DynamicResource TextPrimary}"/>
+                <Label Text="Total + détail par établissement" FontFamily="DMSans-Regular" FontSize="13" TextColor="{DynamicResource TextMuted}"/>
             </VerticalStackLayout>
         </Grid>
 
-        <RefreshView Grid.Row="1"
-                     Command="{Binding LoadCommand}"
-                     IsRefreshing="{Binding IsBusy}">
-            <ScrollView>
-                <VerticalStackLayout Padding="20,16,20,28" Spacing="14">
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Padding="20,12,20,30" Spacing="12">
 
-                    <Border BackgroundColor="#181C26"
-                            Stroke="#FFB627"
-                            StrokeThickness="1"
-                            StrokeShape="RoundRectangle 22"
-                            Padding="18">
-                        <VerticalStackLayout Spacing="8">
-                            <Label Text="Vue globale"
-                                   FontFamily="DMSans-SemiBold"
-                                   FontSize="18"
-                                   TextColor="#F2E8D5"/>
+                <Label Text="STATISTIQUES TOTALES" FontFamily="DMSans-SemiBold" FontSize="13" TextColor="{DynamicResource TextMuted}"/>
 
-                            <Label Text="{Binding StatusLabel}"
-                                   FontFamily="DMSans-Regular"
-                                   FontSize="13"
-                                   TextColor="#FFB627"/>
-
-                            <Label Text="{Binding CheckInRateLabel}"
-                                   FontFamily="DMSans-Regular"
-                                   FontSize="13"
-                                   TextColor="#A8B3C3"
-                                   LineBreakMode="WordWrap"/>
-                        </VerticalStackLayout>
-                    </Border>
-
+                <Border BackgroundColor="{DynamicResource BgElevated}" Stroke="{DynamicResource Border}" StrokeThickness="1" StrokeShape="RoundRectangle 20" Padding="16">
                     <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" ColumnSpacing="10" RowSpacing="10">
-                        <Border Grid.Row="0" Grid.Column="0" Style="{StaticResource StatCard}">
-                            <VerticalStackLayout Spacing="4">
-                                <Label Text="📅" FontSize="24"/>
-                                <Label Text="{Binding TotalEvents}" FontSize="24" FontFamily="DMSans-SemiBold" TextColor="#F2E8D5"/>
-                                <Label Text="Événements" FontSize="12" TextColor="#A8B3C3"/>
-                            </VerticalStackLayout>
-                        </Border>
-
-                        <Border Grid.Row="0" Grid.Column="1" Style="{StaticResource StatCard}">
-                            <VerticalStackLayout Spacing="4">
-                                <Label Text="🎉" FontSize="24"/>
-                                <Label Text="{Binding TotalGoing}" FontSize="24" FontFamily="DMSans-SemiBold" TextColor="#F2E8D5"/>
-                                <Label Text="J'y vais" FontSize="12" TextColor="#A8B3C3"/>
-                            </VerticalStackLayout>
-                        </Border>
-
-                        <Border Grid.Row="1" Grid.Column="0" Style="{StaticResource StatCard}">
-                            <VerticalStackLayout Spacing="4">
-                                <Label Text="📍" FontSize="24"/>
-                                <Label Text="{Binding TotalCheckedIn}" FontSize="24" FontFamily="DMSans-SemiBold" TextColor="#F2E8D5"/>
-                                <Label Text="Check-ins GPS" FontSize="12" TextColor="#A8B3C3"/>
-                            </VerticalStackLayout>
-                        </Border>
-
-                        <Border Grid.Row="1" Grid.Column="1" Style="{StaticResource StatCard}">
-                            <VerticalStackLayout Spacing="4">
-                                <Label Text="⭐" FontSize="24"/>
-                                <Label Text="{Binding AverageReliabilityLabel}" FontSize="24" FontFamily="DMSans-SemiBold" TextColor="#F2E8D5"/>
-                                <Label Text="Fiabilité événements terminés" FontSize="11" TextColor="#A8B3C3"/>
-                                <Label Text="{Binding AverageReliabilityBadge}" FontSize="12" TextColor="#FFB627"/>
-                            </VerticalStackLayout>
-                        </Border>
+                        <Label Grid.Row="0" Grid.Column="0" Text="{Binding TotalEventsAll, StringFormat='🎉 {0} événements'}" TextColor="{DynamicResource TextPrimary}" FontSize="16"/>
+                        <Label Grid.Row="0" Grid.Column="1" Text="{Binding TotalGoingAll, StringFormat='✅ {0} j’y vais'}" TextColor="{DynamicResource TextPrimary}" FontSize="16"/>
+                        <Label Grid.Row="1" Grid.Column="0" Text="{Binding TotalMaybeAll, StringFormat='🤔 {0} peut-être'}" TextColor="{DynamicResource TextPrimary}" FontSize="16"/>
+                        <Label Grid.Row="1" Grid.Column="1" Text="{Binding TotalCheckedInAll, StringFormat='📍 {0} check-in'}" TextColor="{DynamicResource TextPrimary}" FontSize="16"/>
                     </Grid>
+                </Border>
 
-                    <Border BackgroundColor="#131C28"
-                            Stroke="#1F2D3D"
-                            StrokeThickness="1"
-                            StrokeShape="RoundRectangle 18"
-                            Padding="16">
-                        <VerticalStackLayout Spacing="6">
-                            <Label Text="Résumé participations"
-                                   FontFamily="DMSans-SemiBold"
-                                   FontSize="15"
-                                   TextColor="#F2E8D5"/>
+                <Label Text="FILTRE" FontFamily="DMSans-SemiBold" FontSize="13" TextColor="{DynamicResource TextMuted}" Margin="0,10,0,0"/>
 
-                            <Label Text="{Binding TotalMaybe, StringFormat='🤔 Peut-être : {0}'}"
-                                   FontFamily="DMSans-Regular"
-                                   FontSize="13"
-                                   TextColor="#A8B3C3"/>
-
-                            <Label Text="{Binding TotalDeclared, StringFormat='👥 Déclarations totales : {0}'}"
-                                   FontFamily="DMSans-Regular"
-                                   FontSize="13"
-                                   TextColor="#A8B3C3"/>
-
-                            <Label Text="{Binding FinishedEventsCount, StringFormat='✅ Événements terminés pris en compte : {0}'}"
-                                   FontFamily="DMSans-Regular"
-                                   FontSize="13"
-                                   TextColor="#A8B3C3"/>
-
-                            <Label Text="{Binding FinishedNoShow, StringFormat='👻 Absences estimées sur événements terminés : {0}'}"
-                                   FontFamily="DMSans-Regular"
-                                   FontSize="13"
-                                   TextColor="#A8B3C3"/>
+                <Border BackgroundColor="{DynamicResource BgElevated}" Stroke="{DynamicResource Border}" StrokeThickness="1" StrokeShape="RoundRectangle 16" Padding="14,10">
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                        <VerticalStackLayout Grid.Column="0" Spacing="2">
+                            <Label Text="Afficher tous les établissements" TextColor="{DynamicResource TextPrimary}" FontSize="14"/>
+                            <Label Text="Désactive pour voir les stats d'un seul établissement" TextColor="{DynamicResource TextSecondary}" FontSize="12"/>
                         </VerticalStackLayout>
-                    </Border>
+                        <Switch Grid.Column="1" IsToggled="{Binding ShowAllEstablishments}" VerticalOptions="Center"/>
+                    </Grid>
+                </Border>
 
-                    <Border BackgroundColor="#131C28"
-                            Stroke="#1F2D3D"
-                            StrokeThickness="1"
-                            StrokeShape="RoundRectangle 18"
-                            Padding="16">
-                        <VerticalStackLayout Spacing="8">
-                            <Label Text="Audience"
-                                   FontFamily="DMSans-SemiBold"
-                                   FontSize="15"
-                                   TextColor="#F2E8D5"/>
+                <Border BackgroundColor="{DynamicResource BgElevated}" Stroke="{DynamicResource Border}" StrokeThickness="1" StrokeShape="RoundRectangle 16" Padding="12,4" IsVisible="{Binding IsSingleEstablishmentScope}">
+                    <Picker ItemsSource="{Binding MyBars}"
+                            SelectedItem="{Binding SelectedBar}"
+                            ItemDisplayBinding="{Binding Name}"
+                            Title="Choisir l'établissement"
+                            TextColor="{DynamicResource TextPrimary}"
+                            TitleColor="{DynamicResource TextSecondary}"/>
+                </Border>
 
-                            <Label Text="Statistiques agrégées sur les participants annoncés. Les données sont masquées si l’échantillon est trop petit."
-                                   FontFamily="DMSans-Regular"
-                                   FontSize="12"
-                                   TextColor="#A8B3C3"
-                                   LineBreakMode="WordWrap"/>
-
-                            <Label Text="{Binding DemographicPrivacyLabel}"
-                                   FontFamily="DMSans-Regular"
-                                   FontSize="12"
-                                   TextColor="#FFB627"
-                                   LineBreakMode="WordWrap"/>
-
-                            <Label Text="{Binding GenderDistributionLabel, StringFormat='Sexe : {0}'}"
-                                   FontFamily="DMSans-Regular"
-                                   FontSize="13"
-                                   TextColor="#F2E8D5"
-                                   LineBreakMode="WordWrap"/>
-
-                            <Label Text="{Binding AgeDistributionLabel, StringFormat='Âge : {0}'}"
-                                   FontFamily="DMSans-Regular"
-                                   FontSize="13"
-                                   TextColor="#F2E8D5"
-                                   LineBreakMode="WordWrap"/>
-
-                            <Label Text="{Binding DominantAgeGroupLabel}"
-                                   FontFamily="DMSans-Regular"
-                                   FontSize="13"
-                                   TextColor="#A8B3C3"
-                                   LineBreakMode="WordWrap"/>
-
-                            <Label Text="{Binding RelationshipDistributionLabel, StringFormat='Situation : {0}'}"
-                                   FontFamily="DMSans-Regular"
-                                   FontSize="13"
-                                   TextColor="#F2E8D5"
-                                   LineBreakMode="WordWrap"/>
-
-                            <BoxView HeightRequest="1"
-                                     BackgroundColor="#1F2D3D"
-                                     Margin="0,4"/>
-
-                            <Label Text="{Binding DemographicCheckedInTotal, StringFormat='Présences GPS confirmées : {0}'}"
-                                   FontFamily="DMSans-SemiBold"
-                                   FontSize="13"
-                                   TextColor="#F2E8D5"/>
-
-                            <Label Text="{Binding CheckedInGenderDistributionLabel, StringFormat='Sexe des présents : {0}'}"
-                                   FontFamily="DMSans-Regular"
-                                   FontSize="13"
-                                   TextColor="#A8B3C3"
-                                   LineBreakMode="WordWrap"/>
-                        </VerticalStackLayout>
-                    </Border>
-
-                    <Label Text="Détail par événement"
-                           FontFamily="DMSans-SemiBold"
-                           FontSize="15"
-                           TextColor="#3D5068"
-                           Margin="0,8,0,0"/>
-
-                    <Label Text="Aucun événement pour le moment."
-                           FontFamily="DMSans-Regular"
-                           FontSize="13"
-                           TextColor="#A8B3C3"
-                           HorizontalOptions="Center"
-                           Margin="0,20,0,0"
-                           IsVisible="{Binding HasNoEvents}"/>
-
-                    <CollectionView ItemsSource="{Binding Events}"
-                                    IsVisible="{Binding HasEvents}">
-                        <CollectionView.ItemTemplate>
-                            <DataTemplate x:DataType="models:OfficialEvent">
-                                <Border BackgroundColor="#131C28"
-                                        Stroke="#1F2D3D"
-                                        StrokeThickness="1"
-                                        StrokeShape="RoundRectangle 18"
-                                        Padding="14"
-                                        Margin="0,8,0,0">
-                                    <Grid ColumnDefinitions="72,*" ColumnSpacing="12">
-                                        <Image Grid.Column="0"
-                                               Source="{Binding FlyerUrl}"
-                                               Aspect="AspectFill"
-                                               WidthRequest="72"
-                                               HeightRequest="72"/>
-
-                                        <VerticalStackLayout Grid.Column="1" Spacing="4">
-                                            <Label Text="{Binding Title}"
-                                                   FontFamily="DMSans-SemiBold"
-                                                   FontSize="15"
-                                                   TextColor="#F2E8D5"/>
-
-                                            <Label Text="{Binding DateLabel}"
-                                                   FontFamily="DMSans-Regular"
-                                                   FontSize="12"
-                                                   TextColor="#FFB627"/>
-
-                                            <Label Text="{Binding GoingCount, StringFormat='🎉 {0} j’y vais'}"
-                                                   FontFamily="DMSans-Regular"
-                                                   FontSize="12"
-                                                   TextColor="#A8B3C3"/>
-
-                                            <Label Text="{Binding CheckedInCount, StringFormat='📍 {0} check-in GPS'}"
-                                                   FontFamily="DMSans-Regular"
-                                                   FontSize="12"
-                                                   TextColor="#A8B3C3"/>
-                                        </VerticalStackLayout>
-                                    </Grid>
-                                </Border>
-                            </DataTemplate>
-                        </CollectionView.ItemTemplate>
-                    </CollectionView>
-
+                <VerticalStackLayout Spacing="2" Margin="0,2,0,0">
+                    <Label Text="{Binding SelectedBarStatsTitle}" FontFamily="DMSans-SemiBold" FontSize="18" TextColor="{DynamicResource Accent}"/>
+                    <Label Text="{Binding SelectedBarStatsSubtitle}" FontFamily="DMSans-Regular" FontSize="12" TextColor="{DynamicResource TextSecondary}"/>
                 </VerticalStackLayout>
-            </ScrollView>
-        </RefreshView>
+
+                <Border BackgroundColor="{DynamicResource BgElevated}" Stroke="{DynamicResource Border}" StrokeThickness="1" StrokeShape="RoundRectangle 20" Padding="16">
+                    <VerticalStackLayout Spacing="12">
+                        <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" ColumnSpacing="10" RowSpacing="10">
+                            <Label Grid.Row="0" Grid.Column="0" Text="{Binding TotalEvents, StringFormat='🎉 {0} événements'}" TextColor="{DynamicResource TextPrimary}" FontSize="16"/>
+                            <Label Grid.Row="0" Grid.Column="1" Text="{Binding TotalGoing, StringFormat='✅ {0} j’y vais'}" TextColor="{DynamicResource TextPrimary}" FontSize="16"/>
+                            <Label Grid.Row="1" Grid.Column="0" Text="{Binding TotalCheckedIn, StringFormat='📍 {0} check-in'}" TextColor="{DynamicResource TextPrimary}" FontSize="16"/>
+                            <Label Grid.Row="1" Grid.Column="1" Text="{Binding FinishedNoShow, StringFormat='👻 {0} no-show'}" TextColor="{DynamicResource TextPrimary}" FontSize="16"/>
+                        </Grid>
+                        <Label Text="{Binding AverageReliabilityLabel, StringFormat='Fiabilité : {0}'}" TextColor="{DynamicResource Accent}" FontSize="18" FontFamily="DMSans-SemiBold"/>
+                        <Label Text="{Binding AverageReliabilityBadge}" TextColor="{DynamicResource TextSecondary}" FontSize="13"/>
+                        <Label Text="{Binding CheckInRateLabel}" TextColor="{DynamicResource TextSecondary}" FontSize="12"/>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Label Text="VISITES FICHE BAR" FontFamily="DMSans-SemiBold" FontSize="13" TextColor="{DynamicResource TextMuted}" Margin="0,10,0,0"/>
+
+                <Border BackgroundColor="{DynamicResource BgElevated}" Stroke="{DynamicResource Border}" StrokeThickness="1" StrokeShape="RoundRectangle 20" Padding="16">
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="{Binding BarProfileViewTotal, StringFormat='Vues de fiche bar : {0}'}" TextColor="{DynamicResource Accent}" FontSize="18" FontFamily="DMSans-SemiBold"/>
+                        <Label Text="{Binding BarProfileViewsGenderLabel, StringFormat='Répartition : {0}'}" TextColor="{DynamicResource TextPrimary}" FontSize="14"/>
+                        <Label Text="Ces vues sont comptabilisées à partir de la mise en place du suivi." TextColor="{DynamicResource TextSecondary}" FontSize="12"/>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Label Text="DÉMOGRAPHIE" FontFamily="DMSans-SemiBold" FontSize="13" TextColor="{DynamicResource TextMuted}" Margin="0,10,0,0"/>
+
+                <Border BackgroundColor="{DynamicResource BgElevated}" Stroke="{DynamicResource Border}" StrokeThickness="1" StrokeShape="RoundRectangle 20" Padding="16">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="{Binding DemographicPrivacyLabel}" TextColor="{DynamicResource TextSecondary}" FontSize="12"/>
+                        <Label Text="{Binding GenderDistributionLabel, StringFormat='Sexe : {0}'}" TextColor="{DynamicResource TextPrimary}" FontSize="14"/>
+                        <Label Text="{Binding AgeDistributionLabel, StringFormat='Âge : {0}'}" TextColor="{DynamicResource TextPrimary}" FontSize="14"/>
+                        <Label Text="{Binding DominantAgeGroupLabel}" TextColor="{DynamicResource Accent}" FontSize="14"/>
+                        <Label Text="{Binding RelationshipDistributionLabel, StringFormat='Situation : {0}'}" TextColor="{DynamicResource TextPrimary}" FontSize="14"/>
+                    </VerticalStackLayout>
+                </Border>
+
+                <CollectionView ItemsSource="{Binding Events}" Margin="0,8,0,0">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="models:OfficialEvent">
+                            <Border BackgroundColor="{DynamicResource BgElevated}" Stroke="{DynamicResource Border}" StrokeThickness="1" StrokeShape="RoundRectangle 16" Padding="12" Margin="0,6">
+                                <VerticalStackLayout Spacing="4">
+                                    <Label Text="{Binding Title}" FontFamily="DMSans-SemiBold" FontSize="15" TextColor="{DynamicResource TextPrimary}"/>
+                                    <Label Text="{Binding BarDisplay}" FontFamily="DMSans-Regular" FontSize="12" TextColor="{DynamicResource Accent}"/>
+                                    <Label Text="{Binding DateLabel}" FontFamily="DMSans-Regular" FontSize="12" TextColor="{DynamicResource TextSecondary}"/>
+                                    <Label Text="{Binding ParticipantsStatsLabel}" FontFamily="DMSans-Regular" FontSize="12" TextColor="{DynamicResource TextSecondary}"/>
+                                </VerticalStackLayout>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </VerticalStackLayout>
+        </ScrollView>
     </Grid>
 </ContentPage>

@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="NightOut.Views.Friends.FriendProfilePage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:NightOut.Views.Friends"
+    Shell.NavBarIsVisible="False"
+    Shell.TabBarIsVisible="False"
+    BackgroundColor="#05070D">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <local:StringNotEmptyConverter x:Key="StringNotEmptyConverter"/>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <Grid BackgroundColor="#05070D">
+        <ScrollView>
+            <VerticalStackLayout Spacing="0">
+
+                <Grid HeightRequest="310">
+                    <BoxView BackgroundColor="#111827" />
+
+                    <Grid>
+                        <Border WidthRequest="116"
+                                HeightRequest="116"
+                                StrokeThickness="2"
+                                Stroke="#C084FC"
+                                BackgroundColor="#7C3AED"
+                                StrokeShape="RoundRectangle 58"
+                                HorizontalOptions="Center"
+                                VerticalOptions="Center">
+                            <Label Text="{Binding Initials}"
+                                   TextColor="White"
+                                   FontSize="36"
+                                   FontAttributes="Bold"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center" />
+                        </Border>
+
+                        <Image Source="{Binding AvatarUrl}"
+                               Aspect="AspectFill"
+                               Opacity="0.72"
+                               IsVisible="{Binding HasAvatar}" />
+                    </Grid>
+
+                    <BoxView BackgroundColor="#000000" Opacity="0.42" />
+
+                    <Grid Padding="18,22,18,0"
+                          ColumnDefinitions="Auto,*"
+                          VerticalOptions="Start">
+                        <Button Text="‹"
+                                FontSize="30"
+                                WidthRequest="48"
+                                HeightRequest="48"
+                                CornerRadius="24"
+                                Padding="0"
+                                BackgroundColor="#66000000"
+                                TextColor="White"
+                                Command="{Binding GoBackCommand}" />
+                    </Grid>
+
+                    <VerticalStackLayout VerticalOptions="End"
+                                         Padding="22,0,22,24"
+                                         Spacing="7">
+                        <Label Text="{Binding DisplayName}"
+                               TextColor="White"
+                               FontSize="32"
+                               FontAttributes="Bold"
+                               LineBreakMode="TailTruncation" />
+
+                        <Label Text="{Binding Username}"
+                               TextColor="#D8B4FE"
+                               FontSize="15"
+                               LineBreakMode="TailTruncation" />
+
+                        <Label Text="{Binding LastLocationLabel}"
+                               TextColor="#9CA3AF"
+                               FontSize="12"
+                               IsVisible="{Binding LastLocationLabel, Converter={StaticResource StringNotEmptyConverter}}" />
+                    </VerticalStackLayout>
+                </Grid>
+
+                <VerticalStackLayout Padding="18,18,18,28" Spacing="16">
+
+                    <ActivityIndicator IsRunning="{Binding IsBusy}"
+                                       IsVisible="{Binding IsBusy}"
+                                       Color="#C084FC"
+                                       HorizontalOptions="Center" />
+
+                    <Border StrokeThickness="0"
+                            BackgroundColor="#141C26"
+                            StrokeShape="RoundRectangle 22"
+                            Padding="16"
+                            IsVisible="{Binding HasStatusMessage}">
+                        <Label Text="{Binding StatusMessage}"
+                               TextColor="#F2E8D5"
+                               FontSize="14" />
+                    </Border>
+
+                    <Border StrokeThickness="0"
+                            BackgroundColor="#141C26"
+                            StrokeShape="RoundRectangle 22"
+                            Padding="16"
+                            IsVisible="{Binding HasBio}">
+                        <VerticalStackLayout Spacing="6">
+                            <Label Text="Bio"
+                                   TextColor="#C084FC"
+                                   FontAttributes="Bold"
+                                   FontSize="13" />
+                            <Label Text="{Binding Bio}"
+                                   TextColor="#F2E8D5"
+                                   FontSize="15"
+                                   LineBreakMode="WordWrap" />
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" ColumnSpacing="12" RowSpacing="12">
+                        <Border BackgroundColor="#141C26" StrokeThickness="0" StrokeShape="RoundRectangle 18" Padding="14">
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="Âge" TextColor="#66768A" FontSize="12" />
+                                <Label Text="{Binding AgeLabel}" TextColor="#F2E8D5" FontSize="15" FontAttributes="Bold" />
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <Border Grid.Column="1" BackgroundColor="#141C26" StrokeThickness="0" StrokeShape="RoundRectangle 18" Padding="14">
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="Genre" TextColor="#66768A" FontSize="12" />
+                                <Label Text="{Binding GenderLabel}" TextColor="#F2E8D5" FontSize="15" FontAttributes="Bold" />
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <Border Grid.Row="1" BackgroundColor="#141C26" StrokeThickness="0" StrokeShape="RoundRectangle 18" Padding="14">
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="Statut" TextColor="#66768A" FontSize="12" />
+                                <Label Text="{Binding RelationshipLabel}" TextColor="#F2E8D5" FontSize="15" FontAttributes="Bold" />
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <Border Grid.Row="1" Grid.Column="1" BackgroundColor="#141C26" StrokeThickness="0" StrokeShape="RoundRectangle 18" Padding="14">
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="NightOut" TextColor="#66768A" FontSize="12" />
+                                <Label Text="{Binding NightsOutLabel}" TextColor="#F2E8D5" FontSize="15" FontAttributes="Bold" />
+                            </VerticalStackLayout>
+                        </Border>
+                    </Grid>
+
+                    <Label Text="{Binding MemberSinceLabel}"
+                           TextColor="#66768A"
+                           FontSize="12"
+                           HorizontalOptions="Center"
+                           IsVisible="{Binding MemberSinceLabel, Converter={StaticResource StringNotEmptyConverter}}" />
+
+                    <Button Text="💬 Envoyer un message"
+                            HeightRequest="52"
+                            CornerRadius="18"
+                            BackgroundColor="#7C3AED"
+                            TextColor="White"
+                            FontAttributes="Bold"
+                            Command="{Binding OpenConversationCommand}" />
+                </VerticalStackLayout>
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

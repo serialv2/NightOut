@@ -1,0 +1,335 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="NightOut.Views.Friends.FriendsPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:controls="clr-namespace:NightOut.Views.Controls"
+    xmlns:local="clr-namespace:NightOut.Views.Friends"
+    Shell.NavBarIsVisible="False"
+    Shell.TabBarIsVisible="False"
+    BackgroundColor="#0A1018">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <local:NameToColorConverter x:Key="NameToColor"/>
+            <local:InitialConverter x:Key="Initial"/>
+            <local:StatusToPresenceColorConverter x:Key="PresenceColor"/>
+            <local:StatusToLocationColorConverter x:Key="LocationColor"/>
+            <local:StringNotEmptyConverter x:Key="NotEmpty"/>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <Grid RowDefinitions="*,Auto">
+        <Grid Grid.Row="0" RowDefinitions="Auto,Auto,*" BackgroundColor="#0A1018">
+
+            <!-- ENTÊTE -->
+            <Grid Grid.Row="0" Padding="16,50,16,8" ColumnDefinitions="*,Auto">
+                <VerticalStackLayout Spacing="2">
+                    <Label Text="Amis" FontSize="24" FontAttributes="Bold" TextColor="#F2E8D5"/>
+                    <Label Text="Tes potes, tes groupes, tes sorties" FontSize="12" TextColor="#66768A"/>
+                </VerticalStackLayout>
+                <Border Grid.Column="1" Padding="11,6" StrokeThickness="0" BackgroundColor="#FFB627" StrokeShape="RoundRectangle 16" VerticalOptions="Center">
+                    <HorizontalStackLayout Spacing="6">
+                        <Label Text="🪙" FontSize="14"/>
+                        <Label Text="{Binding CreditsBalance}" TextColor="#3A2A06" FontAttributes="Bold"/>
+                    </HorizontalStackLayout>
+                </Border>
+            </Grid>
+
+            <!-- ONGLETS -->
+            <ScrollView Grid.Row="1" Orientation="Horizontal" HorizontalScrollBarVisibility="Never" Margin="12,8,12,8">
+                <HorizontalStackLayout Spacing="7">
+                    <Button x:Name="BtnAmis" Text="Amis" BackgroundColor="#7C3AED" TextColor="#F4EEFF" CornerRadius="10" Padding="14,8" FontSize="13" Clicked="OnAmisClicked"/>
+                    <Button x:Name="BtnDemandes" Text="Demandes" BackgroundColor="#141C26" TextColor="#8B94A7" CornerRadius="10" Padding="14,8" FontSize="13" Clicked="OnDemandesClicked"/>
+                    <Button x:Name="BtnAjouter" Text="Ajouter" BackgroundColor="#141C26" TextColor="#8B94A7" CornerRadius="10" Padding="14,8" FontSize="13" Clicked="OnAjouterClicked"/>
+                    <Button x:Name="BtnGroupes" Text="{Binding GroupsTabTitle}" BackgroundColor="#141C26" TextColor="#8B94A7" CornerRadius="10" Padding="14,8" FontSize="13" Clicked="OnGroupesClicked"/>
+                </HorizontalStackLayout>
+            </ScrollView>
+
+            <!-- ===================== PANEL AMIS ===================== -->
+            <!-- PERF: la CollectionView principale devient le défileur vertical.
+                 Avant, elle était dans un ScrollView, ce qui pouvait casser la virtualisation. -->
+            <Grid Grid.Row="2" x:Name="PanelAmis">
+                <CollectionView ItemsSource="{Binding Friends}"
+                                BackgroundColor="Transparent"
+                                Margin="16,0"
+                                VerticalScrollBarVisibility="Never">
+
+                    <CollectionView.Header>
+                        <VerticalStackLayout Padding="0,4,0,4" Spacing="10" IsVisible="{Binding HasFriendsOut}">
+                            <HorizontalStackLayout Spacing="6" Padding="0,6,0,0">
+                                <Label Text="🌙" FontSize="14"/>
+                                <Label Text="Sortent ce soir"
+                                       FontSize="12"
+                                       FontAttributes="Bold"
+                                       TextColor="#3DB87A"
+                                       VerticalOptions="Center"/>
+                            </HorizontalStackLayout>
+
+                            <CollectionView ItemsSource="{Binding FriendsOutTonight}"
+                                            ItemsLayout="HorizontalList"
+                                            HeightRequest="92"
+                                            HorizontalScrollBarVisibility="Never">
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid WidthRequest="66" RowDefinitions="Auto,Auto,Auto" Padding="0,0,8,0">
+                                            <Border WidthRequest="58" HeightRequest="58" StrokeThickness="2" Stroke="#3DB87A" StrokeShape="RoundRectangle 29" Padding="2" HorizontalOptions="Center">
+                                                <Border StrokeThickness="0" BackgroundColor="{Binding Profile.Username, Converter={StaticResource NameToColor}}" StrokeShape="RoundRectangle 27">
+                                                    <Grid>
+                                                        <Label Text="{Binding Initial}" TextColor="White" FontAttributes="Bold" FontSize="18" HorizontalOptions="Center" VerticalOptions="Center"/>
+                                                        <Image Source="{Binding Profile.AvatarUrl}" Aspect="AspectFill" IsVisible="{Binding HasAvatar}"/>
+                                                    </Grid>
+                                                </Border>
+                                            </Border>
+                                            <Label Grid.Row="1" Text="{Binding Profile.Username}" FontSize="11" TextColor="#F2E8D5" HorizontalOptions="Center" LineBreakMode="TailTruncation" Margin="0,5,0,0"/>
+                                            <Label Grid.Row="2" Text="{Binding StatusLabel}" FontSize="10" TextColor="#FFB627" HorizontalOptions="Center" LineBreakMode="TailTruncation"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                            </CollectionView>
+
+                            <BoxView HeightRequest="1" Color="#141C26" Margin="0,4,0,0"/>
+                        </VerticalStackLayout>
+                    </CollectionView.Header>
+
+                    <CollectionView.EmptyView>
+                        <Label Text="Aucun ami pour l'instant" TextColor="#3D5068" HorizontalOptions="Center" VerticalOptions="Center" Margin="0,40"/>
+                    </CollectionView.EmptyView>
+
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Grid ColumnDefinitions="52,*,Auto" Padding="0,8" ColumnSpacing="12">
+                                <Grid Grid.Column="0" WidthRequest="48" HeightRequest="48" HorizontalOptions="Start">
+                                    <Border WidthRequest="46" HeightRequest="46" StrokeThickness="0" BackgroundColor="{Binding Profile.Username, Converter={StaticResource NameToColor}}" StrokeShape="RoundRectangle 23">
+                                        <Grid>
+                                            <Label Text="{Binding Initial}" TextColor="White" FontAttributes="Bold" FontSize="16" HorizontalOptions="Center" VerticalOptions="Center"/>
+                                            <Image Source="{Binding Profile.AvatarUrl}" Aspect="AspectFill" IsVisible="{Binding HasAvatar}"/>
+                                        </Grid>
+                                    </Border>
+                                    <Border WidthRequest="13" HeightRequest="13" StrokeThickness="2" Stroke="#0A1018" BackgroundColor="{Binding Status, Converter={StaticResource PresenceColor}}" StrokeShape="RoundRectangle 7" HorizontalOptions="End" VerticalOptions="End"/>
+                                </Grid>
+
+                                <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                                    <Label Text="{Binding Profile.Username}" TextColor="#F2E8D5" FontSize="15" FontAttributes="Bold"/>
+                                    <Label Text="{Binding StatusLabel}" FontSize="12" TextColor="{Binding Status, Converter={StaticResource LocationColor}}"/>
+                                </VerticalStackLayout>
+
+                                <Button Grid.Column="2"
+                                        Text="Retirer"
+                                        FontSize="12"
+                                        BackgroundColor="#1E2A38"
+                                        TextColor="#F2E8D5"
+                                        CornerRadius="8"
+                                        Padding="10,6"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.RemoveFriendCommand}"
+                                        CommandParameter="{Binding .}"/>
+                            </Grid>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </Grid>
+
+            <!-- ===================== PANEL DEMANDES ===================== -->
+            <Grid Grid.Row="2" x:Name="PanelDemandes" IsVisible="False">
+                <ScrollView>
+                    <VerticalStackLayout Padding="16,4,16,20" Spacing="10">
+                        <Label Text="Demandes reçues" TextColor="#F2E8D5" FontSize="16" FontAttributes="Bold"/>
+                        <CollectionView ItemsSource="{Binding PendingRequests}" HeightRequest="240" BackgroundColor="Transparent">
+                            <CollectionView.EmptyView><Label Text="Aucune demande reçue" TextColor="#3D5068" HorizontalOptions="Center" Margin="0,24"/></CollectionView.EmptyView>
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid ColumnDefinitions="48,*,Auto,Auto" Padding="0,8" ColumnSpacing="8">
+                                        <Border Grid.Column="0" WidthRequest="44" HeightRequest="44" StrokeThickness="0" BackgroundColor="{Binding RequesterName, Converter={StaticResource NameToColor}}" StrokeShape="RoundRectangle 22">
+                                            <Grid>
+                                                <Label Text="{Binding Initial}" TextColor="White" FontAttributes="Bold" HorizontalOptions="Center" VerticalOptions="Center"/>
+                                                <Image Source="{Binding RequesterAvatar}" Aspect="AspectFill" IsVisible="{Binding HasAvatar}"/>
+                                            </Grid>
+                                        </Border>
+                                        <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                                            <Label Text="{Binding RequesterName}" TextColor="#F2E8D5" FontSize="15" FontAttributes="Bold"/>
+                                            <Label Text="Veut t'ajouter en ami" TextColor="#66768A" FontSize="12"/>
+                                        </VerticalStackLayout>
+                                        <Button Grid.Column="2" Text="✓" BackgroundColor="#7C3AED" TextColor="#F4EEFF" CornerRadius="8" WidthRequest="40"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.AcceptRequestCommand}" CommandParameter="{Binding .}"/>
+                                        <Button Grid.Column="3" Text="✕" BackgroundColor="#1E2A38" TextColor="#F2E8D5" CornerRadius="8" WidthRequest="40"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.DeclineRequestCommand}" CommandParameter="{Binding .}"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+
+                        <BoxView HeightRequest="1" Color="#1E2A38" Margin="0,4"/>
+                        <Label Text="Demandes envoyées" TextColor="#F2E8D5" FontSize="16" FontAttributes="Bold"/>
+                        <CollectionView ItemsSource="{Binding SentRequests}" HeightRequest="240" BackgroundColor="Transparent">
+                            <CollectionView.EmptyView><Label Text="Aucune demande envoyée" TextColor="#3D5068" HorizontalOptions="Center" Margin="0,24"/></CollectionView.EmptyView>
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid ColumnDefinitions="48,*,Auto" Padding="0,8" ColumnSpacing="8">
+                                        <Border Grid.Column="0" WidthRequest="44" HeightRequest="44" StrokeThickness="0" BackgroundColor="{Binding AddresseeName, Converter={StaticResource NameToColor}}" StrokeShape="RoundRectangle 22">
+                                            <Grid>
+                                                <Label Text="{Binding Initial}" TextColor="White" FontAttributes="Bold" HorizontalOptions="Center" VerticalOptions="Center"/>
+                                                <Image Source="{Binding AddresseeAvatar}" Aspect="AspectFill" IsVisible="{Binding HasAvatar}"/>
+                                            </Grid>
+                                        </Border>
+                                        <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                                            <Label Text="{Binding AddresseeName}" TextColor="#F2E8D5" FontSize="15" FontAttributes="Bold"/>
+                                            <Label Text="{Binding StatusLabel}" TextColor="#66768A" FontSize="12"/>
+                                        </VerticalStackLayout>
+                                        <Button Grid.Column="2" Text="Annuler" FontSize="12" BackgroundColor="#1E2A38" TextColor="#F2E8D5" CornerRadius="8" Padding="10,6"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.CancelSentRequestCommand}" CommandParameter="{Binding .}"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </VerticalStackLayout>
+                </ScrollView>
+            </Grid>
+
+            <!-- ===================== PANEL AJOUTER (Recherche + Inviter) ===================== -->
+            <Grid Grid.Row="2" x:Name="PanelAjouter" IsVisible="False">
+                <ScrollView>
+                    <VerticalStackLayout Padding="16,4,16,24" Spacing="12">
+
+                        <Border StrokeThickness="0" BackgroundColor="#141C26" StrokeShape="RoundRectangle 12" Padding="14,2">
+                            <Grid ColumnDefinitions="Auto,*">
+                                <Label Text="🔍" FontSize="15" VerticalOptions="Center"/>
+                                <Entry Grid.Column="1" Placeholder="Rechercher un pseudo…" PlaceholderColor="#66768A" TextColor="#F2E8D5" BackgroundColor="Transparent" TextChanged="OnSearchTextChanged"/>
+                            </Grid>
+                        </Border>
+
+                        <CollectionView ItemsSource="{Binding SearchResults}" BackgroundColor="Transparent">
+                            <CollectionView.EmptyView><Label Text="Recherche un ami par pseudo" TextColor="#3D5068" HorizontalOptions="Center" Margin="0,16"/></CollectionView.EmptyView>
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid ColumnDefinitions="48,*,Auto" Padding="0,8" ColumnSpacing="10">
+                                        <Border WidthRequest="44" HeightRequest="44" StrokeThickness="0" BackgroundColor="{Binding Username, Converter={StaticResource NameToColor}}" StrokeShape="RoundRectangle 22">
+                                            <Grid>
+                                                <Label Text="{Binding Username, Converter={StaticResource Initial}}" TextColor="White" FontAttributes="Bold" HorizontalOptions="Center" VerticalOptions="Center"/>
+                                                <Image Source="{Binding AvatarUrl}" Aspect="AspectFill" IsVisible="{Binding AvatarUrl, Converter={StaticResource NotEmpty}}"/>
+                                            </Grid>
+                                        </Border>
+                                        <Label Grid.Column="1" Text="{Binding Username}" TextColor="#F2E8D5" VerticalOptions="Center" FontAttributes="Bold"/>
+                                        <Button Grid.Column="2" Text="Ajouter" BackgroundColor="#7C3AED" TextColor="#F4EEFF" CornerRadius="8" Padding="12,6"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.SendRequestCommand}" CommandParameter="{Binding .}"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+
+                        <Grid ColumnDefinitions="*,Auto,*" ColumnSpacing="10" Margin="0,2">
+                            <BoxView HeightRequest="1" Color="#1A2430" VerticalOptions="Center"/>
+                            <Label Grid.Column="1" Text="ou invite tes potes" FontSize="11" TextColor="#66768A"/>
+                            <BoxView Grid.Column="2" HeightRequest="1" Color="#1A2430" VerticalOptions="Center"/>
+                        </Grid>
+
+                        <Border StrokeThickness="1" Stroke="#222839" BackgroundColor="#10131B" StrokeShape="RoundRectangle 20" Padding="16">
+                            <VerticalStackLayout Spacing="12">
+                                <HorizontalStackLayout Spacing="10">
+                                    <Border WidthRequest="40" HeightRequest="40" StrokeThickness="0" BackgroundColor="#26215C" StrokeShape="RoundRectangle 12">
+                                        <Label Text="🔗" FontSize="18" HorizontalOptions="Center" VerticalOptions="Center"/>
+                                    </Border>
+                                    <VerticalStackLayout VerticalOptions="Center" Spacing="1">
+                                        <Label Text="Inviter par lien" TextColor="#F2E8D5" FontSize="15" FontAttributes="Bold"/>
+                                        <Label Text="WhatsApp, Snap, SMS, contacts…" TextColor="#8B94A7" FontSize="12"/>
+                                    </VerticalStackLayout>
+                                </HorizontalStackLayout>
+                                <Button Text="Créer et partager mon lien" BackgroundColor="#7C3AED" TextColor="White" CornerRadius="14" HeightRequest="48" Command="{Binding InviteFriendCommand}"/>
+                                <HorizontalStackLayout Spacing="6" HorizontalOptions="Center">
+                                    <Label Text="🪙" FontSize="13"/>
+                                    <Label Text="+5 crédits par pote qui s'inscrit" TextColor="#FFB627" FontSize="12"/>
+                                </HorizontalStackLayout>
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <Label Text="Invitations actives" TextColor="#F2E8D5" FontSize="16" FontAttributes="Bold" Margin="0,4,0,0"/>
+                        <CollectionView ItemsSource="{Binding MyInvites}" HeightRequest="150">
+                            <CollectionView.EmptyView><Label Text="Aucune invitation active" TextColor="#3D5068" HorizontalOptions="Center" Margin="0,16"/></CollectionView.EmptyView>
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid ColumnDefinitions="*,Auto" Padding="0,8">
+                                        <VerticalStackLayout>
+                                            <Label Text="{Binding InviteCode}" TextColor="#F2E8D5" FontAttributes="Bold"/>
+                                            <Label Text="{Binding ShareUrl}" TextColor="#66768A" FontSize="12"/>
+                                        </VerticalStackLayout>
+                                        <Label Grid.Column="1" Text="pending" TextColor="#A855F7" VerticalOptions="Center"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+
+                        <Label Text="Historique crédits" TextColor="#F2E8D5" FontSize="16" FontAttributes="Bold"/>
+                        <CollectionView ItemsSource="{Binding CreditHistory}" HeightRequest="200">
+                            <CollectionView.EmptyView><Label Text="Aucun crédit pour le moment" TextColor="#3D5068" HorizontalOptions="Center" Margin="0,16"/></CollectionView.EmptyView>
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid ColumnDefinitions="*,Auto" Padding="0,8">
+                                        <Label Text="{Binding ReasonLabel}" TextColor="#F2E8D5"/>
+                                        <Label Grid.Column="1" Text="{Binding AmountLabel}" TextColor="#FFB627" FontAttributes="Bold"/>
+                                    </Grid>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </VerticalStackLayout>
+                </ScrollView>
+            </Grid>
+
+            <!-- ===================== PANEL GROUPES ===================== -->
+            <Grid Grid.Row="2" x:Name="PanelGroupes" IsVisible="False" BackgroundColor="#05070D">
+                <ScrollView>
+                    <VerticalStackLayout Spacing="14" Padding="16,8,16,24">
+
+                        <Grid ColumnDefinitions="*,Auto">
+                            <VerticalStackLayout Spacing="2">
+                                <Label Text="Mes groupes" TextColor="#F9FAFB" FontSize="22" FontAttributes="Bold"/>
+                                <Label Text="Touche un groupe pour l'ouvrir en plein écran" TextColor="#8B94A7" FontSize="12"/>
+                            </VerticalStackLayout>
+                        </Grid>
+
+                        <Border StrokeThickness="0" BackgroundColor="#10131B" StrokeShape="RoundRectangle 22" Padding="14">
+                            <VerticalStackLayout Spacing="10">
+                                <Label Text="Créer un groupe d'amis" TextColor="#F9FAFB" FontSize="16" FontAttributes="Bold"/>
+                                <Grid ColumnDefinitions="*,78" ColumnSpacing="10">
+                                    <Entry Placeholder="Nom du groupe" PlaceholderColor="#8B94A7" TextColor="#F9FAFB" BackgroundColor="#1A1F2B" Text="{Binding NewGroupName}"/>
+                                    <Entry Grid.Column="1" Placeholder="Emoji" PlaceholderColor="#8B94A7" TextColor="#F9FAFB" BackgroundColor="#1A1F2B" Text="{Binding NewGroupEmoji}"/>
+                                </Grid>
+                                <Button Text="Créer le groupe" BackgroundColor="#7C3AED" TextColor="White" CornerRadius="16" HeightRequest="52" Command="{Binding CreateGroupCommand}"/>
+                            </VerticalStackLayout>
+                        </Border>
+
+                        <CollectionView ItemsSource="{Binding FriendGroups}" SelectionMode="None" BackgroundColor="Transparent">
+                            <CollectionView.EmptyView>
+                                <Label Text="Aucun groupe pour l'instant" TextColor="#6B7280" HorizontalOptions="Center" Margin="0,30"/>
+                            </CollectionView.EmptyView>
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Margin="0,0,0,12" Padding="14" StrokeThickness="1" Stroke="#222839" BackgroundColor="#10131B" StrokeShape="RoundRectangle 22">
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.SelectGroupCommand}" CommandParameter="{Binding .}"/>
+                                        </Border.GestureRecognizers>
+                                        <Grid ColumnDefinitions="58,*,Auto" ColumnSpacing="13">
+                                            <Border WidthRequest="56" HeightRequest="56" StrokeThickness="0" StrokeShape="RoundRectangle 18" BackgroundColor="#1A1F2B">
+                                                <Grid>
+                                                    <Label Text="{Binding Emoji}" FontSize="26" HorizontalOptions="Center" VerticalOptions="Center"/>
+                                                    <Image Source="{Binding PhotoUrl}" Aspect="AspectFill" IsVisible="{Binding HasPhoto}"/>
+                                                </Grid>
+                                            </Border>
+                                            <VerticalStackLayout Grid.Column="1" Spacing="4" VerticalOptions="Center">
+                                                <Label Text="{Binding Name}" TextColor="#F9FAFB" FontAttributes="Bold" FontSize="17" LineBreakMode="TailTruncation"/>
+                                                <Label Text="Toucher pour ouvrir" TextColor="#8B94A7" FontSize="12"/>
+                                            </VerticalStackLayout>
+                                            <Border Grid.Column="2" IsVisible="{Binding HasUnread}" BackgroundColor="#EF4444" StrokeThickness="0" StrokeShape="RoundRectangle 12" HeightRequest="24" MinimumWidthRequest="24" Padding="8,0" VerticalOptions="Start">
+                                                <Label Text="{Binding UnreadLabel}" FontSize="12" FontAttributes="Bold" TextColor="White" HorizontalOptions="Center" VerticalOptions="Center"/>
+                                            </Border>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </VerticalStackLayout>
+                </ScrollView>
+            </Grid>
+        </Grid>
+
+        <controls:BottomNavBar Grid.Row="1" ActiveTab="Friends"/>
+    </Grid>
+</ContentPage>

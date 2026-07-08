@@ -1,0 +1,4 @@
+window.SpotizConfig = {
+  supabaseUrl: "https://keeraqtoiwvcybhavkfb.supabase.co",
+  supabaseAnonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtlZXJhcXRvaXd2Y3liaGF2a2ZiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU4MjIwNjgsImV4cCI6MjA5MTM5ODA2OH0.K6B0AvqZfKNhpH3dxB8sc9LzOlRX_rIb64CdfTl5vUo"
+};

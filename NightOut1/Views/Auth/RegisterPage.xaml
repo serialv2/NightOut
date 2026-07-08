@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="NightOut.Views.Auth.RegisterPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:NightOut.ViewModels"
+    x:DataType="vm:RegisterViewModel"
+    Shell.NavBarIsVisible="False"
+    BackgroundColor="#0A1018">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="28,60,28,40" Spacing="0">
+
+            <!-- Retour -->
+            <Label
+                Text="← Retour"
+                FontFamily="DMSans-Regular"
+                FontSize="14"
+                TextColor="#7A8FA6"
+                Margin="0,0,0,32">
+                <Label.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding GoToLoginCommand}"/>
+                </Label.GestureRecognizers>
+            </Label>
+
+            <!-- Logo -->
+            <Label
+                Text="Spotiz"
+                FontFamily="PlayfairDisplay-BoldItalic"
+                FontSize="36"
+                TextColor="#FFB627"
+                HorizontalOptions="Center"
+                Margin="0,0,0,8"/>
+
+            <Label
+                Text="Crée ton compte"
+                FontFamily="DMSans-SemiBold"
+                FontSize="22"
+                TextColor="#F2E8D5"
+                HorizontalOptions="Center"
+                Margin="0,0,0,6"/>
+
+            <Label
+                Text="Rejoins la communauté Spotiz"
+                FontFamily="DMSans-Regular"
+                FontSize="14"
+                TextColor="#7A8FA6"
+                HorizontalOptions="Center"
+                Margin="0,0,0,36"/>
+
+            <!-- Type de compte -->
+            <Label Text="Type de compte" FontFamily="DMSans-Medium" FontSize="12" TextColor="#7A8FA6" Margin="0,0,0,8"/>
+
+            <Border BackgroundColor="#0D1520" Stroke="#263A55" StrokeThickness="1" StrokeShape="RoundRectangle 18" Padding="14" Margin="0,0,0,18">
+                <VerticalStackLayout Spacing="10">
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                        <CheckBox Grid.Column="0" IsChecked="{Binding IsUserAccount}" Color="#FFB627"/>
+                        <VerticalStackLayout Grid.Column="1" Spacing="1">
+                            <Label Text="Utilisateur" FontFamily="DMSans-SemiBold" FontSize="14" TextColor="#F2E8D5"/>
+                            <Label Text="Sorties, amis, groupes et carte Spotiz." FontFamily="DMSans-Regular" FontSize="11" TextColor="#7A8FA6"/>
+                        </VerticalStackLayout>
+                    </Grid>
+
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                        <CheckBox Grid.Column="0" IsChecked="{Binding IsEstablishmentAccount}" Color="#FFB627"/>
+                        <VerticalStackLayout Grid.Column="1" Spacing="1">
+                            <Label Text="Établissement / bar" FontFamily="DMSans-SemiBold" FontSize="14" TextColor="#F2E8D5"/>
+                            <Label Text="Compte pro soumis à validation Spotiz." FontFamily="DMSans-Regular" FontSize="11" TextColor="#7A8FA6"/>
+                        </VerticalStackLayout>
+                    </Grid>
+
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                        <CheckBox Grid.Column="0" IsChecked="{Binding IsOrganizerAccount}" Color="#FFB627"/>
+                        <VerticalStackLayout Grid.Column="1" Spacing="1">
+                            <Label Text="Organisateur d'événements" FontFamily="DMSans-SemiBold" FontSize="14" TextColor="#F2E8D5"/>
+                            <Label Text="DJ, association, BDE, festival, comité des fêtes..." FontFamily="DMSans-Regular" FontSize="11" TextColor="#7A8FA6"/>
+                        </VerticalStackLayout>
+                    </Grid>
+
+                    <Label Text="Les fonctions pro seront bloquées jusqu'à validation administrative." FontFamily="DMSans-Regular" FontSize="11" TextColor="#FFB627" Margin="0,4,0,0"/>
+                </VerticalStackLayout>
+            </Border>
+
+            <!-- Pseudo -->
+            <Label Text="Pseudo" FontFamily="DMSans-Medium" FontSize="12" TextColor="#7A8FA6" Margin="0,0,0,6"/>
+            <Border Style="{StaticResource InputField}" Margin="0,0,0,6">
+                <Entry Text="{Binding Username}" Placeholder="ton_pseudo" ReturnType="Next"/>
+            </Border>
+            <Label Text="Visible par tes amis sur la carte" FontFamily="DMSans-Regular" FontSize="11" TextColor="#3D5068" Margin="0,0,0,16"/>
+
+            <!-- Email -->
+            <Label Text="Adresse e-mail" FontFamily="DMSans-Medium" FontSize="12" TextColor="#7A8FA6" Margin="0,0,0,6"/>
+            <Border Style="{StaticResource InputField}" Margin="0,0,0,16">
+                <Entry Text="{Binding Email}" Placeholder="ton@email.com" Keyboard="Email" ReturnType="Next"/>
+            </Border>
+
+            <!-- Mot de passe -->
+            <Label Text="Mot de passe" FontFamily="DMSans-Medium" FontSize="12" TextColor="#7A8FA6" Margin="0,0,0,6"/>
+            <Border Style="{StaticResource InputField}" Margin="0,0,0,16">
+                <Grid ColumnDefinitions="*,Auto">
+                    <Entry
+                        Grid.Column="0"
+                        Text="{Binding Password}"
+                        Placeholder="8 caractères minimum"
+                        IsPassword="{Binding IsPasswordVisible, Converter={StaticResource InvertedBoolConverter}}"
+                        ReturnType="Next"/>
+                    <Label
+                        Grid.Column="1"
+                        Text="👁"
+                        FontSize="18"
+                        TextColor="#7A8FA6"
+                        VerticalOptions="Center"
+                        Padding="8,0">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding TogglePasswordVisibilityCommand}"/>
+                        </Label.GestureRecognizers>
+                    </Label>
+                </Grid>
+            </Border>
+
+            <!-- Confirmation -->
+            <Label Text="Confirmer le mot de passe" FontFamily="DMSans-Medium" FontSize="12" TextColor="#7A8FA6" Margin="0,0,0,6"/>
+            <Border Style="{StaticResource InputField}" Margin="0,0,0,24">
+                <Entry
+                    Text="{Binding PasswordConfirm}"
+                    Placeholder="••••••••"
+                    IsPassword="True"
+                    ReturnType="Done"
+                    ReturnCommand="{Binding RegisterCommand}"/>
+            </Border>
+
+            <!-- CGU -->
+            <HorizontalStackLayout Spacing="10" Margin="0,0,0,24">
+                <CheckBox IsChecked="{Binding AcceptTerms}" Color="#FFB627"/>
+                <Label VerticalOptions="Center">
+                    <Label.FormattedText>
+                        <FormattedString>
+                            <Span Text="J'accepte les " FontFamily="DMSans-Regular" FontSize="12" TextColor="#7A8FA6"/>
+                            <Span Text="conditions d'utilisation" FontFamily="DMSans-Medium" FontSize="12" TextColor="#FFB627"/>
+                            <Span Text=" et la " FontFamily="DMSans-Regular" FontSize="12" TextColor="#7A8FA6"/>
+                            <Span Text="politique de confidentialité" FontFamily="DMSans-Medium" FontSize="12" TextColor="#FFB627"/>
+                        </FormattedString>
+                    </Label.FormattedText>
+                </Label>
+            </HorizontalStackLayout>
+
+            <!-- Erreur -->
+            <Label
+                Text="{Binding ErrorMessage}"
+                FontFamily="DMSans-Regular"
+                FontSize="12"
+                TextColor="#E53935"
+                HorizontalOptions="Center"
+                IsVisible="{Binding HasError}"
+                Margin="0,0,0,16"/>
+
+            <!-- Bouton créer -->
+            <Border Style="{StaticResource BtnPrimary}">
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                        <GradientStop Color="#FFB627" Offset="0"/>
+                        <GradientStop Color="#FF6B35" Offset="1"/>
+                    </LinearGradientBrush>
+                </Border.Background>
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding RegisterCommand}"/>
+                </Border.GestureRecognizers>
+                <Grid>
+                    <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" Color="#0A1018" HorizontalOptions="Center" VerticalOptions="Center"/>
+                    <Label Text="Créer mon compte" FontFamily="DMSans-Bold" FontSize="15" TextColor="#0A1018" HorizontalOptions="Center" VerticalOptions="Center" IsVisible="{Binding IsNotBusy}"/>
+                </Grid>
+            </Border>
+
+            <Grid ColumnDefinitions="*,Auto,*" Margin="0,18,0,14">
+                <BoxView Grid.Column="0" HeightRequest="1" BackgroundColor="#263A55" VerticalOptions="Center"/>
+                <Label Grid.Column="1" Text="ou" FontSize="12" TextColor="#7A8FA6" Margin="12,0"/>
+                <BoxView Grid.Column="2" HeightRequest="1" BackgroundColor="#263A55" VerticalOptions="Center"/>
+            </Grid>
+
+            <Border
+                HeightRequest="52"
+                Stroke="#2D405B"
+                StrokeThickness="1"
+                BackgroundColor="#0D1520"
+                StrokeShape="RoundRectangle 18">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding RegisterWithGoogleCommand}"/>
+                </Border.GestureRecognizers>
+
+                <Grid ColumnDefinitions="Auto,*" Padding="16,0">
+                    <Label
+                        Grid.Column="0"
+                        Text="G"
+                        FontFamily="DMSans-Bold"
+                        FontSize="20"
+                        TextColor="#F2E8D5"
+                        VerticalOptions="Center"/>
+
+                    <Label
+                        Grid.Column="1"
+                        Text="S'inscrire avec Google"
+                        FontFamily="DMSans-SemiBold"
+                        FontSize="15"
+                        TextColor="#F2E8D5"
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center"/>
+                </Grid>
+            </Border>
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Shell
+    x:Class="NightOut.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:map="clr-namespace:NightOut.Views.Map"
+    xmlns:events="clr-namespace:NightOut.Views.Events"
+    xmlns:friends="clr-namespace:NightOut.Views.Friends"
+    xmlns:messages="clr-namespace:NightOut.Views.Messages"
+    xmlns:profile="clr-namespace:NightOut.Views.Profile"
+    Shell.NavBarIsVisible="False"
+    Shell.TabBarIsVisible="False"
+    BackgroundColor="#0A1018">
+    
+    <Shell.Resources>
+        <ResourceDictionary>
+            <Style TargetType="Shell">
+                <Setter Property="Shell.BackgroundColor"       Value="#0A1018"/>
+                <Setter Property="Shell.ForegroundColor"       Value="#F2E8D5"/>
+                <Setter Property="Shell.TitleColor"            Value="#F2E8D5"/>
+                <Setter Property="Shell.TabBarBackgroundColor" Value="#0A1018"/>
+                <Setter Property="Shell.TabBarForegroundColor" Value="#FFB627"/>
+                <Setter Property="Shell.TabBarUnselectedColor" Value="#3D5068"/>
+                <Setter Property="Shell.TabBarTitleColor"      Value="#FFB627"/>
+            </Style>
+        </ResourceDictionary>
+    </Shell.Resources>
+
+    <ShellContent Route="MapPage"      ContentTemplate="{DataTemplate map:MapPage}"/>
+    <ShellContent Route="EventsPage"   ContentTemplate="{DataTemplate events:EphemeralEventsPage}"/>
+    <ShellContent Route="FriendsPage"  ContentTemplate="{DataTemplate friends:FriendsPage}"/>
+    <ShellContent Route="MessagesPage" ContentTemplate="{DataTemplate messages:MessagesPage}"/>
+    <ShellContent Route="ProfilePage"  ContentTemplate="{DataTemplate profile:ProfilePage}"/>
+</Shell>

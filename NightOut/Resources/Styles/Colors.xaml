@@ -5,58 +5,58 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
 
     <!-- ══════════════════════════════════════════════ -->
-    <!-- BACKGROUNDS                                     -->
+    <!-- BACKGROUNDS — Sézane (crème / chaud)           -->
     <!-- ══════════════════════════════════════════════ -->
-    <Color x:Key="BgDeep">#090814</Color>
-    <Color x:Key="BgCard">#121124</Color>
-    <Color x:Key="BgPanel">#191733</Color>
-    <Color x:Key="BgElevated">#211F42</Color>
-    <Color x:Key="BgInput">#29264F</Color>
+    <Color x:Key="BgDeep">#F4EFE6</Color>
+    <Color x:Key="BgCard">#FAF6EF</Color>
+    <Color x:Key="BgPanel">#EFE7D8</Color>
+    <Color x:Key="BgElevated">#E5DCC9</Color>
+    <Color x:Key="BgInput">#FFFFFF</Color>
 
     <!-- ══════════════════════════════════════════════ -->
-    <!-- ACCENT PRINCIPAL — Violet                      -->
+    <!-- ACCENT PRINCIPAL — Terracotta                  -->
     <!-- ══════════════════════════════════════════════ -->
-    <Color x:Key="Accent">#A855F7</Color>
-    <Color x:Key="AccentDark">#7E22CE</Color>
-    <Color x:Key="AccentDim">#1AA855F7</Color>
-    <Color x:Key="AccentSoft">#2EA855F7</Color>
-    <Color x:Key="AccentGlow">#4DA855F7</Color>
+    <Color x:Key="Accent">#C2754C</Color>
+    <Color x:Key="AccentDark">#A35C36</Color>
+    <Color x:Key="AccentDim">#1AC2754C</Color>
+    <Color x:Key="AccentSoft">#2EC2754C</Color>
+    <Color x:Key="AccentGlow">#4DC2754C</Color>
 
     <!-- ══════════════════════════════════════════════ -->
-    <!-- SECONDAIRE — Or                                -->
+    <!-- SECONDAIRE — Vert sauge                        -->
     <!-- ══════════════════════════════════════════════ -->
-    <Color x:Key="Second">#FFB627</Color>
-    <Color x:Key="SecondDim">#1FFFB627</Color>
+    <Color x:Key="Second">#6B7F5C</Color>
+    <Color x:Key="SecondDim">#1F6B7F5C</Color>
 
     <!-- ══════════════════════════════════════════════ -->
     <!-- TEXTES                                         -->
     <!-- ══════════════════════════════════════════════ -->
-    <Color x:Key="TextPrimary">#F4EEFF</Color>
-    <Color x:Key="TextSecondary">#9CA3C7</Color>
-    <Color x:Key="TextMuted">#555B7A</Color>
+    <Color x:Key="TextPrimary">#3D2817</Color>
+    <Color x:Key="TextSecondary">#8A6F4A</Color>
+    <Color x:Key="TextMuted">#B5A688</Color>
 
     <!-- ══════════════════════════════════════════════ -->
     <!-- BORDURES                                       -->
     <!-- ══════════════════════════════════════════════ -->
-    <Color x:Key="Border">#1AA855F7</Color>
-    <Color x:Key="BorderMid">#2EA855F7</Color>
-    <Color x:Key="BorderStrong">#4DA855F7</Color>
+    <Color x:Key="Border">#E5DCC9</Color>
+    <Color x:Key="BorderMid">#D4C7B5</Color>
+    <Color x:Key="BorderStrong">#C2754C</Color>
 
     <!-- ══════════════════════════════════════════════ -->
-    <!-- JAUGES                                         -->
+    <!-- JAUGES (affluence bar)                         -->
     <!-- ══════════════════════════════════════════════ -->
-    <Color x:Key="GaugeLow">#34D399</Color>
-    <Color x:Key="GaugeMid">#FFB627</Color>
-    <Color x:Key="GaugeHot">#FF6B35</Color>
-    <Color x:Key="GaugeFire">#FF2D6B</Color>
+    <Color x:Key="GaugeLow">#6B7F5C</Color>
+    <Color x:Key="GaugeMid">#C9943E</Color>
+    <Color x:Key="GaugeHot">#C2754C</Color>
+    <Color x:Key="GaugeFire">#B5482F</Color>
 
     <!-- ══════════════════════════════════════════════ -->
     <!-- ÉTATS SYSTÈME                                  -->
     <!-- ══════════════════════════════════════════════ -->
-    <Color x:Key="Success">#34D399</Color>
-    <Color x:Key="Warning">#FFB627</Color>
-    <Color x:Key="Error">#EF4444</Color>
-    <Color x:Key="Info">#60A5FA</Color>
+    <Color x:Key="Success">#4A7A52</Color>
+    <Color x:Key="Warning">#C9943E</Color>
+    <Color x:Key="Error">#B5482F</Color>
+    <Color x:Key="Info">#6B8CAE</Color>
 
     <!-- ══════════════════════════════════════════════ -->
     <!-- BRUSHES                                        -->
@@ -70,19 +70,19 @@
     <SolidColorBrush x:Key="TextPrimaryBrush" Color="{StaticResource TextPrimary}"/>
 
     <!-- Conservés pour compatibilité MAUI interne -->
-    <Color x:Key="Primary">#A855F7</Color>
-    <Color x:Key="PrimaryDark">#7E22CE</Color>
-    <Color x:Key="Secondary">#FFB627</Color>
+    <Color x:Key="Primary">#C2754C</Color>
+    <Color x:Key="PrimaryDark">#A35C36</Color>
+    <Color x:Key="Secondary">#6B7F5C</Color>
     <Color x:Key="White">White</Color>
     <Color x:Key="Black">Black</Color>
-    <Color x:Key="Gray100">#E1E1E1</Color>
-    <Color x:Key="Gray200">#C8C8C8</Color>
-    <Color x:Key="Gray300">#ACACAC</Color>
-    <Color x:Key="Gray400">#919191</Color>
-    <Color x:Key="Gray500">#6E6E6E</Color>
-    <Color x:Key="Gray600">#404040</Color>
-    <Color x:Key="Gray900">#212121</Color>
-    <Color x:Key="Gray950">#141414</Color>
+    <Color x:Key="Gray100">#EDE6D9</Color>
+    <Color x:Key="Gray200">#DCD2BE</Color>
+    <Color x:Key="Gray300">#C4B79E</Color>
+    <Color x:Key="Gray400">#A6987C</Color>
+    <Color x:Key="Gray500">#8A6F4A</Color>
+    <Color x:Key="Gray600">#5C4A32</Color>
+    <Color x:Key="Gray900">#3D2817</Color>
+    <Color x:Key="Gray950">#2A1B10</Color>
     <SolidColorBrush x:Key="PrimaryBrush"   Color="{StaticResource Primary}"/>
     <SolidColorBrush x:Key="SecondaryBrush" Color="{StaticResource Secondary}"/>
     <SolidColorBrush x:Key="WhiteBrush"     Color="{StaticResource White}"/>

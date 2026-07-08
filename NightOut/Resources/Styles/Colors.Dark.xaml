@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="NightOut.Resources.Styles.ColorsDark">
+
+    <!-- ══════════════════════════════════════════════ -->
+    <!-- THÈME SOMBRE — "Neon Night" (palette d'origine) -->
+    <!-- ══════════════════════════════════════════════ -->
+    <Color x:Key="BgDeep">#0A1018</Color>
+    <Color x:Key="BgCard">#0F1923</Color>
+    <Color x:Key="BgPanel">#131F2B</Color>
+    <Color x:Key="BgElevated">#1A2535</Color>
+    <Color x:Key="Accent">#FFB627</Color>
+    <Color x:Key="AccentDim">#1AFFB627</Color>
+    <Color x:Key="AccentSoft">#2EFFB627</Color>
+    <Color x:Key="Second">#FF6B35</Color>
+    <Color x:Key="TextPrimary">#F2E8D5</Color>
+    <Color x:Key="TextSecondary">#7A8FA6</Color>
+    <Color x:Key="TextMuted">#3D5068</Color>
+    <Color x:Key="Border">#1AFFB627</Color>
+    <Color x:Key="BorderMid">#2EFFB627</Color>
+    <Color x:Key="GaugeLow">#3DB87A</Color>
+    <Color x:Key="GaugeMid">#FFB627</Color>
+    <Color x:Key="GaugeHot">#FF6B35</Color>
+    <Color x:Key="GaugeFire">#FF2D6B</Color>
+    <Color x:Key="Success">#3DB87A</Color>
+    <Color x:Key="Error">#E53935</Color>
+
+    <!-- Utilisées par le BoolToObjectConverter du mode secret (App.xaml) -->
+    <Color x:Key="SecretOverlayOn">#2E7B5DE5</Color>
+    <Color x:Key="SecretOverlayOff">#CC0A1018</Color>
+
+    <!-- Style Mapbox correspondant à ce thème -->
+    <x:String x:Key="MapboxStyleUrl">mapbox://styles/mapbox/dark-v11</x:String>
+
+</ResourceDictionary>

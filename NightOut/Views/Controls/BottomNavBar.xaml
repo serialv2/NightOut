@@ -5,14 +5,14 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
 
     <Grid ColumnDefinitions="*,*,*,*,*"
-          BackgroundColor="#0A1018"
+          BackgroundColor="{DynamicResource BgDeep}"
           HeightRequest="64"
           Padding="0,8,0,8">
 
         <!-- Séparateur haut -->
         <BoxView Grid.ColumnSpan="5"
                  HeightRequest="1"
-                 BackgroundColor="#1E2A38"
+                 BackgroundColor="{DynamicResource Border}"
                  VerticalOptions="Start" />
 
         <!-- Carte -->
@@ -23,7 +23,7 @@
             <Label Text="🗺️" FontSize="20" HorizontalOptions="Center" />
             <Label x:Name="LblMap" Text="Carte"
                    FontSize="10" HorizontalOptions="Center"
-                   TextColor="#3D5068" />
+                   TextColor="{DynamicResource TextMuted}" />
         </VerticalStackLayout>
 
         <!-- Events -->
@@ -31,10 +31,32 @@
             <VerticalStackLayout.GestureRecognizers>
                 <TapGestureRecognizer Tapped="OnEventsTapped" />
             </VerticalStackLayout.GestureRecognizers>
-            <Label Text="🎉" FontSize="20" HorizontalOptions="Center" />
+            <Grid WidthRequest="34" HeightRequest="24" HorizontalOptions="Center">
+                <Label Text="🎉" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center" />
+
+                <Border x:Name="EventsBadge"
+                        IsVisible="False"
+                        BackgroundColor="{DynamicResource Error}"
+                        StrokeThickness="0"
+                        StrokeShape="RoundRectangle 9"
+                        HeightRequest="18"
+                        MinimumWidthRequest="18"
+                        Padding="4,0"
+                        HorizontalOptions="End"
+                        VerticalOptions="Start">
+                    <Label x:Name="EventsBadgeLabel"
+                           Text="0"
+                           FontSize="10"
+                           FontAttributes="Bold"
+                           TextColor="White"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center" />
+                </Border>
+            </Grid>
+
             <Label x:Name="LblEvents" Text="Events"
                    FontSize="10" HorizontalOptions="Center"
-                   TextColor="#3D5068" />
+                   TextColor="{DynamicResource TextMuted}" />
         </VerticalStackLayout>
 
         <!-- Amis -->
@@ -48,7 +70,7 @@
 
                 <Border x:Name="FriendsBadge"
                         IsVisible="False"
-                        BackgroundColor="#EF4444"
+                        BackgroundColor="{DynamicResource Error}"
                         StrokeThickness="0"
                         StrokeShape="RoundRectangle 9"
                         HeightRequest="18"
@@ -68,7 +90,7 @@
 
             <Label x:Name="LblFriends" Text="Amis"
                    FontSize="10" HorizontalOptions="Center"
-                   TextColor="#3D5068" />
+                   TextColor="{DynamicResource TextMuted}" />
         </VerticalStackLayout>
 
         <!-- Messages / Notifications -->
@@ -82,7 +104,7 @@
 
                 <Border x:Name="UnreadBadge"
                         IsVisible="False"
-                        BackgroundColor="#A855F7"
+                        BackgroundColor="{DynamicResource Error}"
                         StrokeThickness="0"
                         StrokeShape="RoundRectangle 9"
                         HeightRequest="18"
@@ -102,7 +124,7 @@
 
             <Label x:Name="LblMessages" Text="Messages"
                    FontSize="10" HorizontalOptions="Center"
-                   TextColor="#3D5068" />
+                   TextColor="{DynamicResource TextMuted}" />
         </VerticalStackLayout>
 
         <!-- Profil -->
@@ -113,7 +135,7 @@
             <Label Text="👤" FontSize="20" HorizontalOptions="Center" />
             <Label x:Name="LblProfile" Text="Profil"
                    FontSize="10" HorizontalOptions="Center"
-                   TextColor="#3D5068" />
+                   TextColor="{DynamicResource TextMuted}" />
         </VerticalStackLayout>
 
     </Grid>

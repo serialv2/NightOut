@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView
+    x:Class="NightOut.Views.Controls.BottomNavBar"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <Grid ColumnDefinitions="*,*,*,*,*"
+          BackgroundColor="#0A1018"
+          HeightRequest="64"
+          Padding="0,8,0,8">
+
+        <!-- Séparateur haut -->
+        <BoxView Grid.ColumnSpan="5"
+                 HeightRequest="1"
+                 BackgroundColor="#1E2A38"
+                 VerticalOptions="Start" />
+
+        <!-- Carte -->
+        <VerticalStackLayout Grid.Column="0" Spacing="2" HorizontalOptions="Center" VerticalOptions="Center">
+            <VerticalStackLayout.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnMapTapped" />
+            </VerticalStackLayout.GestureRecognizers>
+            <Label Text="🗺️" FontSize="20" HorizontalOptions="Center" />
+            <Label x:Name="LblMap" Text="Carte"
+                   FontSize="10" HorizontalOptions="Center"
+                   TextColor="#3D5068" />
+        </VerticalStackLayout>
+
+        <!-- Events -->
+        <VerticalStackLayout Grid.Column="1" Spacing="2" HorizontalOptions="Center" VerticalOptions="Center">
+            <VerticalStackLayout.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnEventsTapped" />
+            </VerticalStackLayout.GestureRecognizers>
+            <Grid WidthRequest="34" HeightRequest="24" HorizontalOptions="Center">
+                <Label Text="🎉" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center" />
+
+                <Border x:Name="EventsBadge"
+                        IsVisible="False"
+                        BackgroundColor="#FF2D7A"
+                        StrokeThickness="0"
+                        StrokeShape="RoundRectangle 9"
+                        HeightRequest="18"
+                        MinimumWidthRequest="18"
+                        Padding="4,0"
+                        HorizontalOptions="End"
+                        VerticalOptions="Start">
+                    <Label x:Name="EventsBadgeLabel"
+                           Text="0"
+                           FontSize="10"
+                           FontAttributes="Bold"
+                           TextColor="White"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center" />
+                </Border>
+            </Grid>
+
+            <Label x:Name="LblEvents" Text="Events"
+                   FontSize="10" HorizontalOptions="Center"
+                   TextColor="#3D5068" />
+        </VerticalStackLayout>
+
+        <!-- Amis -->
+        <VerticalStackLayout Grid.Column="2" Spacing="2" HorizontalOptions="Center" VerticalOptions="Center">
+            <VerticalStackLayout.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnFriendsTapped" />
+            </VerticalStackLayout.GestureRecognizers>
+
+            <Grid WidthRequest="34" HeightRequest="24" HorizontalOptions="Center">
+                <Label Text="👥" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center" />
+
+                <Border x:Name="FriendsBadge"
+                        IsVisible="False"
+                        BackgroundColor="#EF4444"
+                        StrokeThickness="0"
+                        StrokeShape="RoundRectangle 9"
+                        HeightRequest="18"
+                        MinimumWidthRequest="18"
+                        Padding="4,0"
+                        HorizontalOptions="End"
+                        VerticalOptions="Start">
+                    <Label x:Name="FriendsBadgeLabel"
+                           Text="0"
+                           FontSize="10"
+                           FontAttributes="Bold"
+                           TextColor="White"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center" />
+                </Border>
+            </Grid>
+
+            <Label x:Name="LblFriends" Text="Amis"
+                   FontSize="10" HorizontalOptions="Center"
+                   TextColor="#3D5068" />
+        </VerticalStackLayout>
+
+        <!-- Messages / Notifications -->
+        <VerticalStackLayout Grid.Column="3" Spacing="2" HorizontalOptions="Center" VerticalOptions="Center">
+            <VerticalStackLayout.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnMessagesTapped" />
+            </VerticalStackLayout.GestureRecognizers>
+
+            <Grid WidthRequest="34" HeightRequest="24" HorizontalOptions="Center">
+                <Label Text="💬" FontSize="20" HorizontalOptions="Center" VerticalOptions="Center" />
+
+                <Border x:Name="UnreadBadge"
+                        IsVisible="False"
+                        BackgroundColor="#A855F7"
+                        StrokeThickness="0"
+                        StrokeShape="RoundRectangle 9"
+                        HeightRequest="18"
+                        MinimumWidthRequest="18"
+                        Padding="4,0"
+                        HorizontalOptions="End"
+                        VerticalOptions="Start">
+                    <Label x:Name="UnreadBadgeLabel"
+                           Text="0"
+                           FontSize="10"
+                           FontAttributes="Bold"
+                           TextColor="White"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center" />
+                </Border>
+            </Grid>
+
+            <Label x:Name="LblMessages" Text="Messages"
+                   FontSize="10" HorizontalOptions="Center"
+                   TextColor="#3D5068" />
+        </VerticalStackLayout>
+
+        <!-- Profil -->
+        <VerticalStackLayout Grid.Column="4" Spacing="2" HorizontalOptions="Center" VerticalOptions="Center">
+            <VerticalStackLayout.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnProfileTapped" />
+            </VerticalStackLayout.GestureRecognizers>
+            <Label Text="👤" FontSize="20" HorizontalOptions="Center" />
+            <Label x:Name="LblProfile" Text="Profil"
+                   FontSize="10" HorizontalOptions="Center"
+                   TextColor="#3D5068" />
+        </VerticalStackLayout>
+
+    </Grid>
+</ContentView>

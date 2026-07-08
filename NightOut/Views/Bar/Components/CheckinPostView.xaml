@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView
+    x:Class="NightOut.Views.Bar.Components.CheckinPostView"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:models="clr-namespace:NightOut.Models"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    x:DataType="models:BarActivityItem"
+    x:Name="CheckinPostRoot">
+
+    <ContentView.Resources>
+        <toolkit:InvertedBoolConverter x:Key="Inv" />
+    </ContentView.Resources>
+
+    <Border Margin="0,0,0,14"
+            Padding="14"
+            BackgroundColor="{DynamicResource BgDeep}"
+            Stroke="{DynamicResource Border}"
+            StrokeThickness="1"
+            StrokeShape="RoundRectangle 24">
+
+        <VerticalStackLayout Spacing="12">
+            <Grid ColumnDefinitions="50,*,Auto" ColumnSpacing="10">
+                <Border WidthRequest="48"
+                        HeightRequest="48"
+                        Stroke="{DynamicResource BgCard}"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 24"
+                        BackgroundColor="{DynamicResource BgElevated}">
+                    <Grid>
+                        <Image Source="{Binding AvatarUrl}"
+                               Aspect="AspectFill"
+                               IsVisible="{Binding HasAvatarUrl}" />
+                        <Label Text="{Binding Initials}"
+                               TextColor="{DynamicResource Accent}"
+                               FontFamily="DMSans-Bold"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center"
+                               IsVisible="{Binding HasAvatarUrl, Converter={StaticResource Inv}}" />
+                    </Grid>
+                </Border>
+
+                <VerticalStackLayout Grid.Column="1" Spacing="1" VerticalOptions="Center">
+                    <Label Text="{Binding Username}"
+                           TextColor="{DynamicResource TextPrimary}"
+                           FontFamily="DMSans-Bold"
+                           FontSize="15" />
+                    <Label Text="{Binding TimeAgo}"
+                           TextColor="{DynamicResource TextSecondary}"
+                           FontSize="12" />
+                </VerticalStackLayout>
+            </Grid>
+
+            <Border Padding="12"
+                    BackgroundColor="{DynamicResource BgCard}"
+                    Stroke="{DynamicResource BorderMid}"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 16">
+                <Grid ColumnDefinitions="36,*" ColumnSpacing="10">
+                    <Border WidthRequest="32"
+                            HeightRequest="32"
+                            BackgroundColor="{DynamicResource AccentSoft}"
+                            Stroke="{DynamicResource Accent}"
+                            StrokeThickness="1"
+                            StrokeShape="RoundRectangle 16">
+                        <Label Text="⌖"
+                               TextColor="{DynamicResource Accent}"
+                               FontSize="17"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center" />
+                    </Border>
+                    <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                        <Label Text="Check-in"
+                               TextColor="{DynamicResource Accent}"
+                               FontFamily="DMSans-Bold"
+                               FontSize="12" />
+                        <Label Text="{Binding Content}"
+                               TextColor="{DynamicResource TextPrimary}"
+                               FontSize="13"
+                               LineBreakMode="WordWrap" />
+                    </VerticalStackLayout>
+                </Grid>
+            </Border>
+        </VerticalStackLayout>
+    </Border>
+</ContentView>

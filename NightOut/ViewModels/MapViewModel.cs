@@ -35,6 +35,11 @@ public partial class MapViewModel(
     [ObservableProperty] private bool _isMediaViewerVisible;
     [ObservableProperty] private BarPhoto? _viewerMedia;
     [ObservableProperty] private bool _canPostMedia;
+    [ObservableProperty] private bool _isSelectedBarActiveCheckin;
+    [ObservableProperty] private string _selectedBarCheckinButtonText = "Check in";
+    [ObservableProperty] private Color _selectedBarCheckinButtonBackgroundColor = Colors.Orange;
+    [ObservableProperty] private Color _selectedBarCheckinButtonTextColor = Colors.White;
+    [ObservableProperty] private Color _selectedBarCheckinButtonBorderColor = Colors.Transparent;
 
     private City? _selectedCity;
     private bool _hasLoadedMapData;
@@ -113,8 +118,38 @@ public partial class MapViewModel(
         ? 0
         : Math.Clamp(SelectedBar.TotalPresent / 120.0, 0, 1);
 
+    private static Color GetThemeColor(string key, Color fallback)
+    {
+        var resources = Application.Current?.Resources;
+        return resources != null &&
+               resources.TryGetValue(key, out var value) &&
+               value is Color color
+            ? color
+            : fallback;
+    }
+
+    private void UpdateSelectedBarCheckinState()
+    {
+        var isActive = ActiveCheckin?.BarId != null &&
+                       SelectedBar?.Id != null &&
+                       string.Equals(ActiveCheckin.BarId, SelectedBar.Id, StringComparison.OrdinalIgnoreCase);
+
+        IsSelectedBarActiveCheckin = isActive;
+        SelectedBarCheckinButtonText = isActive ? "Check out" : "Check in";
+        SelectedBarCheckinButtonBackgroundColor = isActive
+            ? GetThemeColor("BgElevated", Colors.Transparent)
+            : GetThemeColor("Accent", Colors.Orange);
+        SelectedBarCheckinButtonTextColor = isActive
+            ? GetThemeColor("Accent", Colors.Orange)
+            : GetThemeColor("BgDeep", Colors.White);
+        SelectedBarCheckinButtonBorderColor = isActive
+            ? GetThemeColor("Accent", Colors.Orange)
+            : Colors.Transparent;
+    }
+
     private void NotifySelectedBarInfoChanged()
     {
+        UpdateSelectedBarCheckinState();
         OnPropertyChanged(nameof(SelectedBarName));
         OnPropertyChanged(nameof(SelectedBarCategoryText));
         OnPropertyChanged(nameof(SelectedBarAddressText));
@@ -141,13 +176,17 @@ public partial class MapViewModel(
         RecomputeCanPostMedia();
         NotifySelectedBarInfoChanged();
     }
-    partial void OnActiveCheckinChanged(Checkin? value) => RecomputeCanPostMedia();
+    partial void OnActiveCheckinChanged(Checkin? value)
+    {
+        RecomputeCanPostMedia();
+        NotifySelectedBarInfoChanged();
+    }
 
     private void RecomputeCanPostMedia()
     {
         CanPostMedia = ActiveCheckin?.BarId != null
                     && SelectedBar?.Id != null
-                    && ActiveCheckin.BarId == SelectedBar.Id;
+                    && string.Equals(ActiveCheckin.BarId, SelectedBar.Id, StringComparison.OrdinalIgnoreCase);
 
         System.Diagnostics.Debug.WriteLine(
             $"[MapVM] CanPostMedia={CanPostMedia} (checkin={ActiveCheckin?.BarId ?? "null"}, bar={SelectedBar?.Id ?? "null"})");
@@ -178,6 +217,9 @@ public partial class MapViewModel(
 
     public override async Task OnAppearingAsync()
     {
+        checkinService.ActiveCheckinChanged -= OnExternalActiveCheckinChanged;
+        checkinService.ActiveCheckinChanged += OnExternalActiveCheckinChanged;
+
         await LoadActiveCheckinAsync();
         await StartLocationTrackingAsync();
 
@@ -187,9 +229,36 @@ public partial class MapViewModel(
 
     public override async Task OnDisappearingAsync()
     {
+        checkinService.ActiveCheckinChanged -= OnExternalActiveCheckinChanged;
         locationService.StopTracking();
         await realtimeService.UnsubscribeAllAsync();
         _hasRealtimeSubscriptions = false;
+    }
+
+    private void OnExternalActiveCheckinChanged(Checkin? checkin)
+    {
+        MainThread.BeginInvokeOnMainThread(() =>
+        {
+            var previousBarId = ActiveCheckin?.BarId;
+            var previousCheckinId = ActiveCheckin?.Id;
+
+            ActiveCheckin = checkin;
+
+            if (!string.IsNullOrWhiteSpace(checkin?.BarId))
+            {
+                if (!string.Equals(previousCheckinId, checkin.Id, StringComparison.OrdinalIgnoreCase) ||
+                    !string.Equals(previousBarId, checkin.BarId, StringComparison.OrdinalIgnoreCase))
+                {
+                    IfCheckinMovedUpdatePresence(previousBarId, checkin.BarId);
+                }
+            }
+            else if (!string.IsNullOrWhiteSpace(previousBarId))
+            {
+                ApplyBarPresenceDelta(previousBarId, -1);
+            }
+
+            NotifySelectedBarInfoChanged();
+        });
     }
 
     public async Task OnMapReadyAsync()
@@ -1001,13 +1070,14 @@ public partial class MapViewModel(
 
         try
         {
+            var previousBarId = ActiveCheckin?.BarId;
             var checkin = await checkinService.CheckInAsync(bar.Id, lat, lng);
             if (checkin != null)
             {
                 // Le RPC renvoie parfois bar_id non mappé : on le force depuis la valeur connue.
                 if (string.IsNullOrEmpty(checkin.BarId)) checkin.BarId = bar.Id;
                 ActiveCheckin = checkin;   // réassignation => recalcul de CanPostMedia avec le bon BarId
-                ApplyBarPresenceDelta(bar.Id, +1);
+                IfCheckinMovedUpdatePresence(previousBarId, bar.Id);
                 await ShowToastAsync("📍 Tes amis savent que tu es là !");
             }
         }
@@ -1063,6 +1133,18 @@ public partial class MapViewModel(
             return;
 
         ApplyBarPresenceCount(barId, Math.Max(0, bar.TotalPresent + delta));
+    }
+
+    private void IfCheckinMovedUpdatePresence(string? previousBarId, string newBarId)
+    {
+        if (!string.IsNullOrWhiteSpace(previousBarId) &&
+            string.Equals(previousBarId, newBarId, StringComparison.OrdinalIgnoreCase))
+            return;
+
+        if (!string.IsNullOrWhiteSpace(previousBarId))
+            ApplyBarPresenceDelta(previousBarId, -1);
+
+        ApplyBarPresenceDelta(newBarId, +1);
     }
 
     private void ApplyBarPresenceCount(string barId, int count)
@@ -1150,14 +1232,21 @@ public partial class MapViewModel(
 
         await RunAsync(async () =>
         {
-            if (ActiveCheckin?.BarId == SelectedBar.Id)
+            UpdateSelectedBarCheckinState();
+
+            if (IsSelectedBarActiveCheckin && ActiveCheckin != null)
             {
                 var checkedOutBarId = ActiveCheckin.BarId;
 
-                if (ActiveCheckin != null)
-                    await checkinService.CheckOutAsync(ActiveCheckin.Id);
+                var checkedOut = await checkinService.CheckOutAsync(ActiveCheckin.Id);
+                if (!checkedOut)
+                {
+                    await ShowToastAsync("Impossible de quitter le bar pour le moment.");
+                    return;
+                }
 
                 ActiveCheckin = null;
+                await userStatusService.GoOfflineAsync();
                 ApplyBarPresenceDelta(checkedOutBarId, -1);
 
                 // Évite que la détection auto repropose ce bar immédiatement après un
@@ -1173,6 +1262,9 @@ public partial class MapViewModel(
             else
             {
                 // Résolution de la position GPS : dernière valeur du tracking ou fix one-shot.
+                _lastDeclinedBarId = null;
+                _lastDeclinedUtc = DateTime.MinValue;
+
                 var location = _lastLocation;
                 if (location == null)
                 {
@@ -1187,18 +1279,37 @@ public partial class MapViewModel(
 
                 try
                 {
+                    ActiveCheckin = await checkinService.GetActiveCheckinAsync();
+                    if (ActiveCheckin?.BarId != null &&
+                        string.Equals(ActiveCheckin.BarId, SelectedBar.Id, StringComparison.OrdinalIgnoreCase))
+                    {
+                        await ShowToastAsync("Tu es deja check-in ici.");
+                        return;
+                    }
+
                     var previousBarId = ActiveCheckin?.BarId;
                     var checkin = await checkinService.CheckInAsync(
                         SelectedBar.Id, location.Value.Lat, location.Value.Lng);
+
+                    if (checkin == null)
+                    {
+                        await Task.Delay(750);
+                        ActiveCheckin = await checkinService.GetActiveCheckinAsync();
+                        previousBarId = ActiveCheckin?.BarId;
+                        checkin = await checkinService.CheckInAsync(
+                            SelectedBar.Id, location.Value.Lat, location.Value.Lng);
+                    }
 
                     if (checkin != null)
                     {
                         if (string.IsNullOrEmpty(checkin.BarId)) checkin.BarId = SelectedBar.Id;
                         ActiveCheckin = checkin;   // recalcule CanPostMedia => boutons visibles
-                        if (!string.IsNullOrWhiteSpace(previousBarId) && previousBarId != SelectedBar.Id)
-                            ApplyBarPresenceDelta(previousBarId, -1);
-                        ApplyBarPresenceDelta(SelectedBar.Id, +1);
+                        IfCheckinMovedUpdatePresence(previousBarId, SelectedBar.Id);
                         await ShowToastAsync("📍 Tes amis savent que tu es là !");
+                    }
+                    else
+                    {
+                        await ShowToastAsync("Check-in impossible pour le moment. Reessaie dans quelques secondes.");
                     }
                 }
                 catch (InvalidOperationException ioe) when (ioe.Message == "trop_loin")

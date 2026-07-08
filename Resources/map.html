@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NightOut Admin — Carte</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html, body, #map { width:100%; height:100%; background:#0A1018; font-family:'Segoe UI', sans-serif; }
+
+  /* Légende */
+  #legend {
+    position:absolute; top:12px; right:12px; z-index:1000;
+    background:rgba(15,25,35,0.92); border:1px solid #23323F; border-radius:12px;
+    padding:10px 14px; color:#F2E8D5; font-size:12px; box-shadow:0 6px 24px rgba(0,0,0,.5);
+  }
+  #legend .row { display:flex; align-items:center; gap:8px; margin:4px 0; }
+  #legend .dot { width:14px; height:14px; border-radius:50%; flex-shrink:0; }
+
+  /* Marqueurs */
+  .pin {
+    width:34px; height:34px; border-radius:50% 50% 50% 0;
+    transform:rotate(-45deg); display:flex; align-items:center; justify-content:center;
+    box-shadow:0 4px 10px rgba(0,0,0,.5); border:2px solid rgba(255,255,255,.85);
+    cursor:pointer;
+  }
+  .pin span { transform:rotate(45deg); font-size:15px; }
+  .pin-approved { background:#FFB627; }
+  .pin-pending  { background:#FF6B35; animation:pulse 1.4s infinite; }
+  .pin-event    { background:#E5559F; }
+  .pin-user     { width:16px; height:16px; border-radius:50%; transform:none; background:#3DB87A; border:2px solid #0A1018; }
+
+  @keyframes pulse {
+    0%   { box-shadow:0 0 0 0 rgba(255,107,53,.6); }
+    70%  { box-shadow:0 0 0 12px rgba(255,107,53,0); }
+    100% { box-shadow:0 0 0 0 rgba(255,107,53,0); }
+  }
+
+  .leaflet-popup-content-wrapper { background:#131F2B; color:#F2E8D5; border:1px solid #23323F; border-radius:10px; }
+  .leaflet-popup-tip { background:#131F2B; }
+  .pop-title { font-weight:700; color:#FFB627; font-size:14px; margin-bottom:2px; }
+  .pop-sub { color:#7A8FA6; font-size:11px; margin-bottom:6px; }
+  .pop-badge { display:inline-block; font-size:10px; font-weight:700; padding:2px 8px; border-radius:999px; }
+  .pop-btn {
+    display:block; margin-top:8px; text-align:center; background:#FFB627; color:#0A1018;
+    font-weight:700; font-size:12px; padding:6px; border-radius:8px; border:none; width:100%; cursor:pointer;
+  }
+</style>
+</head>
+<body>
+<div id="map"></div>
+<div id="legend">
+  <div class="row"><span class="dot" style="background:#FFB627"></span> Bars validés</div>
+  <div class="row"><span class="dot" style="background:#FF6B35"></span> Bars à valider</div>
+  <div class="row"><span class="dot" style="background:#E5559F"></span> Événements</div>
+  <div class="row"><span class="dot" style="background:#3DB87A"></span> Utilisateurs</div>
+</div>
+
+<script>
+  var map = L.map('map', { zoomControl:true, attributionControl:true })
+             .setView([50.3674, 3.0790], 11); // Valenciennes / Lille par défaut
+
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+    maxZoom: 19,
+    attribution: '&copy; OpenStreetMap, &copy; CARTO'
+  }).addTo(map);
+
+  var layerGroup = L.layerGroup().addTo(map);
+
+  function post(obj) {
+    if (window.chrome && window.chrome.webview) {
+      window.chrome.webview.postMessage(JSON.stringify(obj));
+    }
+  }
+
+  function makeIcon(cls, emoji) {
+    if (cls === 'pin-user') {
+      return L.divIcon({ className:'', html:'<div class="pin pin-user"></div>', iconSize:[16,16], iconAnchor:[8,8] });
+    }
+    return L.divIcon({
+      className:'',
+      html:'<div class="pin '+cls+'"><span>'+emoji+'</span></div>',
+      iconSize:[34,34], iconAnchor:[17,34], popupAnchor:[0,-34]
+    });
+  }
+
+  // Appelé depuis l'hôte WinForms via ExecuteScriptAsync.
+  // data = { bars:[...], events:[...], users:[...] }
+  function setData(jsonString) {
+    layerGroup.clearLayers();
+    var data;
+    try { data = JSON.parse(jsonString); } catch(e) { return; }
+
+    var bounds = [];
+
+    (data.bars || []).forEach(function(b) {
+      if (!b.lat || !b.lng) return;
+      var pending = (b.status !== 'approved');
+      var cls = pending ? 'pin-pending' : 'pin-approved';
+      var emoji = pending ? '⏳' : '🍺';
+      var badgeColor = pending ? '#FF6B35' : '#3DB87A';
+      var badgeText = pending ? 'À VALIDER' : 'VALIDÉ';
+      var m = L.marker([b.lat, b.lng], { icon: makeIcon(cls, emoji) }).addTo(layerGroup);
+      var html = '<div class="pop-title">'+escapeHtml(b.name)+'</div>'
+               + '<div class="pop-sub">'+escapeHtml(b.address || '')+'</div>'
+               + '<span class="pop-badge" style="background:'+badgeColor+';color:#0A1018">'+badgeText+'</span>'
+               + '<button class="pop-btn" onclick="post({type:\'open\',id:\''+b.id+'\'})">Voir les stats</button>'
+               + (pending ? '<button class="pop-btn" style="background:#FF6B35;margin-top:6px" onclick="post({type:\'validate\',id:\''+b.id+'\'})">Aller valider</button>' : '');
+      m.bindPopup(html);
+      m.on('dblclick', function(ev) { L.DomEvent.stop(ev); post({ type:'open', id:b.id }); });
+      bounds.push([b.lat, b.lng]);
+    });
+
+    (data.events || []).forEach(function(ev) {
+      if (!ev.lat || !ev.lng) return;
+      var m = L.marker([ev.lat, ev.lng], { icon: makeIcon('pin-event', '🎉') }).addTo(layerGroup);
+      m.bindPopup('<div class="pop-title">'+escapeHtml(ev.title)+'</div>'
+                + '<div class="pop-sub">'+escapeHtml(ev.date || '')+'</div>'
+                + '<span class="pop-badge" style="background:#E5559F;color:#fff">'+escapeHtml(ev.kind || 'ÉVÉNEMENT')+'</span>');
+      bounds.push([ev.lat, ev.lng]);
+    });
+
+    (data.users || []).forEach(function(u) {
+      if (!u.lat || !u.lng) return;
+      var m = L.marker([u.lat, u.lng], { icon: makeIcon('pin-user', '') }).addTo(layerGroup);
+      m.bindPopup('<div class="pop-title">'+escapeHtml(u.name)+'</div><div class="pop-sub">Utilisateur présent</div>');
+    });
+
+    if (bounds.length > 0) {
+      try { map.fitBounds(bounds, { padding:[50,50], maxZoom:14 }); } catch(e) {}
+    }
+  }
+
+  function escapeHtml(s) {
+    if (!s) return '';
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  // Signale à l'hôte que la carte est prête
+  post({ type:'ready' });
+</script>
+</body>
+</html>

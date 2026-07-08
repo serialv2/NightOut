@@ -4,7 +4,7 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     Shell.NavBarIsVisible="False"
-    BackgroundColor="#0A1018">
+    BackgroundColor="{DynamicResource BgDeep}">
 
     <Grid RowDefinitions="Auto,*">
 
@@ -13,8 +13,8 @@
                     WidthRequest="44"
                     HeightRequest="44"
                     CornerRadius="22"
-                    BackgroundColor="#182536"
-                    TextColor="#F2E8D5"
+                    BackgroundColor="{DynamicResource BgElevated}"
+                    TextColor="{DynamicResource TextPrimary}"
                     FontSize="26"
                     Command="{Binding BackCommand}" />
 
@@ -22,7 +22,7 @@
                    Text="Détail événement"
                    FontSize="18"
                    FontAttributes="Bold"
-                   TextColor="#F2E8D5"
+                   TextColor="{DynamicResource TextPrimary}"
                    VerticalOptions="Center"
                    Margin="12,0,0,0" />
         </Grid>
@@ -30,9 +30,9 @@
         <ScrollView Grid.Row="1">
             <VerticalStackLayout Padding="20,0,20,30" Spacing="18">
 
-                <Border Stroke="#23344A"
+                <Border Stroke="{DynamicResource Border}"
                         StrokeThickness="1"
-                        BackgroundColor="#101A27"
+                        BackgroundColor="{DynamicResource BgElevated}"
                         Padding="0">
                     <Border.StrokeShape>
                         <RoundRectangle CornerRadius="24" />
@@ -42,38 +42,38 @@
                         <Image Grid.Row="0"
                                Source="{Binding Event.FlyerUrl}"
                                Aspect="AspectFill"
-                               BackgroundColor="#172234" />
+                               BackgroundColor="{DynamicResource BgElevated}" />
 
                         <VerticalStackLayout Grid.Row="1" Padding="18" Spacing="10">
                             <Label Text="{Binding Event.Title}"
                                    FontSize="26"
                                    FontAttributes="Bold"
-                                   TextColor="#F2E8D5" />
+                                   TextColor="{DynamicResource TextPrimary}" />
 
                             <Label Text="{Binding Event.DateLabel}"
                                    FontSize="15"
                                    FontAttributes="Bold"
-                                   TextColor="#FFB627" />
+                                   TextColor="{DynamicResource Accent}" />
 
                             <Label Text="{Binding Event.BarDisplay}"
                                    FontSize="16"
-                                   TextColor="#F2E8D5" />
+                                   TextColor="{DynamicResource TextPrimary}" />
 
                             <Label Text="{Binding Event.BarAddress}"
                                    FontSize="13"
-                                   TextColor="#7E8CA0" />
+                                   TextColor="{DynamicResource TextSecondary}" />
 
                             <Label Text="{Binding Event.Description}"
                                    FontSize="14"
-                                   TextColor="#D7DCE5"
+                                   TextColor="{DynamicResource TextPrimary}"
                                    LineBreakMode="WordWrap" />
                         </VerticalStackLayout>
                     </Grid>
                 </Border>
 
-                <Border Stroke="#23344A"
+                <Border Stroke="{DynamicResource Border}"
                         StrokeThickness="1"
-                        BackgroundColor="#101A27"
+                        BackgroundColor="{DynamicResource BgElevated}"
                         Padding="16">
                     <Border.StrokeShape>
                         <RoundRectangle CornerRadius="20" />
@@ -83,11 +83,11 @@
                         <Label Text="Ta réponse"
                                FontSize="18"
                                FontAttributes="Bold"
-                               TextColor="#F2E8D5" />
+                               TextColor="{DynamicResource TextPrimary}" />
 
                         <Label Text="{Binding ParticipationLabel}"
                                FontSize="13"
-                               TextColor="#7E8CA0" />
+                               TextColor="{DynamicResource TextSecondary}" />
 
                         <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8">
                             <Button Text="J’y vais"
@@ -117,32 +117,32 @@
                         <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
                             <Label Text="{Binding Event.GoingCount, StringFormat='✅ {0} participants'}"
                                    FontSize="12"
-                                   TextColor="#7E8CA0" />
+                                   TextColor="{DynamicResource TextSecondary}" />
 
                             <Label Grid.Column="1"
                                    Text="{Binding Event.MaybeCount, StringFormat='🤔 {0} peut-être'}"
                                    FontSize="12"
-                                   TextColor="#7E8CA0" />
+                                   TextColor="{DynamicResource TextSecondary}" />
                         </Grid>
 
                         <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
                             <Label Text="{Binding Event.CheckedInCount, StringFormat='📍 {0} confirmés sur place'}"
                                    FontSize="12"
-                                   TextColor="#1D8F5A" />
+                                   TextColor="{DynamicResource Success}" />
                         </Grid>
 
                         <BoxView HeightRequest="1"
-                                 Color="#23344A"
+                                 Color="{DynamicResource Border}"
                                  Margin="0,4" />
 
                         <Label Text="{Binding CheckInLabel}"
                                FontSize="13"
-                               TextColor="#D7DCE5"
+                               TextColor="{DynamicResource TextPrimary}"
                                LineBreakMode="WordWrap" />
 
                         <Label Text="{Binding LastCheckInMessage}"
                                FontSize="12"
-                               TextColor="#7E8CA0"
+                               TextColor="{DynamicResource TextSecondary}"
                                LineBreakMode="WordWrap" />
 
                         <Button Text="{Binding CheckInButtonText}"
@@ -155,14 +155,14 @@
 
                         <Label Text="Le score de fiabilité augmente seulement quand la présence est confirmée sur place par GPS."
                                FontSize="12"
-                               TextColor="#7E8CA0"
+                               TextColor="{DynamicResource TextSecondary}"
                                LineBreakMode="WordWrap" />
                     </VerticalStackLayout>
                 </Border>
 
-                <Border Stroke="#23344A"
+                <Border Stroke="{DynamicResource Border}"
                         StrokeThickness="1"
-                        BackgroundColor="#101A27"
+                        BackgroundColor="{DynamicResource BgElevated}"
                         Padding="16">
                     <Border.StrokeShape>
                         <RoundRectangle CornerRadius="20" />
@@ -172,25 +172,25 @@
                         <Label Text="Partager avec un groupe"
                                FontSize="18"
                                FontAttributes="Bold"
-                               TextColor="#F2E8D5" />
+                               TextColor="{DynamicResource TextPrimary}" />
 
                         <Label Text="Crée une sortie dans un de tes groupes d'amis à partir de cet événement."
                                FontSize="13"
-                               TextColor="#7E8CA0" />
+                               TextColor="{DynamicResource TextSecondary}" />
 
                         <Picker Title="Choisir un groupe"
                                 ItemsSource="{Binding Groups}"
                                 SelectedItem="{Binding SelectedGroup}"
                                 ItemDisplayBinding="{Binding DisplayTitle}"
-                                TextColor="#F2E8D5"
-                                TitleColor="#7E8CA0"
-                                BackgroundColor="#182536" />
+                                TextColor="{DynamicResource TextPrimary}"
+                                TitleColor="{DynamicResource TextSecondary}"
+                                BackgroundColor="{DynamicResource BgElevated}" />
 
                         <Button Text="Partager dans ce groupe"
                                 HeightRequest="48"
                                 CornerRadius="24"
-                                BackgroundColor="#FFB627"
-                                TextColor="#0A1018"
+                                BackgroundColor="{DynamicResource Accent}"
+                                TextColor="{DynamicResource BgDeep}"
                                 FontAttributes="Bold"
                                 IsEnabled="{Binding HasGroups}"
                                 Command="{Binding ShareToGroupCommand}" />
@@ -200,16 +200,16 @@
                 <Button Text="{Binding FollowButtonText}"
                         HeightRequest="48"
                         CornerRadius="24"
-                        BackgroundColor="#182536"
-                        TextColor="#F2E8D5"
+                        BackgroundColor="{DynamicResource BgElevated}"
+                        TextColor="{DynamicResource TextPrimary}"
                         FontAttributes="Bold"
                         Command="{Binding ToggleFollowBarCommand}" />
 
                 <Button Text="Voir la fiche du bar"
                         HeightRequest="48"
                         CornerRadius="24"
-                        BackgroundColor="#23344A"
-                        TextColor="#F2E8D5"
+                        BackgroundColor="{DynamicResource Border}"
+                        TextColor="{DynamicResource TextPrimary}"
                         Command="{Binding OpenBarCommand}" />
 
             </VerticalStackLayout>

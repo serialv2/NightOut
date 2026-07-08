@@ -1,42 +1,47 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage
+    x:Name="RootPage"
     x:Class="NightOut.Views.Pro.ProDashboardPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:vm="clr-namespace:NightOut.ViewModels"
+    xmlns:models="clr-namespace:NightOut.Models"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
     x:DataType="vm:ProDashboardViewModel"
     Shell.NavBarIsVisible="False"
-    BackgroundColor="#0A1018">
+    BackgroundColor="{DynamicResource BgDeep}">
 
     <ContentPage.Resources>
+        <toolkit:InvertedBoolConverter x:Key="Inv"/>
+
         <Style x:Key="SectionLabel" TargetType="Label">
             <Setter Property="FontFamily" Value="DMSans-SemiBold"/>
             <Setter Property="FontSize" Value="11"/>
-            <Setter Property="TextColor" Value="#3D5068"/>
+            <Setter Property="TextColor" Value="{DynamicResource TextMuted}"/>
             <Setter Property="Margin" Value="0,20,0,8"/>
         </Style>
 
         <Style x:Key="FieldEntry" TargetType="Entry">
-            <Setter Property="TextColor" Value="#F2E8D5"/>
-            <Setter Property="PlaceholderColor" Value="#3D5068"/>
+            <Setter Property="TextColor" Value="{DynamicResource TextPrimary}"/>
+            <Setter Property="PlaceholderColor" Value="{DynamicResource TextMuted}"/>
             <Setter Property="FontFamily" Value="DMSans-Regular"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="BackgroundColor" Value="Transparent"/>
         </Style>
 
         <Style x:Key="FieldBorder" TargetType="Border">
-            <Setter Property="BackgroundColor" Value="#131C28"/>
+            <Setter Property="BackgroundColor" Value="{DynamicResource BgElevated}"/>
             <Setter Property="StrokeShape" Value="RoundRectangle 14"/>
-            <Setter Property="Stroke" Value="#1F2D3D"/>
+            <Setter Property="Stroke" Value="{DynamicResource Border}"/>
             <Setter Property="StrokeThickness" Value="1"/>
             <Setter Property="Padding" Value="14,2"/>
             <Setter Property="Margin" Value="0,8,0,0"/>
         </Style>
 
         <Style x:Key="CardBorder" TargetType="Border">
-            <Setter Property="BackgroundColor" Value="#131C28"/>
+            <Setter Property="BackgroundColor" Value="{DynamicResource BgElevated}"/>
             <Setter Property="StrokeShape" Value="RoundRectangle 18"/>
-            <Setter Property="Stroke" Value="#1F2D3D"/>
+            <Setter Property="Stroke" Value="{DynamicResource Border}"/>
             <Setter Property="StrokeThickness" Value="1"/>
             <Setter Property="Padding" Value="16"/>
             <Setter Property="Margin" Value="0,8,0,0"/>
@@ -46,13 +51,13 @@
     <Grid RowDefinitions="Auto,*,Auto">
 
         <Grid Grid.Row="0"
-              BackgroundColor="#0D1520"
+              BackgroundColor="{DynamicResource BgCard}"
               Padding="20,50,20,22"
-              ColumnDefinitions="Auto,*"
+              ColumnDefinitions="Auto,*,Auto"
               ColumnSpacing="14">
 
             <Border Grid.Column="0"
-                    BackgroundColor="#1A2535"
+                    BackgroundColor="{DynamicResource BgElevated}"
                     StrokeThickness="0"
                     StrokeShape="RoundRectangle 22"
                     WidthRequest="44"
@@ -63,7 +68,7 @@
 
                 <Label Text="‹"
                        FontSize="28"
-                       TextColor="#FFB627"
+                       TextColor="{DynamicResource Accent}"
                        HorizontalOptions="Center"
                        VerticalOptions="Center"/>
             </Border>
@@ -72,20 +77,38 @@
                 <Label Text="Espace Professionnel"
                        FontFamily="DMSans-SemiBold"
                        FontSize="22"
-                       TextColor="#F2E8D5"/>
+                       TextColor="{DynamicResource TextPrimary}"/>
 
-                <Label Text="Tableau de bord NightOut Pro"
+                <Label Text="Tableau de bord Spotiz Pro"
                        FontFamily="DMSans-Regular"
                        FontSize="13"
-                       TextColor="#3D5068"/>
+                       TextColor="{DynamicResource TextMuted}"/>
             </VerticalStackLayout>
+
+            <Border Grid.Column="2"
+                    BackgroundColor="{DynamicResource BgElevated}"
+                    Stroke="{DynamicResource Border}"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 22"
+                    WidthRequest="44"
+                    HeightRequest="44"
+                    VerticalOptions="Center">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnProMenuTapped"/>
+                </Border.GestureRecognizers>
+
+                <Label Text="⚙️"
+                       FontSize="20"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center"/>
+            </Border>
         </Grid>
 
         <ScrollView Grid.Row="1">
             <VerticalStackLayout Padding="20,12,20,24" Spacing="0">
 
-                <Border BackgroundColor="#181C26"
-                        Stroke="#FFB627"
+                <Border BackgroundColor="{DynamicResource BgPanel}"
+                        Stroke="{DynamicResource Accent}"
                         StrokeThickness="1"
                         StrokeShape="RoundRectangle 22"
                         Padding="18">
@@ -101,34 +124,379 @@
                                 <Label Text="{Binding StatusLabel}"
                                        FontFamily="DMSans-SemiBold"
                                        FontSize="17"
-                                       TextColor="#F2E8D5"/>
+                                       TextColor="{DynamicResource TextPrimary}"/>
 
                                 <Label Text="{Binding KindLabel}"
                                        FontFamily="DMSans-Regular"
                                        FontSize="13"
-                                       TextColor="#FFB627"/>
+                                       TextColor="{DynamicResource Accent}"/>
                             </VerticalStackLayout>
                         </Grid>
 
-                        <Label Text="Votre compte peut se connecter normalement. Les fonctions professionnelles restent verrouillées tant que la validation NightOut n'est pas terminée."
+                        <Label Text="Votre compte peut se connecter normalement. Les fonctions professionnelles restent verrouillées tant que la validation Spotiz n'est pas terminée."
                                FontFamily="DMSans-Regular"
                                FontSize="13"
-                               TextColor="#A8B3C3"
+                               TextColor="{DynamicResource TextSecondary}"
                                LineBreakMode="WordWrap"
                                IsVisible="{Binding CannotUseProFeatures}"/>
 
                         <Label Text="Votre espace professionnel est validé. Vous pouvez préparer vos événements et accéder progressivement aux statistiques."
                                FontFamily="DMSans-Regular"
                                FontSize="13"
-                               TextColor="#A8B3C3"
+                               TextColor="{DynamicResource TextSecondary}"
                                LineBreakMode="WordWrap"
                                IsVisible="{Binding CanUseProFeatures}"/>
 
                         <Label Text="{Binding RejectionReason, StringFormat='Motif : {0}'}"
                                FontFamily="DMSans-Regular"
                                FontSize="13"
-                               TextColor="#F87171"
+                               TextColor="{DynamicResource Error}"
                                IsVisible="{Binding HasRejectionReason}"/>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Label Style="{StaticResource SectionLabel}" Text="MES ÉTABLISSEMENTS"/>
+
+                <Border Style="{StaticResource CardBorder}">
+                    <VerticalStackLayout Spacing="12">
+
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                            <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                <Label Text="{Binding EstablishmentModeText}"
+                                       FontFamily="DMSans-SemiBold"
+                                       FontSize="15"
+                                       TextColor="{DynamicResource TextPrimary}"/>
+                                <Label Text="{Binding SelectedBarName}"
+                                       FontFamily="DMSans-Regular"
+                                       FontSize="12"
+                                       TextColor="{DynamicResource TextSecondary}"/>
+                            </VerticalStackLayout>
+
+                            <Border Grid.Column="1"
+                                    BackgroundColor="{DynamicResource Accent}"
+                                    StrokeThickness="0"
+                                    StrokeShape="RoundRectangle 14"
+                                    Padding="12,8"
+                                    VerticalOptions="Center">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding AddEstablishmentCommand}"/>
+                                </Border.GestureRecognizers>
+                                <Label Text="+ Ajouter"
+                                       FontFamily="DMSans-SemiBold"
+                                       FontSize="12"
+                                       TextColor="{DynamicResource BgDeep}"/>
+                            </Border>
+                        </Grid>
+
+                        <Label Text="Un même patron peut gérer plusieurs bars, clubs ou salles. Sélectionne l'établissement à modifier, puis enregistre ses infos et ses horaires."
+                               FontFamily="DMSans-Regular"
+                               FontSize="12"
+                               TextColor="{DynamicResource TextSecondary}"
+                               LineBreakMode="WordWrap"/>
+
+                        <CollectionView ItemsSource="{Binding MyBars}"
+                                        SelectionMode="None"
+                                        IsVisible="{Binding HasBars}"
+                                        HeightRequest="118">
+                            <CollectionView.ItemsLayout>
+                                <LinearItemsLayout Orientation="Horizontal" ItemSpacing="10"/>
+                            </CollectionView.ItemsLayout>
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate x:DataType="models:Bar">
+                                    <Border BackgroundColor="{DynamicResource BgCard}"
+                                            Stroke="{DynamicResource Border}"
+                                            StrokeThickness="1"
+                                            StrokeShape="RoundRectangle 16"
+                                            Padding="12"
+                                            WidthRequest="210">
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer
+                                                Command="{Binding BindingContext.SelectBarCommand, Source={x:Reference RootPage}}"
+                                                CommandParameter="{Binding .}"/>
+                                        </Border.GestureRecognizers>
+
+                                        <Grid RowDefinitions="Auto,Auto,Auto" RowSpacing="4">
+                                            <Label Grid.Row="0"
+                                                   Text="{Binding Name}"
+                                                   FontFamily="DMSans-SemiBold"
+                                                   FontSize="14"
+                                                   TextColor="{DynamicResource TextPrimary}"
+                                                   LineBreakMode="TailTruncation"/>
+                                            <Label Grid.Row="1"
+                                                   Text="{Binding Address}"
+                                                   FontFamily="DMSans-Regular"
+                                                   FontSize="11"
+                                                   TextColor="{DynamicResource TextSecondary}"
+                                                   LineBreakMode="TailTruncation"/>
+                                            <HorizontalStackLayout Grid.Row="2" Spacing="6">
+                                                <Label Text="{Binding Icon}" FontSize="13"/>
+                                                <Label Text="{Binding Status}"
+                                                       FontFamily="DMSans-Regular"
+                                                       FontSize="10"
+                                                       TextColor="{DynamicResource Accent}"/>
+                                            </HorizontalStackLayout>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+
+                        <Label Text="Aucun établissement encore rattaché : remplis le formulaire ci-dessous puis enregistre."
+                               FontFamily="DMSans-Regular"
+                               FontSize="12"
+                               TextColor="{DynamicResource TextSecondary}"
+                               IsVisible="{Binding HasNoBars}"/>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Label Style="{StaticResource SectionLabel}"
+                       Text="RÉCOMPENSES"
+                       IsVisible="{Binding HasSelectedExistingBar}"/>
+
+                <Border Style="{StaticResource CardBorder}"
+                        IsVisible="{Binding HasSelectedExistingBar}">
+                    <VerticalStackLayout Spacing="12">
+                        <Label Text="Créez les avantages que les clients pourront payer avec leurs points Spotiz."
+                               FontFamily="DMSans-Regular"
+                               FontSize="12"
+                               TextColor="{DynamicResource TextSecondary}"
+                               LineBreakMode="WordWrap"/>
+
+                        <Border Style="{StaticResource FieldBorder}" HeightRequest="54">
+                            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                                <Label Grid.Column="0" Text="🎁" FontSize="16" VerticalOptions="Center"/>
+                                <Entry Grid.Column="1"
+                                       Style="{StaticResource FieldEntry}"
+                                       Text="{Binding RewardTitle}"
+                                       Placeholder="Ex : 1 soft offert"/>
+                            </Grid>
+                        </Border>
+
+                        <Border Style="{StaticResource FieldBorder}" HeightRequest="54">
+                            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                                <Label Grid.Column="0" Text="✍" FontSize="16" VerticalOptions="Center"/>
+                                <Entry Grid.Column="1"
+                                       Style="{StaticResource FieldEntry}"
+                                       Text="{Binding RewardDescription}"
+                                       Placeholder="Description courte"/>
+                            </Grid>
+                        </Border>
+
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                            <Border Grid.Column="0" Style="{StaticResource FieldBorder}" HeightRequest="54">
+                                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                                    <Label Grid.Column="0" Text="⭐" FontSize="16" VerticalOptions="Center"/>
+                                    <Entry Grid.Column="1"
+                                           Style="{StaticResource FieldEntry}"
+                                           Text="{Binding RewardPointsCost}"
+                                           Placeholder="Points"
+                                           Keyboard="Numeric"/>
+                                </Grid>
+                            </Border>
+
+                            <Border Grid.Column="1" Style="{StaticResource FieldBorder}" HeightRequest="54">
+                                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                                    <Label Grid.Column="0" Text="⏱" FontSize="16" VerticalOptions="Center"/>
+                                    <Entry Grid.Column="1"
+                                           Style="{StaticResource FieldEntry}"
+                                           Text="{Binding RewardMaxPerUserPerDay}"
+                                           Placeholder="Max/jour"
+                                           Keyboard="Numeric"/>
+                                </Grid>
+                            </Border>
+                        </Grid>
+
+                        <Border BackgroundColor="{DynamicResource Accent}"
+                                StrokeThickness="0"
+                                StrokeShape="RoundRectangle 14"
+                                HeightRequest="46">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding AddRewardCommand}"/>
+                            </Border.GestureRecognizers>
+
+                            <Label Text="Ajouter la récompense"
+                                   FontFamily="DMSans-SemiBold"
+                                   FontSize="14"
+                                   TextColor="{DynamicResource BgDeep}"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center"/>
+                        </Border>
+
+                        <BoxView HeightRequest="1" Color="{DynamicResource Border}" Margin="0,4"/>
+
+                        <Label Text="Validation client"
+                               FontFamily="DMSans-SemiBold"
+                               FontSize="14"
+                               TextColor="{DynamicResource TextPrimary}"/>
+
+                        <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="10">
+                            <Border Grid.Column="0" Style="{StaticResource FieldBorder}" HeightRequest="54">
+                                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                                    <Label Grid.Column="0" Text="🔐" FontSize="16" VerticalOptions="Center"/>
+                                    <Entry Grid.Column="1"
+                                           Style="{StaticResource FieldEntry}"
+                                           Text="{Binding RewardValidationCode}"
+                                           Placeholder="Code client"
+                                           Keyboard="Text"/>
+                                </Grid>
+                            </Border>
+
+                            <Button Grid.Column="1"
+                                    Text="Scanner"
+                                    Command="{Binding ScanRewardQrCodeCommand}"
+                                    BackgroundColor="{DynamicResource BgElevated}"
+                                    TextColor="{DynamicResource TextPrimary}"
+                                    FontFamily="DMSans-SemiBold"
+                                    FontSize="12"
+                                    CornerRadius="14"
+                                    Padding="12,8"
+                                    VerticalOptions="Center"/>
+
+                            <Button Grid.Column="2"
+                                    Text="Valider"
+                                    Command="{Binding ValidateRewardCodeCommand}"
+                                    BackgroundColor="{DynamicResource Success}"
+                                    TextColor="{DynamicResource BgDeep}"
+                                    FontFamily="DMSans-SemiBold"
+                                    FontSize="12"
+                                    CornerRadius="14"
+                                    Padding="14,8"
+                                    VerticalOptions="Center"/>
+                        </Grid>
+
+                        <Border BackgroundColor="{DynamicResource BgPanel}"
+                                Stroke="#3394B1C6"
+                                StrokeThickness="1"
+                                StrokeShape="RoundRectangle 14"
+                                Padding="12"
+                                IsVisible="{Binding HasRewardValidationStatus}">
+                            <Label Text="{Binding RewardValidationStatus}"
+                                   FontFamily="DMSans-SemiBold"
+                                   FontSize="12"
+                                   TextColor="{DynamicResource TextPrimary}"
+                                   LineBreakMode="WordWrap"/>
+                        </Border>
+
+                        <BoxView HeightRequest="1" Color="{DynamicResource Border}" Margin="0,4"/>
+
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label Text="Historique des récompenses accordées"
+                                   FontFamily="DMSans-SemiBold"
+                                   FontSize="14"
+                                   TextColor="{DynamicResource TextPrimary}"/>
+                            <Label Grid.Column="1"
+                                   Text="{Binding RewardRedemptions.Count, StringFormat='{0}'}"
+                                   FontFamily="DMSans-SemiBold"
+                                   FontSize="13"
+                                   TextColor="{DynamicResource Accent}"/>
+                        </Grid>
+
+                        <CollectionView ItemsSource="{Binding RewardRedemptions}"
+                                        SelectionMode="None"
+                                        IsVisible="{Binding HasRewardRedemptions}"
+                                        HeightRequest="180">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate x:DataType="models:BarRewardRedemptionHistoryItem">
+                                    <Border BackgroundColor="{DynamicResource BgCard}"
+                                            Stroke="{DynamicResource Border}"
+                                            StrokeThickness="1"
+                                            StrokeShape="RoundRectangle 14"
+                                            Padding="12"
+                                            Margin="0,0,0,8">
+                                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                                            <VerticalStackLayout Grid.Column="0" Spacing="3">
+                                                <Label Text="{Binding RewardTitle}"
+                                                       FontFamily="DMSans-SemiBold"
+                                                       FontSize="13"
+                                                       TextColor="{DynamicResource TextPrimary}"
+                                                       LineBreakMode="TailTruncation"/>
+                                                <Label Text="{Binding UserLabel}"
+                                                       FontFamily="DMSans-Regular"
+                                                       FontSize="11"
+                                                       TextColor="{DynamicResource TextSecondary}"
+                                                       LineBreakMode="TailTruncation"/>
+                                            </VerticalStackLayout>
+                                            <VerticalStackLayout Grid.Column="1" Spacing="3" HorizontalOptions="End">
+                                                <Label Text="{Binding PointsLabel}"
+                                                       FontFamily="DMSans-SemiBold"
+                                                       FontSize="12"
+                                                       TextColor="{DynamicResource Accent}"
+                                                       HorizontalTextAlignment="End"/>
+                                                <Label Text="{Binding DateLabel}"
+                                                       FontFamily="DMSans-Regular"
+                                                       FontSize="11"
+                                                       TextColor="{DynamicResource TextSecondary}"
+                                                       HorizontalTextAlignment="End"/>
+                                            </VerticalStackLayout>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+
+                        <Label Text="Aucune récompense accordée pour le moment."
+                               FontFamily="DMSans-Regular"
+                               FontSize="12"
+                               TextColor="{DynamicResource TextSecondary}"
+                               IsVisible="{Binding HasRewardRedemptions, Converter={StaticResource Inv}}"/>
+
+                        <CollectionView ItemsSource="{Binding Rewards}"
+                                        SelectionMode="None"
+                                        IsVisible="{Binding HasRewards}"
+                                        HeightRequest="170">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate x:DataType="models:BarReward">
+                                    <Border BackgroundColor="{DynamicResource BgCard}"
+                                            Stroke="{DynamicResource Border}"
+                                            StrokeThickness="1"
+                                            StrokeShape="RoundRectangle 14"
+                                            Padding="12"
+                                            Margin="0,0,0,8">
+                                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                                            <VerticalStackLayout Grid.Column="0" Spacing="3">
+                                                <Label Text="{Binding Title}"
+                                                       FontFamily="DMSans-SemiBold"
+                                                       FontSize="14"
+                                                       TextColor="{DynamicResource TextPrimary}"/>
+                                                <Label Text="{Binding DescriptionLabel}"
+                                                       FontFamily="DMSans-Regular"
+                                                       FontSize="11"
+                                                       TextColor="{DynamicResource TextSecondary}"
+                                                       LineBreakMode="TailTruncation"/>
+                                                <HorizontalStackLayout Spacing="8">
+                                                    <Label Text="{Binding CostLabel}"
+                                                           FontFamily="DMSans-SemiBold"
+                                                           FontSize="12"
+                                                           TextColor="{DynamicResource Accent}"/>
+                                                    <Label Text="{Binding StatusLabel}"
+                                                           FontFamily="DMSans-Regular"
+                                                           FontSize="12"
+                                                           TextColor="{DynamicResource TextSecondary}"/>
+                                                </HorizontalStackLayout>
+                                            </VerticalStackLayout>
+
+                                            <Button Grid.Column="1"
+                                                    Text="On/Off"
+                                                    Command="{Binding BindingContext.ToggleRewardCommand, Source={x:Reference RootPage}}"
+                                                    CommandParameter="{Binding .}"
+                                                    BackgroundColor="{DynamicResource BgElevated}"
+                                                    TextColor="{DynamicResource TextPrimary}"
+                                                    FontFamily="DMSans-SemiBold"
+                                                    FontSize="12"
+                                                    CornerRadius="14"
+                                                    Padding="12,8"
+                                                    VerticalOptions="Center"/>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+
+                        <Label Text="Aucune récompense configurée pour cet établissement."
+                               FontFamily="DMSans-Regular"
+                               FontSize="12"
+                               TextColor="{DynamicResource TextSecondary}"
+                               IsVisible="{Binding HasRewards, Converter={StaticResource Inv}}"/>
                     </VerticalStackLayout>
                 </Border>
 
@@ -154,9 +522,9 @@
                     </Grid>
                 </Border>
 
-                <Border BackgroundColor="#131C28"
+                <Border BackgroundColor="{DynamicResource BgElevated}"
                         StrokeShape="RoundRectangle 14"
-                        Stroke="#1F2D3D"
+                        Stroke="{DynamicResource Border}"
                         StrokeThickness="1"
                         Padding="14,10"
                         Margin="0,8,0,0">
@@ -171,8 +539,8 @@
                         <Editor Grid.Column="1"
                                 Text="{Binding Description}"
                                 Placeholder="Décris ton établissement ou ton activité d'organisateur..."
-                                PlaceholderColor="#3D5068"
-                                TextColor="#F2E8D5"
+                                PlaceholderColor="{DynamicResource TextMuted}"
+                                TextColor="{DynamicResource TextPrimary}"
                                 FontFamily="DMSans-Regular"
                                 FontSize="14"
                                 BackgroundColor="Transparent"
@@ -185,24 +553,24 @@
                 <Label Text="Catégorie d'établissement"
                        FontFamily="DMSans-SemiBold"
                        FontSize="12"
-                       TextColor="#A8B3C3"
+                       TextColor="{DynamicResource TextSecondary}"
                        Margin="2,10,0,0"/>
 
                 <Border Style="{StaticResource FieldBorder}" HeightRequest="54">
                     <Picker ItemsSource="{Binding AvailableCategories}"
                             SelectedItem="{Binding SelectedCategory}"
                             ItemDisplayBinding="{Binding DisplayName}"
-                            TextColor="#F2E8D5"
+                            TextColor="{DynamicResource TextPrimary}"
                             Title="Choisir une catégorie"
-                            TitleColor="#3D5068"
+                            TitleColor="{DynamicResource TextMuted}"
                             FontFamily="DMSans-Regular"
                             FontSize="14"/>
                 </Border>
 
-                <Label Text="Cette catégorie alimente les filtres de la carte NightOut. Choisissez celle qui décrit le mieux votre établissement."
+                <Label Text="Cette catégorie alimente les filtres de la carte Spotiz. Choisissez celle qui décrit le mieux votre établissement."
                        FontFamily="DMSans-Regular"
                        FontSize="12"
-                       TextColor="#A8B3C3"
+                       TextColor="{DynamicResource TextSecondary}"
                        Margin="2,8,0,0"
                        LineBreakMode="WordWrap"/>
 
@@ -256,18 +624,18 @@
                     </Grid>
                 </Border>
 
-                <Label Text="Ville NightOut de rattachement"
+                <Label Text="Ville Spotiz de rattachement"
                        FontFamily="DMSans-SemiBold"
                        FontSize="12"
-                       TextColor="#A8B3C3"
+                       TextColor="{DynamicResource TextSecondary}"
                        Margin="2,10,0,0"/>
 
                 <Border Style="{StaticResource FieldBorder}" HeightRequest="54">
                     <Picker ItemsSource="{Binding AvailableNightOutCities}"
                             SelectedItem="{Binding NightOutCityName}"
-                            TextColor="#F2E8D5"
-                            Title="Choisir une ville NightOut"
-                            TitleColor="#3D5068"
+                            TextColor="{DynamicResource TextPrimary}"
+                            Title="Choisir une ville Spotiz"
+                            TitleColor="{DynamicResource TextMuted}"
                             FontFamily="DMSans-Regular"
                             FontSize="14"/>
                 </Border>
@@ -286,7 +654,7 @@
                     </Grid>
                 </Border>
 
-                <Border BackgroundColor="#1F2D3D"
+                <Border BackgroundColor="{DynamicResource Border}"
                         StrokeThickness="0"
                         StrokeShape="RoundRectangle 14"
                         Padding="14,12"
@@ -305,27 +673,27 @@
                             <Label Text="Vérifier l'adresse et récupérer les coordonnées GPS"
                                    FontFamily="DMSans-SemiBold"
                                    FontSize="13"
-                                   TextColor="#F2E8D5"/>
+                                   TextColor="{DynamicResource TextPrimary}"/>
 
-                            <Label Text="NightOut contrôle l'adresse avec Google avant l'enregistrement."
+                            <Label Text="Spotiz contrôle l'adresse avec Google avant l'enregistrement."
                                    FontFamily="DMSans-Regular"
                                    FontSize="11"
-                                   TextColor="#A8B3C3"/>
+                                   TextColor="{DynamicResource TextSecondary}"/>
                         </VerticalStackLayout>
                     </Grid>
                 </Border>
 
-                <Label Text="La ville NightOut sert à savoir sur quelle carte principale afficher ton établissement. Elle peut être différente de la ville réelle de l'adresse."
+                <Label Text="La ville Spotiz sert à savoir sur quelle carte principale afficher ton établissement. Elle peut être différente de la ville réelle de l'adresse."
                        FontFamily="DMSans-Regular"
                        FontSize="12"
-                       TextColor="#A8B3C3"
+                       TextColor="{DynamicResource TextSecondary}"
                        Margin="2,8,0,0"
                        LineBreakMode="WordWrap"/>
 
                 <Label Text="{Binding AddressValidationMessage}"
                        FontFamily="DMSans-SemiBold"
                        FontSize="12"
-                       TextColor="#FFB627"
+                       TextColor="{DynamicResource Accent}"
                        Margin="2,8,0,0"
                        LineBreakMode="WordWrap"
                        IsVisible="{Binding HasAddressValidationMessage}"/>
@@ -397,6 +765,94 @@
                     </Grid>
                 </Border>
 
+
+
+                <Label Style="{StaticResource SectionLabel}" Text="HORAIRES D'OUVERTURE"/>
+
+                <Border Style="{StaticResource CardBorder}">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="Renseigne les horaires affichés sur la fiche établissement. Pour une fermeture après minuit, indique par exemple 18:00 → 03:00."
+                               FontFamily="DMSans-Regular"
+                               FontSize="12"
+                               TextColor="{DynamicResource TextSecondary}"
+                               LineBreakMode="WordWrap"/>
+
+                        <CollectionView ItemsSource="{Binding OpeningHours}" SelectionMode="None">
+                            <CollectionView.ItemsLayout>
+                                <LinearItemsLayout Orientation="Vertical" ItemSpacing="8"/>
+                            </CollectionView.ItemsLayout>
+
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate x:DataType="models:BarOpeningHour">
+                                    <Border BackgroundColor="{DynamicResource BgCard}"
+                                            Stroke="{DynamicResource Border}"
+                                            StrokeThickness="1"
+                                            StrokeShape="RoundRectangle 14"
+                                            Padding="12,10">
+                                        <Grid RowDefinitions="Auto,Auto" RowSpacing="8">
+                                            <Grid Grid.Row="0" ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                                                <Label Grid.Column="0"
+                                                       Text="{Binding DayName}"
+                                                       FontFamily="DMSans-SemiBold"
+                                                       FontSize="14"
+                                                       TextColor="{DynamicResource TextPrimary}"
+                                                       VerticalOptions="Center"/>
+
+                                                <HorizontalStackLayout Grid.Column="1" Spacing="6" VerticalOptions="Center">
+                                                    <Label Text="Fermé"
+                                                           FontFamily="DMSans-Regular"
+                                                           FontSize="12"
+                                                           TextColor="{DynamicResource TextSecondary}"
+                                                           VerticalOptions="Center"/>
+                                                    <CheckBox IsChecked="{Binding IsClosed, Mode=TwoWay}"
+                                                              Color="{DynamicResource Accent}"
+                                                              VerticalOptions="Center"/>
+                                                </HorizontalStackLayout>
+                                            </Grid>
+
+                                            <Grid Grid.Row="1" ColumnDefinitions="*,*" ColumnSpacing="10">
+                                                <Border Grid.Column="0"
+                                                        BackgroundColor="{DynamicResource BgElevated}"
+                                                        Stroke="{DynamicResource Border}"
+                                                        StrokeThickness="1"
+                                                        StrokeShape="RoundRectangle 12"
+                                                        Padding="10,0"
+                                                        HeightRequest="46">
+                                                    <Entry Text="{Binding OpenTime, Mode=TwoWay}"
+                                                           Placeholder="18:00"
+                                                           PlaceholderColor="{DynamicResource TextMuted}"
+                                                           TextColor="{DynamicResource TextPrimary}"
+                                                           FontFamily="DMSans-Regular"
+                                                           FontSize="13"
+                                                           Keyboard="Text"
+                                                           BackgroundColor="Transparent"/>
+                                                </Border>
+
+                                                <Border Grid.Column="1"
+                                                        BackgroundColor="{DynamicResource BgElevated}"
+                                                        Stroke="{DynamicResource Border}"
+                                                        StrokeThickness="1"
+                                                        StrokeShape="RoundRectangle 12"
+                                                        Padding="10,0"
+                                                        HeightRequest="46">
+                                                    <Entry Text="{Binding CloseTime, Mode=TwoWay}"
+                                                           Placeholder="03:00"
+                                                           PlaceholderColor="{DynamicResource TextMuted}"
+                                                           TextColor="{DynamicResource TextPrimary}"
+                                                           FontFamily="DMSans-Regular"
+                                                           FontSize="13"
+                                                           Keyboard="Text"
+                                                           BackgroundColor="Transparent"/>
+                                                </Border>
+                                            </Grid>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </VerticalStackLayout>
+                </Border>
+
                 <Label Style="{StaticResource SectionLabel}" Text="VISUELS"/>
 
                 <Border Style="{StaticResource CardBorder}">
@@ -405,7 +861,7 @@
                         <Label Text="Logo de l'établissement"
                                FontFamily="DMSans-SemiBold"
                                FontSize="15"
-                               TextColor="#F2E8D5"/>
+                               TextColor="{DynamicResource TextPrimary}"/>
 
                         <Image Source="{Binding LogoUrl}"
                                HeightRequest="90"
@@ -413,7 +869,7 @@
                                Aspect="AspectFill"
                                HorizontalOptions="Start"/>
 
-                        <Border BackgroundColor="#FFB627"
+                        <Border BackgroundColor="{DynamicResource Accent}"
                                 StrokeThickness="0"
                                 StrokeShape="RoundRectangle 14"
                                 HeightRequest="46">
@@ -425,7 +881,7 @@
                             <Label Text="Choisir un logo"
                                    FontFamily="DMSans-SemiBold"
                                    FontSize="14"
-                                   TextColor="#0A1018"
+                                   TextColor="{DynamicResource BgDeep}"
                                    HorizontalOptions="Center"
                                    VerticalOptions="Center"/>
                         </Border>
@@ -433,7 +889,7 @@
                         <Label Text="Format attendu : JPG, PNG ou WEBP. Image carrée conseillée. Minimum 300 × 300 px. Recommandé 1000 × 1000 px. Maximum 5 Mo."
                                FontFamily="DMSans-Regular"
                                FontSize="12"
-                               TextColor="#A8B3C3"
+                               TextColor="{DynamicResource TextSecondary}"
                                LineBreakMode="WordWrap"/>
                     </VerticalStackLayout>
                 </Border>
@@ -444,13 +900,13 @@
                         <Label Text="Photo de couverture"
                                FontFamily="DMSans-SemiBold"
                                FontSize="15"
-                               TextColor="#F2E8D5"/>
+                               TextColor="{DynamicResource TextPrimary}"/>
 
                         <Image Source="{Binding CoverUrl}"
                                HeightRequest="130"
                                Aspect="AspectFill"/>
 
-                        <Border BackgroundColor="#FFB627"
+                        <Border BackgroundColor="{DynamicResource Accent}"
                                 StrokeThickness="0"
                                 StrokeShape="RoundRectangle 14"
                                 HeightRequest="46">
@@ -462,7 +918,7 @@
                             <Label Text="Choisir une couverture"
                                    FontFamily="DMSans-SemiBold"
                                    FontSize="14"
-                                   TextColor="#0A1018"
+                                   TextColor="{DynamicResource BgDeep}"
                                    HorizontalOptions="Center"
                                    VerticalOptions="Center"/>
                         </Border>
@@ -470,7 +926,7 @@
                         <Label Text="Format attendu : JPG, PNG ou WEBP. Format 16:9 conseillé. Minimum 1200 × 675 px. Recommandé 1920 × 1080 px. Maximum 10 Mo. Évitez les textes trop proches des bords."
                                FontFamily="DMSans-Regular"
                                FontSize="12"
-                               TextColor="#A8B3C3"
+                               TextColor="{DynamicResource TextSecondary}"
                                LineBreakMode="WordWrap"/>
                     </VerticalStackLayout>
                 </Border>
@@ -488,12 +944,12 @@
                             <Label Text="Événements"
                                    FontFamily="DMSans-SemiBold"
                                    FontSize="14"
-                                   TextColor="#F2E8D5"/>
+                                   TextColor="{DynamicResource TextPrimary}"/>
 
                             <Label Text="Après validation"
                                    FontFamily="DMSans-Regular"
                                    FontSize="11"
-                                   TextColor="#3D5068"/>
+                                   TextColor="{DynamicResource TextMuted}"/>
                         </VerticalStackLayout>
                     </Border>
 
@@ -507,18 +963,18 @@
                             <Label Text="Statistiques"
                                    FontFamily="DMSans-SemiBold"
                                    FontSize="14"
-                                   TextColor="#F2E8D5"/>
+                                   TextColor="{DynamicResource TextPrimary}"/>
 
                             <Label Text="Affluence"
                                    FontFamily="DMSans-Regular"
                                    FontSize="11"
-                                   TextColor="#3D5068"/>
+                                   TextColor="{DynamicResource TextMuted}"/>
                         </VerticalStackLayout>
                     </Border>
                 </Grid>
 
                 <Border BackgroundColor="Transparent"
-                        Stroke="#3D5068"
+                        Stroke="{DynamicResource TextMuted}"
                         StrokeThickness="1"
                         StrokeShape="RoundRectangle 16"
                         HeightRequest="50"
@@ -528,12 +984,39 @@
                         <TapGestureRecognizer Command="{Binding ContactNightOutCommand}"/>
                     </Border.GestureRecognizers>
 
-                    <Label Text="Contacter NightOut"
+                    <Label Text="Contacter Spotiz"
                            FontFamily="DMSans-Regular"
                            FontSize="14"
-                           TextColor="#A8B3C3"
+                           TextColor="{DynamicResource TextSecondary}"
                            HorizontalOptions="Center"
                            VerticalOptions="Center"/>
+                </Border>
+
+
+                <Border BackgroundColor="Transparent"
+                        Stroke="{DynamicResource Error}"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 16"
+                        HeightRequest="50"
+                        Margin="0,10,0,0">
+
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnSignOutTapped"/>
+                    </Border.GestureRecognizers>
+
+                    <Grid ColumnDefinitions="Auto,*" Padding="16,0" ColumnSpacing="10">
+                        <Label Grid.Column="0"
+                               Text="🚪"
+                               FontSize="18"
+                               VerticalOptions="Center"/>
+
+                        <Label Grid.Column="1"
+                               Text="Se déconnecter"
+                               FontFamily="DMSans-SemiBold"
+                               FontSize="14"
+                               TextColor="{DynamicResource Error}"
+                               VerticalOptions="Center"/>
+                    </Grid>
                 </Border>
 
                 <BoxView HeightRequest="20" Color="Transparent"/>
@@ -541,10 +1024,10 @@
         </ScrollView>
 
         <Grid Grid.Row="2"
-              BackgroundColor="#0D1520"
+              BackgroundColor="{DynamicResource BgCard}"
               Padding="20,12,20,28">
 
-            <Border BackgroundColor="#FFB627"
+            <Border BackgroundColor="{DynamicResource Accent}"
                     StrokeShape="RoundRectangle 16"
                     StrokeThickness="0"
                     HeightRequest="52">
@@ -557,12 +1040,12 @@
                     <Label Text="Enregistrer mon dossier"
                            FontFamily="DMSans-SemiBold"
                            FontSize="16"
-                           TextColor="#0A1018"
+                           TextColor="{DynamicResource BgDeep}"
                            HorizontalOptions="Center"
                            VerticalOptions="Center"/>
 
                     <ActivityIndicator IsRunning="{Binding IsBusy}"
-                                       Color="#0A1018"
+                                       Color="{DynamicResource BgDeep}"
                                        HorizontalOptions="Center"
                                        VerticalOptions="Center"
                                        IsVisible="{Binding IsBusy}"/>

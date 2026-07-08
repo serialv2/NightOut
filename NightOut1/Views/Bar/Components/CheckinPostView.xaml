@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView
+    x:Class="NightOut.Views.Bar.Components.CheckinPostView"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:models="clr-namespace:NightOut.Models"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+    x:DataType="models:BarActivityItem"
+    x:Name="CheckinPostRoot">
+
+    <ContentView.Resources>
+        <toolkit:InvertedBoolConverter x:Key="Inv" />
+    </ContentView.Resources>
+
+    <Border Margin="0,0,0,14"
+            Padding="14"
+            BackgroundColor="#0B111B"
+            Stroke="#1D2939"
+            StrokeThickness="1"
+            StrokeShape="RoundRectangle 24">
+
+        <VerticalStackLayout Spacing="12">
+            <Grid ColumnDefinitions="50,*,Auto" ColumnSpacing="10">
+                <Border WidthRequest="48"
+                        HeightRequest="48"
+                        Stroke="#FFFFFF"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 24"
+                        BackgroundColor="#22324A">
+                    <Grid>
+                        <Image Source="{Binding AvatarUrl}"
+                               Aspect="AspectFill"
+                               IsVisible="{Binding HasAvatarUrl}" />
+                        <Label Text="{Binding Initials}"
+                               TextColor="White"
+                               FontFamily="DMSans-Bold"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center"
+                               IsVisible="{Binding HasAvatarUrl, Converter={StaticResource Inv}}" />
+                    </Grid>
+                </Border>
+
+                <VerticalStackLayout Grid.Column="1" Spacing="1" VerticalOptions="Center">
+                    <Label Text="{Binding Username}"
+                           TextColor="White"
+                           FontFamily="DMSans-Bold"
+                           FontSize="15" />
+                    <Label Text="{Binding TimeAgo}"
+                           TextColor="#9AA8B8"
+                           FontSize="12" />
+                </VerticalStackLayout>
+            </Grid>
+
+            <Border Padding="14" StrokeThickness="0" StrokeShape="RoundRectangle 18">
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="#4B1E83" Offset="0" />
+                        <GradientStop Color="#B5264D" Offset="1" />
+                    </LinearGradientBrush>
+                </Border.Background>
+                <Grid ColumnDefinitions="44,*">
+                    <Border WidthRequest="38"
+                            HeightRequest="38"
+                            BackgroundColor="#6D38FF"
+                            StrokeThickness="0"
+                            StrokeShape="RoundRectangle 19">
+                        <Label Text="⌖"
+                               TextColor="White"
+                               FontSize="20"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center" />
+                    </Border>
+                    <VerticalStackLayout Grid.Column="1" Spacing="1">
+                        <Label Text="Check-in"
+                               TextColor="#D8C9FF"
+                               FontSize="12" />
+                        <Label Text="{Binding Content}"
+                               TextColor="White"
+                               FontFamily="DMSans-Bold"
+                               FontSize="15" />
+                    </VerticalStackLayout>
+                </Grid>
+            </Border>
+        </VerticalStackLayout>
+    </Border>
+</ContentView>

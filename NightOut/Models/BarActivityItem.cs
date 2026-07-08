@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Newtonsoft.Json;
+using Microsoft.Maui.Controls;
 
 namespace NightOut.Models;
 
@@ -13,6 +14,7 @@ public partial class BarActivityItem : ObservableObject
     private bool _openToMeet;
     private bool _isLiked;
     private int _likeCount;
+    private int _commentCount;
 
     [JsonProperty("id")]
     public string Id { get; set; } = string.Empty;
@@ -46,6 +48,20 @@ public partial class BarActivityItem : ObservableObject
         }
     }
 
+    [JsonProperty("comment_count")]
+    public int CommentCount
+    {
+        get => _commentCount;
+        set
+        {
+            if (SetProperty(ref _commentCount, value))
+            {
+                OnPropertyChanged(nameof(CommentLabel));
+                OnPropertyChanged(nameof(HasComments));
+            }
+        }
+    }
+
     [JsonProperty("open_to_meet")]
     public bool OpenToMeet
     {
@@ -69,8 +85,50 @@ public partial class BarActivityItem : ObservableObject
 
     // ── Helpers côté client ──────────────────────────────────
     [JsonIgnore] public bool IsMedia => (Type is "photo" or "video") && !string.IsNullOrWhiteSpace(Content);
+
+    [JsonIgnore]
+    public bool IsPhoto => Type == "photo" ||
+        string.Equals(MediaType, "photo", StringComparison.OrdinalIgnoreCase);
+
+    [JsonIgnore]
+    public string? MediaUrl => IsMedia ? Content : null;
+
+    [JsonIgnore]
+    public string? DisplayText => IsMedia || IsCheckin ? null : Content;
+
+    [JsonIgnore]
+    public bool HasDisplayText => !string.IsNullOrWhiteSpace(DisplayText);
+
+    [JsonIgnore]
+    public HtmlWebViewSource VideoSource
+    {
+        get
+        {
+            var url = MediaUrl ?? string.Empty;
+            var safeUrl = System.Net.WebUtility.HtmlEncode(url);
+            var html = $$"""
+<!doctype html>
+<html>
+<head>
+<meta name='viewport' content='width=device-width, initial-scale=1.0'>
+<style>
+html,body{margin:0;padding:0;background:#000;height:100%;overflow:hidden;}
+video{width:100%;height:100%;object-fit:cover;background:#000;}
+</style>
+</head>
+<body>
+<video controls playsinline preload='metadata' src='{{safeUrl}}'></video>
+</body>
+</html>
+""";
+            return new HtmlWebViewSource { Html = html };
+        }
+    }
     [JsonIgnore] public bool IsTextPost => Type == "text";
-    [JsonIgnore] public bool IsCheckin => Type == "checkin";
+    [JsonIgnore] public bool IsCheckin => Type == "checkin" || Type == "checkout";
+    [JsonIgnore] public bool IsCheckout => Type == "checkout";
+    [JsonIgnore] public string CheckinTitle => IsCheckout ? "Check-out" : "Check-in";
+    [JsonIgnore] public string CheckinIcon => IsCheckout ? "↗" : "⌖";
     [JsonIgnore] public bool IsVideo   => Type == "video" ||
         string.Equals(MediaType, "video", StringComparison.OrdinalIgnoreCase);
     [JsonIgnore] public bool IsMine      { get; set; }
@@ -85,6 +143,17 @@ public partial class BarActivityItem : ObservableObject
 
     [JsonIgnore]
     public string LikeLabel => LikeCount > 0 ? LikeCount.ToString() : string.Empty;
+
+    [JsonIgnore]
+    public bool HasComments => CommentCount > 0;
+
+    [JsonIgnore]
+    public string CommentLabel => CommentCount switch
+    {
+        <= 0 => "Ajouter un commentaire...",
+        1 => "Voir 1 commentaire",
+        _ => $"Voir les {CommentCount} commentaires"
+    };
 
     [JsonIgnore]
     public string TimeAgo

@@ -6,7 +6,7 @@
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              x:Class="NightOut.Views.ModerationPage"
              x:DataType="vm:ModerationViewModel"
-             BackgroundColor="#121212"
+             BackgroundColor="{DynamicResource BgDeep}"
              Title="Modération">
 
     <ContentPage.Resources>
@@ -20,14 +20,14 @@
         <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Padding="16,12,16,8">
             <Label Grid.Column="0"
                    Text="Établissements en attente"
-                   TextColor="#AAAAAA"
+                   TextColor="{DynamicResource TextSecondary}"
                    FontSize="13"
                    VerticalOptions="Center"/>
             <Button Grid.Column="1"
                     Text="↺"
                     Command="{Binding RefreshCommand}"
                     BackgroundColor="Transparent"
-                    TextColor="#AAAAAA"
+                    TextColor="{DynamicResource TextSecondary}"
                     FontSize="20"
                     Padding="8,0"/>
         </Grid>
@@ -36,7 +36,7 @@
         <ActivityIndicator Grid.Row="1"
                            IsRunning="{Binding IsBusy}"
                            IsVisible="{Binding IsBusy}"
-                           Color="#FF6B35"
+                           Color="{DynamicResource Second}"
                            HorizontalOptions="Center"
                            VerticalOptions="Center"/>
 
@@ -49,7 +49,7 @@
 
             <CollectionView.EmptyView>
                 <Label Text="{Binding EmptyMessage}"
-                       TextColor="#666666"
+                       TextColor="{DynamicResource TextMuted}"
                        FontSize="15"
                        HorizontalOptions="Center"
                        VerticalOptions="Center"
@@ -64,7 +64,7 @@
 
                         <BoxView Grid.Row="0" Grid.ColumnSpan="3"
                                  HeightRequest="1"
-                                 Color="#222222"
+                                 Color="{DynamicResource BgElevated}"
                                  Margin="0,0,0,8"/>
 
                         <!-- Nom -->
@@ -78,7 +78,7 @@
                         <!-- Adresse -->
                         <Label Grid.Row="2" Grid.Column="0"
                                Text="{Binding Address}"
-                               TextColor="#888888"
+                               TextColor="{DynamicResource TextMuted}"
                                FontSize="13"
                                VerticalOptions="Center"
                                LineBreakMode="TailTruncation"/>

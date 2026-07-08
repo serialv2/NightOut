@@ -17,6 +17,7 @@ public partial class BottomNavBar : ContentView
     private int _friendPendingCount;
     private int _groupUnreadCount;
     private int _directUnreadCount;
+    private int _eventUnreadCount;
 
     public string ActiveTab
     {
@@ -33,13 +34,16 @@ public partial class BottomNavBar : ContentView
         _friendPendingCount = FriendInteractionEvents.PendingCount;
         _groupUnreadCount = GroupUnreadEvents.UnreadCount;
         _directUnreadCount = DirectMessageEvents.UnreadCount;
+        _eventUnreadCount = EventInteractionEvents.UnreadCount;
 
         UpdateUnreadBadge(_directUnreadCount);
+        UpdateEventsBadge(_eventUnreadCount);
         UpdateFriendsBadge(_friendPendingCount + _groupUnreadCount);
 
         FriendInteractionEvents.PendingCountChanged += OnFriendPendingCountChanged;
         GroupUnreadEvents.UnreadCountChanged += OnGroupUnreadCountChanged;
         DirectMessageEvents.UnreadCountChanged += OnDirectUnreadCountChanged;
+        EventInteractionEvents.UnreadCountChanged += OnEventUnreadCountChanged;
     }
 
     protected override void OnParentSet()
@@ -51,6 +55,7 @@ public partial class BottomNavBar : ContentView
             FriendInteractionEvents.PendingCountChanged -= OnFriendPendingCountChanged;
             GroupUnreadEvents.UnreadCountChanged -= OnGroupUnreadCountChanged;
             DirectMessageEvents.UnreadCountChanged -= OnDirectUnreadCountChanged;
+            EventInteractionEvents.UnreadCountChanged -= OnEventUnreadCountChanged;
         }
     }
 
@@ -72,6 +77,12 @@ public partial class BottomNavBar : ContentView
         MainThread.BeginInvokeOnMainThread(() => UpdateUnreadBadge(_directUnreadCount));
     }
 
+    private void OnEventUnreadCountChanged(int count)
+    {
+        _eventUnreadCount = count;
+        MainThread.BeginInvokeOnMainThread(() => UpdateEventsBadge(_eventUnreadCount));
+    }
+
     private void UpdateUnreadBadge(int count)
     {
         if (UnreadBadge == null || UnreadBadgeLabel == null)
@@ -90,6 +101,15 @@ public partial class BottomNavBar : ContentView
         FriendsBadgeLabel.Text = count > 99 ? "99+" : count.ToString();
     }
 
+    private void UpdateEventsBadge(int count)
+    {
+        if (EventsBadge == null || EventsBadgeLabel == null)
+            return;
+
+        EventsBadge.IsVisible = count > 0;
+        EventsBadgeLabel.Text = count > 99 ? "99+" : count.ToString();
+    }
+
     private static void OnActiveTabChanged(BindableObject bindable, object oldValue, object newValue)
     {
         if (bindable is BottomNavBar bar)
@@ -98,15 +118,15 @@ public partial class BottomNavBar : ContentView
 
     private void UpdateColors(string active)
     {
-        var selected = Color.FromArgb("#FFB627");
-        var unselected = Color.FromArgb("#3D5068");
-
-        LblMap.TextColor      = active == "Map"      ? selected : unselected;
-        LblEvents.TextColor   = active == "Events"   ? selected : unselected;
-        LblFriends.TextColor  = active == "Friends"  ? selected : unselected;
-        LblMessages.TextColor = active == "Messages" ? selected : unselected;
-        LblProfile.TextColor  = active == "Profile"  ? selected : unselected;
+        ApplyTabColor(LblMap, active == "Map");
+        ApplyTabColor(LblEvents, active == "Events");
+        ApplyTabColor(LblFriends, active == "Friends");
+        ApplyTabColor(LblMessages, active == "Messages");
+        ApplyTabColor(LblProfile, active == "Profile");
     }
+
+    private static void ApplyTabColor(Label label, bool selected) =>
+        label.SetDynamicResource(Label.TextColorProperty, selected ? "Accent" : "TextMuted");
 
     private async Task NavigateToAsync(string route, string tab)
     {
@@ -135,10 +155,66 @@ public partial class BottomNavBar : ContentView
         }
     }
 
+    private async Task ClearNotificationBadgeByTypeAsync(Action? localClearAction, params string[] types)
+    {
+        try
+        {
+            localClearAction?.Invoke();
+
+            var notificationService = Handler?.MauiContext?.Services.GetService<INotificationService>();
+            if (notificationService != null)
+                await notificationService.MarkReadByTypeAsync(types);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[BottomNavBar] ClearNotificationBadgeByType erreur : {ex.Message}");
+        }
+    }
+
     private async void OnMapTapped(object sender, TappedEventArgs e)      => await NavigateToAsync("MapPage", "Map");
-    private async void OnEventsTapped(object sender, TappedEventArgs e)   => await NavigateToAsync("EventsPage", "Events");
-    private async void OnFriendsTapped(object sender, TappedEventArgs e)  => await NavigateToAsync("FriendsPage", "Friends");
-    private async void OnMessagesTapped(object sender, TappedEventArgs e) => await NavigateToAsync("MessagesPage", "Messages");
+    private async void OnEventsTapped(object sender, TappedEventArgs e)
+    {
+        await ClearNotificationBadgeByTypeAsync(
+            () => EventInteractionEvents.Clear(),
+            "ephemeral_event_friend",
+            "ephemeral_event_group",
+            "ephemeral_event_cancelled");
+
+        await NavigateToAsync("EventsPage", "Events");
+    }
+
+    private async void OnFriendsTapped(object sender, TappedEventArgs e)
+    {
+        // Les messages de groupe sont lus dès qu'on ouvre la page Amis/Groupes.
+        // Les vraies demandes d'amis restent, elles, recalculées par FriendService.
+        GroupUnreadEvents.MarkAllGroupsRead();
+
+        await ClearNotificationBadgeByTypeAsync(
+            null,
+            "group_message",
+            "group_media",
+            "group_photo",
+            "group_video",
+            "group_event",
+            "group_event_response");
+
+        await NavigateToAsync("FriendsPage", "Friends");
+    }
+
+    private async void OnMessagesTapped(object sender, TappedEventArgs e)
+    {
+        var directMessageService = Handler?.MauiContext?.Services.GetService<IDirectMessageService>();
+        if (directMessageService != null)
+            await directMessageService.MarkAllConversationsReadAsync();
+
+        await ClearNotificationBadgeByTypeAsync(
+            () => DirectMessageEvents.SetUnreadCount(0),
+            "private_message",
+            "direct_message");
+
+        DirectMessageEvents.SetUnreadCount(0);
+        await NavigateToAsync("MessagesPage", "Messages");
+    }
     private async void OnProfileTapped(object sender, TappedEventArgs e)
     {
         if (_isNavigating || ActiveTab == "Profile")

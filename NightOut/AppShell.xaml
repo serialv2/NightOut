@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <Shell
     x:Class="NightOut.AppShell"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
@@ -10,24 +10,24 @@
     xmlns:profile="clr-namespace:NightOut.Views.Profile"
     Shell.NavBarIsVisible="False"
     Shell.TabBarIsVisible="False"
-    BackgroundColor="#0A1018">
+    BackgroundColor="{DynamicResource BgDeep}">
     
     <Shell.Resources>
         <ResourceDictionary>
             <Style TargetType="Shell">
-                <Setter Property="Shell.BackgroundColor"       Value="#0A1018"/>
-                <Setter Property="Shell.ForegroundColor"       Value="#F2E8D5"/>
-                <Setter Property="Shell.TitleColor"            Value="#F2E8D5"/>
-                <Setter Property="Shell.TabBarBackgroundColor" Value="#0A1018"/>
-                <Setter Property="Shell.TabBarForegroundColor" Value="#FFB627"/>
-                <Setter Property="Shell.TabBarUnselectedColor" Value="#3D5068"/>
-                <Setter Property="Shell.TabBarTitleColor"      Value="#FFB627"/>
+                <Setter Property="Shell.BackgroundColor"       Value="{DynamicResource BgDeep}"/>
+                <Setter Property="Shell.ForegroundColor"       Value="{DynamicResource TextPrimary}"/>
+                <Setter Property="Shell.TitleColor"            Value="{DynamicResource TextPrimary}"/>
+                <Setter Property="Shell.TabBarBackgroundColor" Value="{DynamicResource BgDeep}"/>
+                <Setter Property="Shell.TabBarForegroundColor" Value="{DynamicResource Accent}"/>
+                <Setter Property="Shell.TabBarUnselectedColor" Value="{DynamicResource TextMuted}"/>
+                <Setter Property="Shell.TabBarTitleColor"      Value="{DynamicResource Accent}"/>
             </Style>
         </ResourceDictionary>
     </Shell.Resources>
 
     <ShellContent Route="MapPage"      ContentTemplate="{DataTemplate map:MapPage}"/>
-    <ShellContent Route="EventsPage"   ContentTemplate="{DataTemplate events:EventsPage}"/>
+    <ShellContent Route="EventsPage"   ContentTemplate="{DataTemplate events:EphemeralEventsPage}"/>
     <ShellContent Route="FriendsPage"  ContentTemplate="{DataTemplate friends:FriendsPage}"/>
     <ShellContent Route="MessagesPage" ContentTemplate="{DataTemplate messages:MessagesPage}"/>
     <ShellContent Route="ProfilePage"  ContentTemplate="{DataTemplate profile:ProfilePage}"/>

@@ -12,6 +12,10 @@ using NightOut.Views.Messages;
 using NightOut.Views.Notifications;
 using NightOut.Views.Pro;
 using NightOut.Views.Events;
+using ZXing.Net.Maui.Controls;
+#if ANDROID
+using NightOut.Platforms.Android;
+#endif
 namespace NightOut;
 
 public static class MauiProgram
@@ -23,6 +27,7 @@ public static class MauiProgram
         builder
             .UseMauiApp<App>()
             .UseMauiCommunityToolkit()
+            .UseBarcodeReader()
             .ConfigureFonts(fonts =>
             {
                 fonts.AddFont("DMSans-Regular.ttf",             "DMSans-Regular");
@@ -44,21 +49,30 @@ public static class MauiProgram
             }));
 
         // ══ Services ══
+        builder.Services.AddSingleton<IThemeService,         ThemeService>();
         builder.Services.AddSingleton<IAuthService,          AuthService>();
         builder.Services.AddSingleton<IBarService,           BarService>();
         builder.Services.AddSingleton<IBarCategoryService,   BarCategoryService>();
         builder.Services.AddSingleton<ILocationService,      LocationService>();
         builder.Services.AddSingleton<IFriendService,        FriendService>();
         builder.Services.AddSingleton<ICreditService,        CreditService>();
+        builder.Services.AddSingleton<IRewardService,        RewardService>();
         builder.Services.AddSingleton<IFriendInviteService,  FriendInviteService>();
         builder.Services.AddSingleton<InviteDeepLinkService>();
         builder.Services.AddSingleton<IFriendGroupService,   FriendGroupService>();
         builder.Services.AddSingleton<ICheckinService,       CheckinService>();
+        builder.Services.AddSingleton<BeaconAutoCheckinService>();
+#if ANDROID
+        builder.Services.AddSingleton<IBeaconScanner, AndroidBeaconScanner>();
+#else
+        builder.Services.AddSingleton<IBeaconScanner, UnsupportedBeaconScanner>();
+#endif
         builder.Services.AddSingleton<IMediaService,         MediaService>();
         builder.Services.AddSingleton<IProfileService,       ProfileService>();
         builder.Services.AddSingleton<IProfessionalService,  ProfessionalService>();
         builder.Services.AddSingleton<IBarDetailService,     BarDetailService>();
         builder.Services.AddSingleton<IDirectMessageService, DirectMessageService>();
+        builder.Services.AddSingleton<IMessageReportService, MessageReportService>();
         builder.Services.AddSingleton<ISquadService,         SquadService>();
         builder.Services.AddSingleton<INotificationService,  NotificationService>();
         builder.Services.AddSingleton<IPushNotificationService, PushNotificationService>();
@@ -69,6 +83,7 @@ public static class MauiProgram
         builder.Services.AddSingleton<IGeocodingService,     GeocodingService>();
         builder.Services.AddSingleton<IOfficialEventService, OfficialEventService>();
         builder.Services.AddSingleton<HttpClient>();
+        builder.Services.AddSingleton<IEphemeralEventService, EphemeralEventService>();
 
         builder.Services.AddSingleton<IGooglePlacesService, GooglePlacesService>();
         // ── Heartbeat ──
@@ -82,6 +97,7 @@ public static class MauiProgram
         builder.Services.AddTransient<RegisterBarViewModel>();
         builder.Services.AddTransient<ModerationViewModel>();
         builder.Services.AddTransient<BarDetailViewModel>();
+        builder.Services.AddTransient<BarPostCommentsViewModel>();
         builder.Services.AddTransient<ProfileViewModel>();
         builder.Services.AddTransient<FriendsViewModel>();
         builder.Services.AddTransient<MessagesViewModel>();
@@ -91,7 +107,10 @@ public static class MauiProgram
         builder.Services.AddTransient<ProOfficialEventsViewModel>();
         builder.Services.AddTransient<ProStatsViewModel>();
         builder.Services.AddTransient<EventsViewModel>();
+        builder.Services.AddTransient<EphemeralEventsViewModel>();
+        builder.Services.AddTransient<CreateEphemeralEventViewModel>();
         builder.Services.AddTransient<OfficialEventDetailViewModel>();
+        builder.Services.AddTransient<SettingsViewModel>();
 
         // ══ Pages ══
         builder.Services.AddSingleton<AppShell>();
@@ -102,6 +121,7 @@ public static class MauiProgram
         builder.Services.AddTransient<RegisterBarPage>();
         builder.Services.AddTransient<ModerationPage>();
         builder.Services.AddTransient<BarDetailPage>();
+        builder.Services.AddTransient<BarPostCommentsPage>();
         builder.Services.AddTransient<ProfilePage>();
         builder.Services.AddTransient<FriendsPage>();
         builder.Services.AddTransient<GroupDetailPage>();
@@ -111,8 +131,12 @@ public static class MauiProgram
         builder.Services.AddTransient<ProDashboardPage>();
         builder.Services.AddTransient<ProOfficialEventsPage>();
         builder.Services.AddTransient<ProStatsPage>();
+        builder.Services.AddTransient<RewardQrScannerPage>();
         builder.Services.AddTransient<EventsPage>();
+        builder.Services.AddTransient<EphemeralEventsPage>();
+        builder.Services.AddTransient<CreateEphemeralEventPage>();
         builder.Services.AddTransient<OfficialEventDetailPage>();
+        builder.Services.AddTransient<SettingsPage>();
 
         return builder.Build();
     }

@@ -5,7 +5,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     Shell.NavBarIsVisible="False"
     Shell.TabBarIsVisible="False"
-    BackgroundColor="#0A1018">
+    BackgroundColor="{DynamicResource BgDeep}">
 
     <Grid RowDefinitions="Auto,*,Auto">
 
@@ -13,7 +13,7 @@
               ColumnDefinitions="Auto,*,Auto"
               Padding="14,44,14,12"
               ColumnSpacing="12"
-              BackgroundColor="#0A1018">
+              BackgroundColor="{DynamicResource BgDeep}">
 
             <Button Grid.Column="0"
                     Text="‹"
@@ -22,18 +22,18 @@
                     CornerRadius="21"
                     FontSize="26"
                     Padding="0,-4,0,0"
-                    BackgroundColor="#162235"
-                    TextColor="#F2E8D5"
+                    BackgroundColor="{DynamicResource BgElevated}"
+                    TextColor="{DynamicResource TextPrimary}"
                     Command="{Binding GoBackCommand}" />
 
             <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
                 <Label Text="{Binding PartnerName}"
                        FontSize="20"
                        FontAttributes="Bold"
-                       TextColor="#F2E8D5" />
+                       TextColor="{DynamicResource TextPrimary}" />
                 <Label Text="Message privé"
                        FontSize="12"
-                       TextColor="#7A8FA6" />
+                       TextColor="{DynamicResource TextSecondary}" />
             </VerticalStackLayout>
 
             <Label Grid.Column="2"
@@ -50,7 +50,7 @@
             <CollectionView.EmptyView>
                 <VerticalStackLayout Padding="20" Spacing="10" HorizontalOptions="Center" VerticalOptions="Center">
                     <Label Text="💬" FontSize="42" HorizontalTextAlignment="Center" />
-                    <Label Text="{Binding StatusMessage}" TextColor="#7A8FA6" HorizontalTextAlignment="Center" />
+                    <Label Text="{Binding StatusMessage}" TextColor="{DynamicResource TextSecondary}" HorizontalTextAlignment="Center" />
                 </VerticalStackLayout>
             </CollectionView.EmptyView>
 
@@ -60,28 +60,42 @@
                         <Border Padding="12,8"
                                 StrokeThickness="0"
                                 StrokeShape="RoundRectangle 18"
-                                BackgroundColor="#162235"
+                                BackgroundColor="{DynamicResource BgElevated}"
                                 MaximumWidthRequest="290"
                                 HorizontalOptions="Start">
                             <VerticalStackLayout Spacing="4">
                                 <Label Text="{Binding Content}"
-                                       TextColor="#F2E8D5"
+                                       TextColor="{DynamicResource TextPrimary}"
                                        FontSize="15"
                                        LineBreakMode="WordWrap" />
-                                <Label Text="{Binding TimeLabel}"
-                                       TextColor="#7A8FA6"
-                                       FontSize="10"
-                                       HorizontalTextAlignment="End" />
+                                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                                    <Button Text="Signaler"
+                                            Padding="0"
+                                            HeightRequest="22"
+                                            MinimumHeightRequest="22"
+                                            BackgroundColor="Transparent"
+                                            TextColor="{DynamicResource Second}"
+                                            FontSize="10"
+                                            IsVisible="{Binding CanReport}"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.ReportMessageCommand}"
+                                            CommandParameter="{Binding .}" />
+
+                                    <Label Grid.Column="1"
+                                           Text="{Binding TimeLabel}"
+                                           TextColor="{DynamicResource TextSecondary}"
+                                           FontSize="10"
+                                           HorizontalTextAlignment="End" />
+                                </Grid>
                             </VerticalStackLayout>
 
                             <Border.Triggers>
                                 <DataTrigger TargetType="Border" Binding="{Binding IsMine}" Value="True">
                                     <Setter Property="HorizontalOptions" Value="End" />
-                                    <Setter Property="BackgroundColor" Value="#FFB627" />
+                                    <Setter Property="BackgroundColor" Value="{DynamicResource Accent}" />
                                 </DataTrigger>
                                 <DataTrigger TargetType="Border" Binding="{Binding IsMine}" Value="False">
                                     <Setter Property="HorizontalOptions" Value="Start" />
-                                    <Setter Property="BackgroundColor" Value="#162235" />
+                                    <Setter Property="BackgroundColor" Value="{DynamicResource BgElevated}" />
                                 </DataTrigger>
                             </Border.Triggers>
                         </Border>
@@ -94,18 +108,18 @@
               ColumnDefinitions="*,Auto"
               Padding="12,10,12,14"
               ColumnSpacing="10"
-              BackgroundColor="#0A1018">
+              BackgroundColor="{DynamicResource BgDeep}">
 
             <Border Grid.Column="0"
-                    BackgroundColor="#111A27"
-                    Stroke="#1F3147"
+                    BackgroundColor="{DynamicResource BgElevated}"
+                    Stroke="{DynamicResource Border}"
                     StrokeThickness="1"
                     StrokeShape="RoundRectangle 22"
                     Padding="14,0">
                 <Entry Text="{Binding NewMessage}"
                        Placeholder="Écrire un message..."
-                       PlaceholderColor="#52657D"
-                       TextColor="#F2E8D5"
+                       PlaceholderColor="{DynamicResource TextMuted}"
+                       TextColor="{DynamicResource TextPrimary}"
                        ReturnType="Send"
                        ReturnCommand="{Binding SendCommand}" />
             </Border>
@@ -116,8 +130,8 @@
                     HeightRequest="46"
                     CornerRadius="23"
                     FontSize="18"
-                    BackgroundColor="#FFB627"
-                    TextColor="#0A1018"
+                    BackgroundColor="{DynamicResource Accent}"
+                    TextColor="{DynamicResource BgDeep}"
                     Command="{Binding SendCommand}" />
         </Grid>
     </Grid>

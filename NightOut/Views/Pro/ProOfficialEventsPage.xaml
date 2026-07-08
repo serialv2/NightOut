@@ -7,316 +7,116 @@
     xmlns:models="clr-namespace:NightOut.Models"
     x:DataType="vm:ProOfficialEventsViewModel"
     Shell.NavBarIsVisible="False"
-    BackgroundColor="#0A1018">
-
-    <ContentPage.Resources>
-        <Style x:Key="FieldEntry" TargetType="Entry">
-            <Setter Property="TextColor" Value="#F2E8D5"/>
-            <Setter Property="PlaceholderColor" Value="#3D5068"/>
-            <Setter Property="BackgroundColor" Value="Transparent"/>
-            <Setter Property="FontFamily" Value="DMSans-Regular"/>
-            <Setter Property="FontSize" Value="14"/>
-        </Style>
-
-        <Style x:Key="FieldBorder" TargetType="Border">
-            <Setter Property="BackgroundColor" Value="#131C28"/>
-            <Setter Property="StrokeShape" Value="RoundRectangle 14"/>
-            <Setter Property="Stroke" Value="#1F2D3D"/>
-            <Setter Property="StrokeThickness" Value="1"/>
-            <Setter Property="Padding" Value="14,2"/>
-            <Setter Property="Margin" Value="0,8,0,0"/>
-        </Style>
-
-        <Style x:Key="SectionLabel" TargetType="Label">
-            <Setter Property="FontFamily" Value="DMSans-SemiBold"/>
-            <Setter Property="FontSize" Value="13"/>
-            <Setter Property="TextColor" Value="#3D5068"/>
-            <Setter Property="Margin" Value="0,20,0,8"/>
-        </Style>
-    </ContentPage.Resources>
+    BackgroundColor="{DynamicResource BgDeep}">
 
     <Grid RowDefinitions="Auto,*">
-
-        <Grid Grid.Row="0"
-              BackgroundColor="#0D1520"
-              Padding="20,50,20,22"
-              ColumnDefinitions="Auto,*"
-              ColumnSpacing="14">
-
-            <Border Grid.Column="0"
-                    BackgroundColor="#1A2535"
-                    StrokeThickness="0"
-                    StrokeShape="RoundRectangle 22"
-                    WidthRequest="44"
-                    HeightRequest="44">
+        <Grid Grid.Row="0" BackgroundColor="{DynamicResource BgCard}" Padding="20,50,20,22" ColumnDefinitions="Auto,*" ColumnSpacing="14">
+            <Border Grid.Column="0" BackgroundColor="{DynamicResource BgElevated}" StrokeThickness="0" StrokeShape="RoundRectangle 22" WidthRequest="44" HeightRequest="44">
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Command="{Binding BackCommand}"/>
                 </Border.GestureRecognizers>
-
-                <Label Text="‹"
-                       FontSize="28"
-                       TextColor="#FFB627"
-                       HorizontalOptions="Center"
-                       VerticalOptions="Center"/>
+                <Label Text="‹" FontSize="28" TextColor="{DynamicResource Accent}" HorizontalOptions="Center" VerticalOptions="Center"/>
             </Border>
 
             <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
-                <Label Text="Événements officiels"
-                       FontFamily="DMSans-SemiBold"
-                       FontSize="22"
-                       TextColor="#F2E8D5"/>
-
-                <Label Text="Créer un événement depuis ton établissement"
-                       FontFamily="DMSans-Regular"
-                       FontSize="13"
-                       TextColor="#3D5068"/>
+                <Label Text="Événements officiels" FontFamily="DMSans-SemiBold" FontSize="22" TextColor="{DynamicResource TextPrimary}"/>
+                <Label Text="Création compatible multi-établissements" FontFamily="DMSans-Regular" FontSize="13" TextColor="{DynamicResource TextMuted}"/>
             </VerticalStackLayout>
         </Grid>
 
         <ScrollView Grid.Row="1">
-            <VerticalStackLayout Padding="20,12,20,30" Spacing="0">
+            <VerticalStackLayout Padding="20,12,20,30" Spacing="12">
 
-                <Border BackgroundColor="#181C26"
-                        Stroke="#F87171"
-                        StrokeThickness="1"
-                        StrokeShape="RoundRectangle 18"
-                        Padding="16"
-                        IsVisible="{Binding CannotCreateEvents}">
-                    <Label Text="Ton compte professionnel doit être validé par NightOut avant de créer des événements officiels."
-                           FontFamily="DMSans-Regular"
-                           FontSize="13"
-                           TextColor="#F2E8D5"
-                           LineBreakMode="WordWrap"/>
+                <Border BackgroundColor="{DynamicResource BgPanel}" Stroke="{DynamicResource Error}" StrokeThickness="1" StrokeShape="RoundRectangle 18" Padding="16" IsVisible="{Binding CannotCreateEvents}">
+                    <Label Text="Ton compte professionnel doit être validé par Spotiz avant de créer des événements officiels." FontFamily="DMSans-Regular" FontSize="13" TextColor="{DynamicResource TextPrimary}"/>
                 </Border>
 
-                <Label Style="{StaticResource SectionLabel}" Text="NOUVEL ÉVÉNEMENT"/>
+                <Label Text="ÉTABLISSEMENT CONCERNÉ" FontFamily="DMSans-SemiBold" FontSize="13" TextColor="{DynamicResource TextMuted}" Margin="0,10,0,0"/>
 
-                <Border Style="{StaticResource FieldBorder}" HeightRequest="54">
-                    <Entry Style="{StaticResource FieldEntry}"
-                           Text="{Binding EventTitle}"
-                           Placeholder="Titre de l'événement"/>
+                <Border BackgroundColor="{DynamicResource BgElevated}" Stroke="{DynamicResource Border}" StrokeThickness="1" StrokeShape="RoundRectangle 16" Padding="12,4">
+                    <Picker ItemsSource="{Binding MyBars}"
+                            SelectedItem="{Binding SelectedBar}"
+                            ItemDisplayBinding="{Binding Name}"
+                            Title="Choisir l'établissement"
+                            TextColor="{DynamicResource TextPrimary}"
+                            TitleColor="{DynamicResource TextSecondary}"/>
                 </Border>
 
-                <Border BackgroundColor="#131C28"
-                        StrokeShape="RoundRectangle 14"
-                        Stroke="#1F2D3D"
-                        StrokeThickness="1"
-                        Padding="14,10"
-                        Margin="0,8,0,0">
-                    <Editor Text="{Binding Description}"
-                            Placeholder="Description, ambiance, DJ, thème..."
-                            PlaceholderColor="#3D5068"
-                            TextColor="#F2E8D5"
-                            FontFamily="DMSans-Regular"
-                            FontSize="14"
-                            BackgroundColor="Transparent"
-                            AutoSize="TextChanges"
-                            MinimumHeightRequest="90"/>
+                <Label Text="{Binding SelectedBarLabel}" FontFamily="DMSans-Regular" FontSize="12" TextColor="{DynamicResource Accent}"/>
+
+                <Label Text="NOUVEL ÉVÉNEMENT" FontFamily="DMSans-SemiBold" FontSize="13" TextColor="{DynamicResource TextMuted}" Margin="0,12,0,0"/>
+
+                <Border BackgroundColor="{DynamicResource BgElevated}" Stroke="{DynamicResource Border}" StrokeThickness="1" StrokeShape="RoundRectangle 14" Padding="14,2">
+                    <Entry Text="{Binding EventTitle}" Placeholder="Titre de l'événement" TextColor="{DynamicResource TextPrimary}" PlaceholderColor="{DynamicResource TextMuted}" BackgroundColor="Transparent"/>
                 </Border>
 
-                <Grid ColumnDefinitions="*,*" ColumnSpacing="10" Margin="0,8,0,0">
-                    <Border Grid.Column="0"
-                            BackgroundColor="#131C28"
-                            StrokeShape="RoundRectangle 14"
-                            Stroke="#1F2D3D"
-                            StrokeThickness="1"
-                            Padding="10,4">
-                        <DatePicker Date="{Binding EventDate}"
-                                    TextColor="#F2E8D5"
-                                    FontFamily="DMSans-Regular"/>
+                <Border BackgroundColor="{DynamicResource BgElevated}" Stroke="{DynamicResource Border}" StrokeThickness="1" StrokeShape="RoundRectangle 14" Padding="14,10">
+                    <Editor Text="{Binding Description}" Placeholder="Description, ambiance, DJ, thème..." PlaceholderColor="{DynamicResource TextMuted}" TextColor="{DynamicResource TextPrimary}" BackgroundColor="Transparent" AutoSize="TextChanges" MinimumHeightRequest="90"/>
+                </Border>
+
+                <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10">
+                    <Border Grid.Column="0" BackgroundColor="{DynamicResource BgElevated}" Stroke="{DynamicResource Border}" StrokeThickness="1" StrokeShape="RoundRectangle 14" Padding="8,4">
+                        <DatePicker Date="{Binding EventDate}" TextColor="{DynamicResource TextPrimary}"/>
                     </Border>
-
-                    <Border Grid.Column="1"
-                            BackgroundColor="#131C28"
-                            StrokeShape="RoundRectangle 14"
-                            Stroke="#1F2D3D"
-                            StrokeThickness="1"
-                            Padding="10,4">
-                        <TimePicker Time="{Binding StartTime}"
-                                    TextColor="#F2E8D5"
-                                    FontFamily="DMSans-Regular"/>
+                    <Border Grid.Column="1" BackgroundColor="{DynamicResource BgElevated}" Stroke="{DynamicResource Border}" StrokeThickness="1" StrokeShape="RoundRectangle 14" Padding="8,4">
+                        <TimePicker Time="{Binding StartTime}" TextColor="{DynamicResource TextPrimary}"/>
+                    </Border>
+                    <Border Grid.Column="2" BackgroundColor="{DynamicResource BgElevated}" Stroke="{DynamicResource Border}" StrokeThickness="1" StrokeShape="RoundRectangle 14" Padding="8,4">
+                        <TimePicker Time="{Binding EndTime}" TextColor="{DynamicResource TextPrimary}"/>
                     </Border>
                 </Grid>
 
-                <Border Style="{StaticResource FieldBorder}" HeightRequest="54">
-                    <Entry Style="{StaticResource FieldEntry}"
-                           Text="{Binding MaxParticipants}"
-                           Keyboard="Numeric"
-                           Placeholder="Nombre max de participants, optionnel"/>
+                <Border BackgroundColor="{DynamicResource BgElevated}" Stroke="{DynamicResource Border}" StrokeThickness="1" StrokeShape="RoundRectangle 14" Padding="14,2">
+                    <Entry Text="{Binding MaxParticipants}" Keyboard="Numeric" Placeholder="Nombre max de participants, optionnel" TextColor="{DynamicResource TextPrimary}" PlaceholderColor="{DynamicResource TextMuted}" BackgroundColor="Transparent"/>
                 </Border>
 
-                <Border BackgroundColor="#1A2535"
-                        Stroke="#FFB627"
-                        StrokeThickness="1"
-                        StrokeShape="RoundRectangle 16"
-                        Padding="16"
-                        Margin="0,12,0,0">
+                <Border BackgroundColor="{DynamicResource BgElevated}" Stroke="{DynamicResource Accent}" StrokeThickness="1" StrokeShape="RoundRectangle 16" Padding="16">
                     <Border.GestureRecognizers>
                         <TapGestureRecognizer Command="{Binding PickFlyerCommand}"/>
                     </Border.GestureRecognizers>
-
                     <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
                         <Label Grid.Column="0" Text="🖼️" FontSize="22" VerticalOptions="Center"/>
                         <VerticalStackLayout Grid.Column="1" Spacing="2">
-                            <Label Text="Ajouter un flyer"
-                                   FontFamily="DMSans-SemiBold"
-                                   FontSize="15"
-                                   TextColor="#F2E8D5"/>
-                            <Label Text="JPG, PNG ou WEBP · max 10 Mo"
-                                   FontFamily="DMSans-Regular"
-                                   FontSize="12"
-                                   TextColor="#A8B3C3"/>
+                            <Label Text="Ajouter un flyer" FontFamily="DMSans-SemiBold" FontSize="15" TextColor="{DynamicResource TextPrimary}"/>
+                            <Label Text="Le flyer sera rattaché à l'établissement sélectionné" FontFamily="DMSans-Regular" FontSize="12" TextColor="{DynamicResource TextSecondary}"/>
                         </VerticalStackLayout>
                     </Grid>
                 </Border>
 
-                <Image Source="{Binding FlyerUrl}"
-                       Aspect="AspectFill"
-                       HeightRequest="180"
-                       Margin="0,10,0,0"
-                       IsVisible="{Binding HasFlyer}"/>
+                <Image Source="{Binding FlyerUrl}" Aspect="AspectFill" HeightRequest="180" IsVisible="{Binding HasFlyer}"/>
 
-                <Button Text="Créer l'événement officiel"
-                        Command="{Binding CreateEventCommand}"
-                        BackgroundColor="#FFB627"
-                        TextColor="#0A1018"
-                        FontFamily="DMSans-SemiBold"
-                        CornerRadius="18"
-                        HeightRequest="54"
-                        Margin="0,16,0,0"/>
+                <Button Text="Créer l'événement officiel" Command="{Binding CreateEventCommand}" BackgroundColor="{DynamicResource Accent}" TextColor="{DynamicResource BgDeep}" FontFamily="DMSans-SemiBold" CornerRadius="18" HeightRequest="54"/>
 
-                <Label Style="{StaticResource SectionLabel}" Text="STATISTIQUES PRO"/>
+                <Label Text="STATISTIQUES DE L'ÉTABLISSEMENT SÉLECTIONNÉ" FontFamily="DMSans-SemiBold" FontSize="13" TextColor="{DynamicResource TextMuted}" Margin="0,16,0,0"/>
 
-                <Border BackgroundColor="#111A25"
-                        Stroke="#1F2D3D"
-                        StrokeThickness="1"
-                        StrokeShape="RoundRectangle 20"
-                        Padding="16"
-                        IsVisible="{Binding HasEvents}">
-                    <VerticalStackLayout Spacing="14">
-                        <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" ColumnSpacing="10" RowSpacing="10">
-                            <Border Grid.Row="0" Grid.Column="0" BackgroundColor="#131C28" StrokeThickness="0" StrokeShape="RoundRectangle 16" Padding="14">
-                                <VerticalStackLayout Spacing="2">
-                                    <Label Text="🎉 Événements" FontFamily="DMSans-Regular" FontSize="12" TextColor="#A8B3C3"/>
-                                    <Label Text="{Binding TotalEvents}" FontFamily="DMSans-SemiBold" FontSize="24" TextColor="#F2E8D5"/>
-                                </VerticalStackLayout>
-                            </Border>
-
-                            <Border Grid.Row="0" Grid.Column="1" BackgroundColor="#131C28" StrokeThickness="0" StrokeShape="RoundRectangle 16" Padding="14">
-                                <VerticalStackLayout Spacing="2">
-                                    <Label Text="✅ J’y vais" FontFamily="DMSans-Regular" FontSize="12" TextColor="#A8B3C3"/>
-                                    <Label Text="{Binding TotalGoing}" FontFamily="DMSans-SemiBold" FontSize="24" TextColor="#F2E8D5"/>
-                                </VerticalStackLayout>
-                            </Border>
-
-                            <Border Grid.Row="1" Grid.Column="0" BackgroundColor="#131C28" StrokeThickness="0" StrokeShape="RoundRectangle 16" Padding="14">
-                                <VerticalStackLayout Spacing="2">
-                                    <Label Text="📍 Check-ins" FontFamily="DMSans-Regular" FontSize="12" TextColor="#A8B3C3"/>
-                                    <Label Text="{Binding TotalCheckedIn}" FontFamily="DMSans-SemiBold" FontSize="24" TextColor="#F2E8D5"/>
-                                </VerticalStackLayout>
-                            </Border>
-
-                            <Border Grid.Row="1" Grid.Column="1" BackgroundColor="#131C28" StrokeThickness="0" StrokeShape="RoundRectangle 16" Padding="14">
-                                <VerticalStackLayout Spacing="2">
-                                    <Label Text="⭐ Fiabilité" FontFamily="DMSans-Regular" FontSize="12" TextColor="#A8B3C3"/>
-                                    <Label Text="{Binding AverageReliabilityLabel}" FontFamily="DMSans-SemiBold" FontSize="24" TextColor="#FFB627"/>
-                                </VerticalStackLayout>
-                            </Border>
-                        </Grid>
-
-                        <Label Text="Ces statistiques se basent sur les réponses utilisateurs et les check-ins GPS confirmés."
-                               FontFamily="DMSans-Regular"
-                               FontSize="12"
-                               TextColor="#64748B"
-                               LineBreakMode="WordWrap"/>
-                    </VerticalStackLayout>
+                <Border BackgroundColor="{DynamicResource BgElevated}" Stroke="{DynamicResource Border}" StrokeThickness="1" StrokeShape="RoundRectangle 20" Padding="16" IsVisible="{Binding HasEvents}">
+                    <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" ColumnSpacing="10" RowSpacing="10">
+                        <Label Grid.Row="0" Grid.Column="0" Text="{Binding TotalEvents, StringFormat='🎉 {0} événements'}" TextColor="{DynamicResource TextPrimary}" FontSize="15"/>
+                        <Label Grid.Row="0" Grid.Column="1" Text="{Binding TotalGoing, StringFormat='✅ {0} j’y vais'}" TextColor="{DynamicResource TextPrimary}" FontSize="15"/>
+                        <Label Grid.Row="1" Grid.Column="0" Text="{Binding TotalCheckedIn, StringFormat='📍 {0} check-in'}" TextColor="{DynamicResource TextPrimary}" FontSize="15"/>
+                        <Label Grid.Row="1" Grid.Column="1" Text="{Binding AverageReliabilityLabel, StringFormat='Fiabilité {0}'}" TextColor="{DynamicResource Accent}" FontSize="15"/>
+                    </Grid>
                 </Border>
 
-                <Label Style="{StaticResource SectionLabel}" Text="MES ÉVÉNEMENTS"/>
+                <Label Text="Aucun événement pour cet établissement." TextColor="{DynamicResource TextSecondary}" FontSize="13" IsVisible="{Binding HasNoEvents}"/>
 
-                <Label Text="Aucun événement officiel créé pour le moment."
-                       FontFamily="DMSans-Regular"
-                       FontSize="13"
-                       TextColor="#3D5068"
-                       HorizontalOptions="Center"
-                       Margin="0,20,0,0"
-                       IsVisible="{Binding HasNoEvents}"/>
-
-                <CollectionView ItemsSource="{Binding Events}"
-                                IsVisible="{Binding HasEvents}">
+                <CollectionView ItemsSource="{Binding Events}" Margin="0,8,0,0">
                     <CollectionView.ItemTemplate>
                         <DataTemplate x:DataType="models:OfficialEvent">
-                            <Border BackgroundColor="#131C28"
-                                    Stroke="#1F2D3D"
-                                    StrokeThickness="1"
-                                    StrokeShape="RoundRectangle 18"
-                                    Padding="14"
-                                    Margin="0,8,0,0">
-                                <Grid ColumnDefinitions="70,*" ColumnSpacing="12">
-                                    <Image Grid.Column="0"
-                                           Source="{Binding FlyerUrl}"
-                                           Aspect="AspectFill"
-                                           WidthRequest="70"
-                                           HeightRequest="70"/>
-
-                                    <VerticalStackLayout Grid.Column="1" Spacing="3">
-                                        <Label Text="{Binding Title}"
-                                               FontFamily="DMSans-SemiBold"
-                                               FontSize="15"
-                                               TextColor="#F2E8D5"/>
-
-                                        <Label Text="{Binding DateLabel}"
-                                               FontFamily="DMSans-Regular"
-                                               FontSize="12"
-                                               TextColor="#FFB627"/>
-
-                                        <Label Text="{Binding StatusLabel}"
-                                               FontFamily="DMSans-Regular"
-                                               FontSize="12"
-                                               TextColor="#A8B3C3"/>
-
-                                        <Grid ColumnDefinitions="*,*,*" ColumnSpacing="6" Margin="0,6,0,0">
-                                            <Border Grid.Column="0" BackgroundColor="#0D1520" StrokeThickness="0" StrokeShape="RoundRectangle 10" Padding="8,6">
-                                                <Label Text="{Binding GoingCount, StringFormat='🎉 {0}'}"
-                                                       FontFamily="DMSans-SemiBold"
-                                                       FontSize="12"
-                                                       TextColor="#F2E8D5"
-                                                       HorizontalTextAlignment="Center"/>
-                                            </Border>
-
-                                            <Border Grid.Column="1" BackgroundColor="#0D1520" StrokeThickness="0" StrokeShape="RoundRectangle 10" Padding="8,6">
-                                                <Label Text="{Binding MaybeCount, StringFormat='🤔 {0}'}"
-                                                       FontFamily="DMSans-SemiBold"
-                                                       FontSize="12"
-                                                       TextColor="#F2E8D5"
-                                                       HorizontalTextAlignment="Center"/>
-                                            </Border>
-
-                                            <Border Grid.Column="2" BackgroundColor="#0D1520" StrokeThickness="0" StrokeShape="RoundRectangle 10" Padding="8,6">
-                                                <Label Text="{Binding CheckedInCount, StringFormat='📍 {0}'}"
-                                                       FontFamily="DMSans-SemiBold"
-                                                       FontSize="12"
-                                                       TextColor="#FFB627"
-                                                       HorizontalTextAlignment="Center"/>
-                                            </Border>
-                                        </Grid>
-
-                                        <Label Text="{Binding EventReliabilityLabel}"
-                                               FontFamily="DMSans-Regular"
-                                               FontSize="12"
-                                               TextColor="#A8B3C3"/>
-
-                                        <Label Text="{Binding FillRateLabel}"
-                                               FontFamily="DMSans-Regular"
-                                               FontSize="12"
-                                               TextColor="#64748B"/>
+                            <Border BackgroundColor="{DynamicResource BgElevated}" Stroke="{DynamicResource Border}" StrokeThickness="1" StrokeShape="RoundRectangle 16" Padding="12" Margin="0,6">
+                                <Grid ColumnDefinitions="72,*" ColumnSpacing="12">
+                                    <Image Grid.Column="0" Source="{Binding FlyerUrl}" Aspect="AspectFill" WidthRequest="72" HeightRequest="72"/>
+                                    <VerticalStackLayout Grid.Column="1" Spacing="4">
+                                        <Label Text="{Binding Title}" FontFamily="DMSans-SemiBold" FontSize="15" TextColor="{DynamicResource TextPrimary}"/>
+                                        <Label Text="{Binding BarDisplay}" FontFamily="DMSans-Regular" FontSize="12" TextColor="{DynamicResource Accent}"/>
+                                        <Label Text="{Binding DateLabel}" FontFamily="DMSans-Regular" FontSize="12" TextColor="{DynamicResource TextSecondary}"/>
+                                        <Label Text="{Binding ParticipantsStatsLabel}" FontFamily="DMSans-Regular" FontSize="12" TextColor="{DynamicResource TextSecondary}"/>
                                     </VerticalStackLayout>
                                 </Grid>
                             </Border>
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
                 </CollectionView>
-
             </VerticalStackLayout>
         </ScrollView>
     </Grid>

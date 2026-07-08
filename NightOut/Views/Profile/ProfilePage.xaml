@@ -8,35 +8,35 @@
     xmlns:controls="clr-namespace:NightOut.Views.Controls"
     x:DataType="vm:ProfileViewModel"
     Shell.NavBarIsVisible="False"
-    BackgroundColor="#0A1018">
+    BackgroundColor="{DynamicResource BgDeep}">
 
     <ContentPage.Resources>
         <toolkit:InvertedBoolConverter x:Key="InvertedBoolConverter"/>
         <Style x:Key="SectionLabel" TargetType="Label">
             <Setter Property="FontFamily"  Value="DMSans-SemiBold"/>
             <Setter Property="FontSize"    Value="11"/>
-            <Setter Property="TextColor"   Value="#3D5068"/>
+            <Setter Property="TextColor"   Value="{DynamicResource TextMuted}"/>
             <Setter Property="Margin"      Value="0,20,0,8"/>
             <Setter Property="Text"        Value="—"/>
         </Style>
         <Style x:Key="FieldEntry" TargetType="Entry">
-            <Setter Property="TextColor"        Value="#F2E8D5"/>
-            <Setter Property="PlaceholderColor" Value="#3D5068"/>
+            <Setter Property="TextColor"        Value="{DynamicResource TextPrimary}"/>
+            <Setter Property="PlaceholderColor" Value="{DynamicResource TextMuted}"/>
             <Setter Property="FontFamily"       Value="DMSans-Regular"/>
             <Setter Property="FontSize"         Value="14"/>
             <Setter Property="BackgroundColor"  Value="Transparent"/>
         </Style>
         <Style x:Key="FieldBorder" TargetType="Border">
-            <Setter Property="BackgroundColor" Value="#131C28"/>
+            <Setter Property="BackgroundColor" Value="{DynamicResource BgElevated}"/>
             <Setter Property="StrokeShape"     Value="RoundRectangle 12"/>
-            <Setter Property="Stroke"          Value="#1F2D3D"/>
+            <Setter Property="Stroke"          Value="{DynamicResource Border}"/>
             <Setter Property="StrokeThickness" Value="1"/>
             <Setter Property="Padding"         Value="14,0"/>
         </Style>
         <Style x:Key="RowBorder" TargetType="Border">
-            <Setter Property="BackgroundColor" Value="#131C28"/>
+            <Setter Property="BackgroundColor" Value="{DynamicResource BgElevated}"/>
             <Setter Property="StrokeShape"     Value="RoundRectangle 12"/>
-            <Setter Property="Stroke"          Value="#1F2D3D"/>
+            <Setter Property="Stroke"          Value="{DynamicResource Border}"/>
             <Setter Property="StrokeThickness" Value="1"/>
             <Setter Property="Padding"         Value="14,14"/>
             <Setter Property="Margin"          Value="0,4,0,0"/>
@@ -46,7 +46,7 @@
     <Grid RowDefinitions="Auto,*,Auto,Auto">
 
         <!-- ══ HEADER ══ -->
-        <Grid Grid.Row="0" BackgroundColor="#0D1520" Padding="20,50,20,24">
+        <Grid Grid.Row="0" BackgroundColor="{DynamicResource BgCard}" Padding="20,50,20,24">
             <Grid ColumnDefinitions="Auto,*" ColumnSpacing="16">
 
                 <!-- Avatar -->
@@ -56,13 +56,13 @@
                                IsVisible="{Binding HasAvatarUrl}"/>
                     </Border>
                     <!-- Fallback avatar initiales -->
-                    <Border StrokeShape="RoundRectangle 40" BackgroundColor="#1A2535"
+                    <Border StrokeShape="RoundRectangle 40" BackgroundColor="{DynamicResource BgElevated}"
                             WidthRequest="80" HeightRequest="80" StrokeThickness="0"
                             IsVisible="{Binding HasAvatarUrl, Converter={StaticResource InvertedBoolConverter}}">
                         <Label Text="👤" FontSize="32" HorizontalOptions="Center" VerticalOptions="Center"/>
                     </Border>
                     <!-- Bouton modifier avatar -->
-                    <Border StrokeShape="RoundRectangle 14" BackgroundColor="#FFB627"
+                    <Border StrokeShape="RoundRectangle 14" BackgroundColor="{DynamicResource Accent}"
                             WidthRequest="28" HeightRequest="28" StrokeThickness="0"
                             HorizontalOptions="End" VerticalOptions="End">
                         <Border.GestureRecognizers>
@@ -71,34 +71,34 @@
                         <Label Text="📷" FontSize="13" HorizontalOptions="Center" VerticalOptions="Center"/>
                     </Border>
                     <!-- Spinner pendant l'upload -->
-                    <ActivityIndicator IsRunning="{Binding IsBusy}" Color="#FFB627"
+                    <ActivityIndicator IsRunning="{Binding IsBusy}" Color="{DynamicResource Accent}"
                                        HorizontalOptions="Center" VerticalOptions="Center"/>
                 </Grid>
 
                 <!-- Nom + stats -->
                 <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="4">
                     <Label Text="{Binding DisplayName}" FontFamily="DMSans-SemiBold"
-                           FontSize="18" TextColor="#F2E8D5"/>
+                           FontSize="18" TextColor="{DynamicResource TextPrimary}"/>
                     <Label Text="{Binding Username, StringFormat='@{0}'}"
-                           FontFamily="DMSans-Regular" FontSize="13" TextColor="#3D5068"/>
+                           FontFamily="DMSans-Regular" FontSize="13" TextColor="{DynamicResource TextMuted}"/>
                     <Grid ColumnDefinitions="Auto,Auto" ColumnSpacing="12" Margin="0,6,0,0">
-                        <Border Grid.Column="0" BackgroundColor="#1A2535" StrokeShape="RoundRectangle 10"
-                                Stroke="#1FFFB627" StrokeThickness="1" Padding="10,5">
+                        <Border Grid.Column="0" BackgroundColor="{DynamicResource BgElevated}" StrokeShape="RoundRectangle 10"
+                                Stroke="#1FCEA358" StrokeThickness="1" Padding="10,5">
                             <VerticalStackLayout Spacing="0">
                                 <Label Text="{Binding NightsOut}" FontFamily="DMSans-SemiBold"
-                                       FontSize="16" TextColor="#FFB627" HorizontalOptions="Center"/>
+                                       FontSize="16" TextColor="{DynamicResource Accent}" HorizontalOptions="Center"/>
                                 <Label Text="soirées" FontFamily="DMSans-Regular"
-                                       FontSize="9" TextColor="#3D5068" HorizontalOptions="Center"/>
+                                       FontSize="9" TextColor="{DynamicResource TextMuted}" HorizontalOptions="Center"/>
                             </VerticalStackLayout>
                         </Border>
-                        <Border Grid.Column="1" BackgroundColor="#1A2535" StrokeShape="RoundRectangle 10"
-                                Stroke="#1FFF627" StrokeThickness="1" Padding="10,5"
+                        <Border Grid.Column="1" BackgroundColor="{DynamicResource BgElevated}" StrokeShape="RoundRectangle 10"
+                                Stroke="#1FCEA358" StrokeThickness="1" Padding="10,5"
                                 IsVisible="{Binding HasBirthdate}">
                             <VerticalStackLayout Spacing="0">
                                 <Label Text="{Binding Age}" FontFamily="DMSans-SemiBold"
-                                       FontSize="16" TextColor="#FFB627" HorizontalOptions="Center"/>
+                                       FontSize="16" TextColor="{DynamicResource Accent}" HorizontalOptions="Center"/>
                                 <Label Text="ans" FontFamily="DMSans-Regular"
-                                       FontSize="9" TextColor="#3D5068" HorizontalOptions="Center"/>
+                                       FontSize="9" TextColor="{DynamicResource TextMuted}" HorizontalOptions="Center"/>
                             </VerticalStackLayout>
                         </Border>
                     </Grid>
@@ -126,7 +126,7 @@
                 <!-- Pseudo -->
                 <Border Style="{StaticResource FieldBorder}" HeightRequest="52" Margin="0,8,0,0">
                     <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
-                        <Label Grid.Column="0" Text="@" FontSize="14" TextColor="#3D5068"
+                        <Label Grid.Column="0" Text="@" FontSize="14" TextColor="{DynamicResource TextMuted}"
                                FontFamily="DMSans-SemiBold" VerticalOptions="Center"/>
                         <Entry Grid.Column="1" Style="{StaticResource FieldEntry}"
                                Text="{Binding Username}" Placeholder="Pseudo"
@@ -135,13 +135,13 @@
                 </Border>
 
                 <!-- Bio -->
-                <Border BackgroundColor="#131C28" StrokeShape="RoundRectangle 12"
-                        Stroke="#1F2D3D" StrokeThickness="1" Padding="14,10" Margin="0,8,0,0">
+                <Border BackgroundColor="{DynamicResource BgElevated}" StrokeShape="RoundRectangle 12"
+                        Stroke="{DynamicResource Border}" StrokeThickness="1" Padding="14,10" Margin="0,8,0,0">
                     <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
                         <Label Grid.Column="0" Text="📝" FontSize="16" VerticalOptions="Start" Margin="0,2,0,0"/>
                         <Editor Grid.Column="1" Text="{Binding Bio}"
                                 Placeholder="Bio (courte description...)"
-                                PlaceholderColor="#3D5068" TextColor="#F2E8D5"
+                                PlaceholderColor="{DynamicResource TextMuted}" TextColor="{DynamicResource TextPrimary}"
                                 FontFamily="DMSans-Regular" FontSize="14"
                                 BackgroundColor="Transparent" AutoSize="TextChanges"
                                 MinimumHeightRequest="60"/>
@@ -156,10 +156,10 @@
                     <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
                         <Label Grid.Column="0" Text="🎂" FontSize="16" VerticalOptions="Center"/>
                         <Label Grid.Column="1" Text="Date de naissance"
-                               FontFamily="DMSans-Regular" FontSize="14" TextColor="#F2E8D5"
+                               FontFamily="DMSans-Regular" FontSize="14" TextColor="{DynamicResource TextPrimary}"
                                VerticalOptions="Center"/>
                         <DatePicker Grid.Column="2" Date="{Binding Birthdate}"
-                                    TextColor="#FFB627" FontFamily="DMSans-Regular" FontSize="13"
+                                    TextColor="{DynamicResource Accent}" FontFamily="DMSans-Regular" FontSize="13"
                                     Format="dd/MM/yyyy"
                                     VerticalOptions="Center"/>
                     </Grid>
@@ -170,13 +170,13 @@
                     <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
                         <Label Grid.Column="0" Text="🏳️‍🌈" FontSize="16" VerticalOptions="Center"/>
                         <Label Grid.Column="1" Text="Genre"
-                               FontFamily="DMSans-Regular" FontSize="14" TextColor="#F2E8D5"
+                               FontFamily="DMSans-Regular" FontSize="14" TextColor="{DynamicResource TextPrimary}"
                                VerticalOptions="Center"/>
                         <Picker Grid.Column="2"
                                 ItemsSource="{Binding GenderLabels}"
                                 SelectedIndex="{Binding GenderIndex}"
-                                TextColor="#FFB627" FontFamily="DMSans-Regular" FontSize="13"
-                                TitleColor="#3D5068" BackgroundColor="Transparent"
+                                TextColor="{DynamicResource Accent}" FontFamily="DMSans-Regular" FontSize="13"
+                                TitleColor="{DynamicResource TextMuted}" BackgroundColor="Transparent"
                                 VerticalOptions="Center" WidthRequest="170"/>
                     </Grid>
                 </Border>
@@ -186,15 +186,15 @@
                     <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
                         <Label Grid.Column="0" Text="📍" FontSize="16" VerticalOptions="Center"/>
                         <Label Grid.Column="1" Text="Ville"
-                               FontFamily="DMSans-Regular" FontSize="14" TextColor="#F2E8D5"
+                               FontFamily="DMSans-Regular" FontSize="14" TextColor="{DynamicResource TextPrimary}"
                                VerticalOptions="Center"/>
                         <Picker Grid.Column="2"
                                 ItemsSource="{Binding Cities}"
                                 ItemDisplayBinding="{Binding Name}"
                                 SelectedIndex="{Binding CityIndex}"
                                 SelectedItem="{Binding SelectedCity}"
-                                TextColor="#FFB627" FontFamily="DMSans-Regular" FontSize="13"
-                                TitleColor="#3D5068" BackgroundColor="Transparent"
+                                TextColor="{DynamicResource Accent}" FontFamily="DMSans-Regular" FontSize="13"
+                                TitleColor="{DynamicResource TextMuted}" BackgroundColor="Transparent"
                                 VerticalOptions="Center" WidthRequest="140"/>
                     </Grid>
                 </Border>
@@ -204,12 +204,12 @@
                     <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
                         <Label Grid.Column="0" Text="🌐" FontSize="16" VerticalOptions="Center"/>
                         <Label Grid.Column="1" Text="Langue"
-                               FontFamily="DMSans-Regular" FontSize="14" TextColor="#F2E8D5"
+                               FontFamily="DMSans-Regular" FontSize="14" TextColor="{DynamicResource TextPrimary}"
                                VerticalOptions="Center"/>
                         <Picker Grid.Column="2"
                                 ItemsSource="{Binding LanguageLabels}"
                                 SelectedIndex="{Binding LanguageIndex}"
-                                TextColor="#FFB627" FontFamily="DMSans-Regular" FontSize="13"
+                                TextColor="{DynamicResource Accent}" FontFamily="DMSans-Regular" FontSize="13"
                                 BackgroundColor="Transparent" VerticalOptions="Center"
                                 WidthRequest="120"/>
                     </Grid>
@@ -219,21 +219,21 @@
                 <Label Style="{StaticResource SectionLabel}" Text="NIGHTOUT"/>
 
                 <!-- Score de fiabilité sorties -->
-                <Border BackgroundColor="#131C28" StrokeShape="RoundRectangle 16"
-                        Stroke="#1F2D3D" StrokeThickness="1" Padding="16" Margin="0,4,0,8">
+                <Border BackgroundColor="{DynamicResource BgElevated}" StrokeShape="RoundRectangle 16"
+                        Stroke="{DynamicResource Border}" StrokeThickness="1" Padding="16" Margin="0,4,0,8">
                     <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
                         <Border Grid.Column="0" WidthRequest="46" HeightRequest="46"
-                                StrokeShape="RoundRectangle 23" BackgroundColor="#1A2535" StrokeThickness="0">
+                                StrokeShape="RoundRectangle 23" BackgroundColor="{DynamicResource BgElevated}" StrokeThickness="0">
                             <Label Text="⭐" FontSize="22" HorizontalOptions="Center" VerticalOptions="Center"/>
                         </Border>
 
                         <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
                             <Label Text="Fiabilité sorties" FontFamily="DMSans-SemiBold"
-                                   FontSize="14" TextColor="#F2E8D5"/>
+                                   FontSize="14" TextColor="{DynamicResource TextPrimary}"/>
                             <Label Text="{Binding EventReliabilityBadge}" FontFamily="DMSans-SemiBold"
                                    FontSize="12" TextColor="{Binding EventReliabilityColor}"/>
                             <Label Text="{Binding EventReliabilitySummary}" FontFamily="DMSans-Regular"
-                                   FontSize="11" TextColor="#7E8CA0" LineBreakMode="TailTruncation"/>
+                                   FontSize="11" TextColor="{DynamicResource TextSecondary}" LineBreakMode="TailTruncation"/>
                         </VerticalStackLayout>
 
                         <VerticalStackLayout Grid.Column="2" Spacing="0" VerticalOptions="Center">
@@ -241,7 +241,7 @@
                                    FontFamily="DMSans-SemiBold" FontSize="20"
                                    TextColor="{Binding EventReliabilityColor}" HorizontalTextAlignment="End"/>
                             <Label Text="score" FontFamily="DMSans-Regular" FontSize="10"
-                                   TextColor="#3D5068" HorizontalTextAlignment="End"/>
+                                   TextColor="{DynamicResource TextMuted}" HorizontalTextAlignment="End"/>
                         </VerticalStackLayout>
                     </Grid>
                 </Border>
@@ -254,13 +254,13 @@
                         <Label Grid.Column="0" Text="🏢" FontSize="16" VerticalOptions="Center"/>
                         <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
                             <Label Text="Espace Pro" FontFamily="DMSans-SemiBold"
-                                   FontSize="14" TextColor="#F2E8D5"/>
+                                   FontSize="14" TextColor="{DynamicResource TextPrimary}"/>
                             <Label Text="{Binding ProfessionalStatusLabel, StringFormat='{0}'}"
-                                   FontFamily="DMSans-Regular" FontSize="11" TextColor="#FFB627"/>
+                                   FontFamily="DMSans-Regular" FontSize="11" TextColor="{DynamicResource Accent}"/>
                             <Label Text="{Binding ProfessionalKindLabel}"
-                                   FontFamily="DMSans-Regular" FontSize="11" TextColor="#3D5068"/>
+                                   FontFamily="DMSans-Regular" FontSize="11" TextColor="{DynamicResource TextMuted}"/>
                         </VerticalStackLayout>
-                        <Label Grid.Column="2" Text="›" TextColor="#FFB627" FontSize="22" VerticalOptions="Center"/>
+                        <Label Grid.Column="2" Text="›" TextColor="{DynamicResource Accent}" FontSize="22" VerticalOptions="Center"/>
                     </Grid>
                 </Border>
 
@@ -272,11 +272,28 @@
                         <Label Grid.Column="0" Text="🔔" FontSize="16" VerticalOptions="Center"/>
                         <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
                             <Label Text="Notifications" FontFamily="DMSans-SemiBold"
-                                   FontSize="14" TextColor="#F2E8D5"/>
+                                   FontSize="14" TextColor="{DynamicResource TextPrimary}"/>
                             <Label Text="Demandes d'amis, groupes et sorties"
-                                   FontFamily="DMSans-Regular" FontSize="11" TextColor="#3D5068"/>
+                                   FontFamily="DMSans-Regular" FontSize="11" TextColor="{DynamicResource TextMuted}"/>
                         </VerticalStackLayout>
-                        <Label Grid.Column="2" Text="›" TextColor="#FFB627" FontSize="22" VerticalOptions="Center"/>
+                        <Label Grid.Column="2" Text="›" TextColor="{DynamicResource Accent}" FontSize="22" VerticalOptions="Center"/>
+                    </Grid>
+                </Border>
+
+
+                <Border Style="{StaticResource RowBorder}">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding OpenSettingsCommand}"/>
+                    </Border.GestureRecognizers>
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
+                        <Label Grid.Column="0" Text="⚙️" FontSize="16" VerticalOptions="Center"/>
+                        <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
+                            <Label Text="Paramètres" FontFamily="DMSans-SemiBold"
+                                   FontSize="14" TextColor="{DynamicResource TextPrimary}"/>
+                            <Label Text="Compte, confidentialité, support et déconnexion"
+                                   FontFamily="DMSans-Regular" FontSize="11" TextColor="{DynamicResource TextMuted}"/>
+                        </VerticalStackLayout>
+                        <Label Grid.Column="2" Text="›" TextColor="{DynamicResource Accent}" FontSize="22" VerticalOptions="Center"/>
                     </Grid>
                 </Border>
 
@@ -289,12 +306,12 @@
                         <Label Grid.Column="0" Text="🥷" FontSize="16" VerticalOptions="Center"/>
                         <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
                             <Label Text="Mode incognito" FontFamily="DMSans-SemiBold"
-                                   FontSize="14" TextColor="#F2E8D5"/>
+                                   FontSize="14" TextColor="{DynamicResource TextPrimary}"/>
                             <Label Text="Tu n'apparais pas sur la carte de tes amis"
-                                   FontFamily="DMSans-Regular" FontSize="11" TextColor="#3D5068"/>
+                                   FontFamily="DMSans-Regular" FontSize="11" TextColor="{DynamicResource TextMuted}"/>
                         </VerticalStackLayout>
                         <Switch Grid.Column="2" IsToggled="{Binding SecretMode}"
-                                OnColor="#FFB627" VerticalOptions="Center"/>
+                                OnColor="{DynamicResource Accent}" VerticalOptions="Center"/>
                     </Grid>
                 </Border>
 
@@ -304,12 +321,12 @@
                         <Label Grid.Column="0" Text="🔒" FontSize="16" VerticalOptions="Center"/>
                         <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
                             <Label Text="Compte privé" FontFamily="DMSans-SemiBold"
-                                   FontSize="14" TextColor="#F2E8D5"/>
+                                   FontSize="14" TextColor="{DynamicResource TextPrimary}"/>
                             <Label Text="Seuls tes amis voient ton activité"
-                                   FontFamily="DMSans-Regular" FontSize="11" TextColor="#3D5068"/>
+                                   FontFamily="DMSans-Regular" FontSize="11" TextColor="{DynamicResource TextMuted}"/>
                         </VerticalStackLayout>
                         <Switch Grid.Column="2" IsToggled="{Binding IsPrivate}"
-                                OnColor="#FFB627" VerticalOptions="Center"/>
+                                OnColor="{DynamicResource Accent}" VerticalOptions="Center"/>
                     </Grid>
                 </Border>
                 <!-- Ouvert aux rencontres -->
@@ -318,12 +335,12 @@
                         <Label Grid.Column="0" Text="🤝" FontSize="16" VerticalOptions="Center"/>
                         <VerticalStackLayout Grid.Column="1" VerticalOptions="Center" Spacing="2">
                             <Label Text="Ouvert aux rencontres" FontFamily="DMSans-SemiBold"
-                   FontSize="14" TextColor="#F2E8D5"/>
+                   FontSize="14" TextColor="{DynamicResource TextPrimary}"/>
                             <Label Text="Les autres peuvent t'ajouter depuis le fil d'un bar"
-                   FontFamily="DMSans-Regular" FontSize="11" TextColor="#3D5068"/>
+                   FontFamily="DMSans-Regular" FontSize="11" TextColor="{DynamicResource TextMuted}"/>
                         </VerticalStackLayout>
                         <Switch Grid.Column="2" IsToggled="{Binding OpenToMeet}"
-                OnColor="#FFB627" VerticalOptions="Center"/>
+                OnColor="{DynamicResource Accent}" VerticalOptions="Center"/>
                     </Grid>
                 </Border>
                 <!-- Espace bas -->
@@ -334,19 +351,19 @@
 
         <!-- ══ BOUTONS BAS ══ -->
         <Grid Grid.Row="2" RowDefinitions="Auto,Auto"
-              BackgroundColor="#0D1520" Padding="20,12,20,28">
+              BackgroundColor="{DynamicResource BgCard}" Padding="20,12,20,28">
 
             <!-- Enregistrer -->
-            <Border Grid.Row="0" BackgroundColor="#FFB627" StrokeShape="RoundRectangle 16"
+            <Border Grid.Row="0" BackgroundColor="{DynamicResource Accent}" StrokeShape="RoundRectangle 16"
                     StrokeThickness="0" HeightRequest="52">
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Command="{Binding SaveCommand}"/>
                 </Border.GestureRecognizers>
                 <Grid>
                     <Label Text="Enregistrer" FontFamily="DMSans-SemiBold" FontSize="16"
-                           TextColor="#0A1018" HorizontalOptions="Center" VerticalOptions="Center"
+                           TextColor="{DynamicResource BgDeep}" HorizontalOptions="Center" VerticalOptions="Center"
                            IsVisible="{Binding IsBusy, Converter={StaticResource InvertedBoolConverter}}"/>
-                    <ActivityIndicator IsRunning="{Binding IsBusy}" Color="#0A1018"
+                    <ActivityIndicator IsRunning="{Binding IsBusy}" Color="{DynamicResource BgDeep}"
                                        HorizontalOptions="Center" VerticalOptions="Center"
                                        IsVisible="{Binding IsBusy}"/>
                 </Grid>
@@ -354,12 +371,12 @@
 
             <!-- Se déconnecter -->
             <Border Grid.Row="1" BackgroundColor="Transparent" StrokeShape="RoundRectangle 16"
-                    Stroke="#3D5068" StrokeThickness="1" HeightRequest="48" Margin="0,8,0,0">
+                    Stroke="{DynamicResource TextMuted}" StrokeThickness="1" HeightRequest="48" Margin="0,8,0,0">
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Command="{Binding SignOutCommand}"/>
                 </Border.GestureRecognizers>
                 <Label Text="Se déconnecter" FontFamily="DMSans-Regular" FontSize="14"
-                       TextColor="#3D5068" HorizontalOptions="Center" VerticalOptions="Center"/>
+                       TextColor="{DynamicResource TextMuted}" HorizontalOptions="Center" VerticalOptions="Center"/>
             </Border>
 
         </Grid>

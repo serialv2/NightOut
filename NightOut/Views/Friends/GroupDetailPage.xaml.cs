@@ -74,12 +74,12 @@ public partial class GroupDetailPage : ContentPage, IQueryAttributable
         ResetGroupButton(BtnGroupMembres);
         ResetGroupButton(BtnGroupParametres);
 
-        activeButton.TextColor = Color.FromArgb("#C084FC");
+        activeButton.SetDynamicResource(Button.TextColorProperty, "Accent");
     }
 
     private static void ResetGroupButton(Button button)
     {
         button.BackgroundColor = Colors.Transparent;
-        button.TextColor = Color.FromArgb("#9CA3AF");
+        button.SetDynamicResource(Button.TextColorProperty, "TextSecondary");
     }
 }

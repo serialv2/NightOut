@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView
+    x:Class="NightOut.Views.Bar.Components.BarComposerView"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:models="clr-namespace:NightOut.Models"
+    x:Name="ComposerRoot">
+
+    <Border Padding="16"
+            BackgroundColor="#0B111B"
+            Stroke="#1D2939"
+            StrokeThickness="1"
+            StrokeShape="RoundRectangle 24">
+        <VerticalStackLayout Spacing="14">
+            <Grid ColumnDefinitions="*,Auto">
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="🔥 Ambiance du moment"
+                           TextColor="White"
+                           FontFamily="DMSans-Bold"
+                           FontSize="22" />
+                    <Label Text="{Binding Source={x:Reference ComposerRoot}, Path=FeedSubtitle}"
+                           TextColor="#9AA8B8"
+                           FontSize="13" />
+                </VerticalStackLayout>
+                <Border Grid.Column="1"
+                        Padding="10,6"
+                        BackgroundColor="#40151B"
+                        StrokeThickness="0"
+                        StrokeShape="RoundRectangle 16">
+                    <Label Text="● EN DIRECT"
+                           TextColor="#FF5265"
+                           FontSize="11"
+                           FontFamily="DMSans-Bold" />
+                </Border>
+            </Grid>
+
+            <HorizontalStackLayout Spacing="-10"
+                                   IsVisible="{Binding Source={x:Reference ComposerRoot}, Path=HasFriendsHere}">
+                <CollectionView ItemsSource="{Binding Source={x:Reference ComposerRoot}, Path=FriendsHere}"
+                                HeightRequest="38"
+                                WidthRequest="170"
+                                SelectionMode="None">
+                    <CollectionView.ItemsLayout>
+                        <LinearItemsLayout Orientation="Horizontal" ItemSpacing="-9" />
+                    </CollectionView.ItemsLayout>
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="models:Profile">
+                            <Border WidthRequest="36"
+                                    HeightRequest="36"
+                                    Stroke="#0B111B"
+                                    StrokeThickness="2"
+                                    StrokeShape="RoundRectangle 18"
+                                    BackgroundColor="#22324A">
+                                <Image Source="{Binding AvatarUrl}" Aspect="AspectFill" />
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+                <Border Padding="10,0"
+                        HeightRequest="36"
+                        BackgroundColor="#182234"
+                        Stroke="#2A3C55"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 18">
+                    <Label Text="{Binding Source={x:Reference ComposerRoot}, Path=FriendsHerePlusLabel}"
+                           TextColor="White"
+                           FontSize="13"
+                           VerticalOptions="Center" />
+                </Border>
+            </HorizontalStackLayout>
+
+            <Border BackgroundColor="#0E141E"
+                    Stroke="#2A3442"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 18">
+                <Grid RowDefinitions="Auto,56" ColumnDefinitions="*,56">
+                    <Editor Grid.ColumnSpan="2"
+                            Text="{Binding Source={x:Reference ComposerRoot}, Path=MessageText, Mode=TwoWay}"
+                            Placeholder="Publier un message, une photo ou une vidéo..."
+                            PlaceholderColor="#7F8B99"
+                            TextColor="White"
+                            AutoSize="TextChanges"
+                            MinimumHeightRequest="72"
+                            BackgroundColor="Transparent"
+                            Margin="12,8" />
+                    <Grid Grid.Row="1"
+                          Grid.ColumnSpan="2"
+                          BackgroundColor="#070B11"
+                          ColumnDefinitions="*,*,56">
+                        <Button Text="▣ Photo"
+                                Command="{Binding Source={x:Reference ComposerRoot}, Path=PostPhotoCommand}"
+                                BackgroundColor="Transparent"
+                                TextColor="White"
+                                FontFamily="DMSans-Bold" />
+                        <Button Grid.Column="1"
+                                Text="▣ Vidéo"
+                                Command="{Binding Source={x:Reference ComposerRoot}, Path=PostVideoCommand}"
+                                BackgroundColor="Transparent"
+                                TextColor="White"
+                                FontFamily="DMSans-Bold" />
+                        <Button Grid.Column="2"
+                                Text="➤"
+                                Command="{Binding Source={x:Reference ComposerRoot}, Path=PostMessageCommand}"
+                                BackgroundColor="#FFB627"
+                                TextColor="#07111F"
+                                FontSize="20"
+                                CornerRadius="24"
+                                Margin="7" />
+                    </Grid>
+                </Grid>
+            </Border>
+        </VerticalStackLayout>
+    </Border>
+</ContentView>

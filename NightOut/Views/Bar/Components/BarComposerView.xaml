@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView
+    x:Class="NightOut.Views.Bar.Components.BarComposerView"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:models="clr-namespace:NightOut.Models"
+    x:Name="ComposerRoot">
+
+    <Border Padding="16"
+            BackgroundColor="{DynamicResource BgDeep}"
+            Stroke="{DynamicResource Border}"
+            StrokeThickness="1"
+            StrokeShape="RoundRectangle 24">
+        <VerticalStackLayout Spacing="14">
+            <Grid ColumnDefinitions="*,Auto">
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="🔥 Ambiance du moment"
+                           TextColor="{DynamicResource Accent}"
+                           FontFamily="DMSans-Bold"
+                           FontSize="22" />
+                    <Label Text="{Binding Source={x:Reference ComposerRoot}, Path=FeedSubtitle}"
+                           TextColor="{DynamicResource TextSecondary}"
+                           FontSize="13" />
+                </VerticalStackLayout>
+                <Border Grid.Column="1"
+                        Padding="10,6"
+                        BackgroundColor="{DynamicResource Border}"
+                        StrokeThickness="0"
+                        StrokeShape="RoundRectangle 16">
+                    <Label Text="● EN DIRECT"
+                           TextColor="{DynamicResource Error}"
+                           FontSize="11"
+                           FontFamily="DMSans-Bold" />
+                </Border>
+            </Grid>
+
+            <HorizontalStackLayout Spacing="-10"
+                                   IsVisible="{Binding Source={x:Reference ComposerRoot}, Path=HasFriendsHere}">
+                <CollectionView ItemsSource="{Binding Source={x:Reference ComposerRoot}, Path=FriendsHere}"
+                                HeightRequest="38"
+                                WidthRequest="170"
+                                SelectionMode="None">
+                    <CollectionView.ItemsLayout>
+                        <LinearItemsLayout Orientation="Horizontal" ItemSpacing="-9" />
+                    </CollectionView.ItemsLayout>
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="models:Profile">
+                            <Border WidthRequest="36"
+                                    HeightRequest="36"
+                                    Stroke="{DynamicResource BgDeep}"
+                                    StrokeThickness="2"
+                                    StrokeShape="RoundRectangle 18"
+                                    BackgroundColor="{DynamicResource BgElevated}">
+                                <Image Source="{Binding AvatarUrl}" Aspect="AspectFill" />
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+                <Border Padding="10,0"
+                        HeightRequest="36"
+                        BackgroundColor="{DynamicResource BgElevated}"
+                        Stroke="{DynamicResource Border}"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 18">
+                    <Label Text="{Binding Source={x:Reference ComposerRoot}, Path=FriendsHerePlusLabel}"
+                           TextColor="{DynamicResource TextPrimary}"
+                           FontSize="13"
+                           VerticalOptions="Center" />
+                </Border>
+            </HorizontalStackLayout>
+
+            <Border BackgroundColor="{DynamicResource BgCard}"
+                    Stroke="{DynamicResource BgElevated}"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 18">
+                <Grid RowDefinitions="Auto,56" ColumnDefinitions="*,56">
+                    <Editor Grid.ColumnSpan="2"
+                            Text="{Binding Source={x:Reference ComposerRoot}, Path=MessageText, Mode=TwoWay}"
+                            Placeholder="Publier un message, une photo ou une vidéo..."
+                            PlaceholderColor="{DynamicResource TextSecondary}"
+                            TextColor="{DynamicResource TextPrimary}"
+                            AutoSize="TextChanges"
+                            MinimumHeightRequest="72"
+                            BackgroundColor="Transparent"
+                            Margin="12,8" />
+                    <Grid Grid.Row="1"
+                          Grid.ColumnSpan="2"
+                          BackgroundColor="{DynamicResource BgDeep}"
+                          ColumnDefinitions="*,*,56">
+                        <Button Text="▣ Photo"
+                                Command="{Binding Source={x:Reference ComposerRoot}, Path=PostPhotoCommand}"
+                                BackgroundColor="Transparent"
+                                TextColor="{DynamicResource Accent}"
+                                FontFamily="DMSans-Bold" />
+                        <Button Grid.Column="1"
+                                Text="▣ Vidéo"
+                                Command="{Binding Source={x:Reference ComposerRoot}, Path=PostVideoCommand}"
+                                BackgroundColor="Transparent"
+                                TextColor="{DynamicResource Accent}"
+                                FontFamily="DMSans-Bold" />
+                        <Button Grid.Column="2"
+                                Text="➤"
+                                Command="{Binding Source={x:Reference ComposerRoot}, Path=PostMessageCommand}"
+                                BackgroundColor="{DynamicResource Accent}"
+                                TextColor="{DynamicResource BgDeep}"
+                                FontSize="20"
+                                CornerRadius="24"
+                                Margin="7" />
+                    </Grid>
+                </Grid>
+            </Border>
+        </VerticalStackLayout>
+    </Border>
+</ContentView>

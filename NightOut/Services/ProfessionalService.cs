@@ -1,4 +1,5 @@
-﻿using NightOut.Models;
+using System.Globalization;
+using NightOut.Models;
 using SkiaSharp;
 using Supabase;
 using static Supabase.Postgrest.Constants;
@@ -12,6 +13,10 @@ public class ProfessionalService(Client supabase, IAuthService auth) : IProfessi
         var userId = auth.GetCurrentUserId();
 
         if (string.IsNullOrWhiteSpace(userId))
+            return null;
+
+        var profile = await auth.GetCurrentProfileAsync();
+        if (!IsProfessionalProfile(profile))
             return null;
 
         try
@@ -42,14 +47,20 @@ public class ProfessionalService(Client supabase, IAuthService auth) : IProfessi
         if (string.IsNullOrWhiteSpace(userId))
             return null;
 
+        var profile = await auth.GetCurrentProfileAsync();
+        if (!IsProfessionalProfile(profile))
+            return null;
+
         try
         {
+            var kind = NormalizeProfessionalKind(profile?.ProfessionalKind ?? profile?.AccountType);
+
             var account = new ProfessionalAccount
             {
                 UserId = userId,
-                Kind = "establishment",
+                Kind = kind,
                 Status = "pending",
-                DisplayName = "Mon établissement",
+                DisplayName = kind == "organizer" ? "Mon organisation" : "Mon etablissement",
                 Country = "France",
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
@@ -67,10 +78,31 @@ public class ProfessionalService(Client supabase, IAuthService auth) : IProfessi
         }
     }
 
+    private static bool IsProfessionalProfile(Profile? profile)
+    {
+        if (profile is null)
+            return false;
+
+        return profile.IsPro
+            || string.Equals(profile.AccountType, "establishment", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(profile.AccountType, "organizer", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static string NormalizeProfessionalKind(string? value) =>
+        string.Equals(value, "organizer", StringComparison.OrdinalIgnoreCase)
+            ? "organizer"
+            : "establishment";
+
     public async Task<bool> SaveProfessionalAccountAsync(ProfessionalAccount account)
     {
+        var savedBar = await SaveProfessionalAccountForBarAsync(account, null, false);
+        return savedBar is not null;
+    }
+
+    public async Task<Bar?> SaveProfessionalAccountForBarAsync(ProfessionalAccount account, string? selectedBarId, bool createNewBar)
+    {
         if (account is null || string.IsNullOrWhiteSpace(account.Id))
-            return false;
+            return null;
 
         try
         {
@@ -106,32 +138,50 @@ public class ProfessionalService(Client supabase, IAuthService auth) : IProfessi
                 .Set(p => p.UpdatedAt, DateTime.UtcNow)
                 .Update();
 
-            await CreateOrUpdateLinkedBarAsync(account, city);
+            await SyncProfessionalProfileAvatarAsync(account.UserId, account.LogoUrl);
 
-            return true;
+            return await CreateOrUpdateLinkedBarAsync(account, city, selectedBarId, createNewBar);
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[ProfessionalService] SaveProfessionalAccount erreur : {ex}");
-            return false;
+            System.Diagnostics.Debug.WriteLine($"[ProfessionalService] SaveProfessionalAccountForBar erreur : {ex}");
+            return null;
         }
     }
 
-    private async Task CreateOrUpdateLinkedBarAsync(ProfessionalAccount account, City? city)
+    private async Task SyncProfessionalProfileAvatarAsync(string? userId, string? logoUrl)
+    {
+        if (string.IsNullOrWhiteSpace(userId))
+            return;
+
+        try
+        {
+            await supabase.From<Profile>()
+                .Filter("id", Operator.Equals, userId)
+                .Set(p => p.AvatarUrl, Clean(logoUrl))
+                .Update();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[ProfessionalService] SyncProfessionalProfileAvatar erreur : {ex.Message}");
+        }
+    }
+
+    private async Task<Bar?> CreateOrUpdateLinkedBarAsync(ProfessionalAccount account, City? city, string? selectedBarId = null, bool createNewBar = false)
     {
         if (string.IsNullOrWhiteSpace(account.Id) ||
             string.IsNullOrWhiteSpace(account.UserId) ||
             string.IsNullOrWhiteSpace(account.DisplayName) ||
             string.IsNullOrWhiteSpace(account.Address) ||
             string.IsNullOrWhiteSpace(account.CityName))
-            return;
+            return null;
 
         city ??= await FindCityByNameAsync(account.CityName);
 
         if (city is null)
         {
-            System.Diagnostics.Debug.WriteLine($"[ProfessionalService] Ville NightOut introuvable : {account.CityName}");
-            return;
+            System.Diagnostics.Debug.WriteLine($"[ProfessionalService] Ville Spotiz introuvable : {account.CityName}");
+            return null;
         }
 
         var latitude = account.Latitude ?? city.Latitude;
@@ -140,12 +190,29 @@ public class ProfessionalService(Client supabase, IAuthService auth) : IProfessi
         var categorySlug = selectedCategory?.Slug ?? "bar";
         var categoryIcon = selectedCategory?.Icon ?? "🍺";
 
-        var existingBarResult = await supabase.From<Bar>()
-            .Filter("professional_account_id", Operator.Equals, account.Id)
-            .Limit(1)
-            .Get();
+        Bar? existingBar = null;
 
-        var existingBar = existingBarResult?.Models?.FirstOrDefault();
+        if (!createNewBar && !string.IsNullOrWhiteSpace(selectedBarId))
+        {
+            var selectedResult = await supabase.From<Bar>()
+                .Filter("id", Operator.Equals, selectedBarId)
+                .Filter("professional_account_id", Operator.Equals, account.Id)
+                .Limit(1)
+                .Get();
+
+            existingBar = selectedResult?.Models?.FirstOrDefault();
+        }
+
+        if (!createNewBar && existingBar is null)
+        {
+            var existingBarResult = await supabase.From<Bar>()
+                .Filter("professional_account_id", Operator.Equals, account.Id)
+                .Order(x => x.CreatedAt, Ordering.Ascending)
+                .Limit(1)
+                .Get();
+
+            existingBar = existingBarResult?.Models?.FirstOrDefault();
+        }
 
         if (existingBar is null)
         {
@@ -199,6 +266,8 @@ public class ProfessionalService(Client supabase, IAuthService auth) : IProfessi
             var savedBar = inserted?.Models?.FirstOrDefault();
             if (savedBar is not null && selectedCategory is not null)
                 await SyncPrimaryCategoryAsync(savedBar.Id, selectedCategory.Id);
+
+            return savedBar;
         }
         else
         {
@@ -234,6 +303,8 @@ public class ProfessionalService(Client supabase, IAuthService auth) : IProfessi
 
             if (selectedCategory is not null)
                 await SyncPrimaryCategoryAsync(existingBar.Id, selectedCategory.Id);
+
+            return existingBar;
         }
     }
 
@@ -385,29 +456,118 @@ public class ProfessionalService(Client supabase, IAuthService auth) : IProfessi
 
     private static byte[] CompressImage(byte[] input, int maxEdge)
     {
-        using var bitmap = SKBitmap.Decode(input);
+        try
+        {
+            var origin = GetEncodedOrigin(input);
+            using var bitmap = SKBitmap.Decode(input);
 
-        if (bitmap is null)
+            if (bitmap is null)
+                return input;
+
+            var oriented = ApplyEncodedOrientation(bitmap, origin);
+            try
+            {
+                var ratio = Math.Min(
+                    (double)maxEdge / oriented.Width,
+                    (double)maxEdge / oriented.Height);
+
+                if (ratio > 1)
+                    ratio = 1;
+
+                var width = Math.Max(1, (int)(oriented.Width * ratio));
+                var height = Math.Max(1, (int)(oriented.Height * ratio));
+
+                using var resized = oriented.Resize(
+                    new SKImageInfo(width, height),
+                    SKFilterQuality.High);
+
+                using var image = SKImage.FromBitmap(resized ?? oriented);
+                using var data = image.Encode(SKEncodedImageFormat.Jpeg, 85);
+
+                return data.ToArray();
+            }
+            finally
+            {
+                if (!ReferenceEquals(oriented, bitmap))
+                    oriented.Dispose();
+            }
+        }
+        catch
+        {
             return input;
+        }
+    }
 
-        var ratio = Math.Min(
-            (double)maxEdge / bitmap.Width,
-            (double)maxEdge / bitmap.Height);
+    private static SKEncodedOrigin GetEncodedOrigin(byte[] input)
+    {
+        try
+        {
+            using var data = SKData.CreateCopy(input);
+            using var codec = SKCodec.Create(data);
+            return codec?.EncodedOrigin ?? SKEncodedOrigin.TopLeft;
+        }
+        catch
+        {
+            return SKEncodedOrigin.TopLeft;
+        }
+    }
 
-        if (ratio > 1)
-            ratio = 1;
+    private static SKBitmap ApplyEncodedOrientation(SKBitmap source, SKEncodedOrigin origin)
+    {
+        if (origin == SKEncodedOrigin.TopLeft)
+            return source;
 
-        var width = Math.Max(1, (int)(bitmap.Width * ratio));
-        var height = Math.Max(1, (int)(bitmap.Height * ratio));
+        var swap = origin is SKEncodedOrigin.LeftTop or SKEncodedOrigin.RightTop or SKEncodedOrigin.RightBottom or SKEncodedOrigin.LeftBottom;
+        var outputWidth = swap ? source.Height : source.Width;
+        var outputHeight = swap ? source.Width : source.Height;
+        var rotated = new SKBitmap(outputWidth, outputHeight, source.ColorType, source.AlphaType);
 
-        using var resized = bitmap.Resize(
-            new SKImageInfo(width, height),
-            SKFilterQuality.High);
+        using var canvas = new SKCanvas(rotated);
+        canvas.Clear(SKColors.Transparent);
 
-        using var image = SKImage.FromBitmap(resized ?? bitmap);
-        using var data = image.Encode(SKEncodedImageFormat.Jpeg, 85);
+        switch (origin)
+        {
+            case SKEncodedOrigin.TopRight:
+                canvas.Translate(outputWidth, 0);
+                canvas.Scale(-1, 1);
+                break;
 
-        return data.ToArray();
+            case SKEncodedOrigin.BottomRight:
+                canvas.Translate(outputWidth, outputHeight);
+                canvas.RotateDegrees(180);
+                break;
+
+            case SKEncodedOrigin.BottomLeft:
+                canvas.Translate(0, outputHeight);
+                canvas.Scale(1, -1);
+                break;
+
+            case SKEncodedOrigin.RightTop:
+                canvas.Translate(outputWidth, 0);
+                canvas.RotateDegrees(90);
+                break;
+
+            case SKEncodedOrigin.LeftBottom:
+                canvas.Translate(0, outputHeight);
+                canvas.RotateDegrees(270);
+                break;
+
+            case SKEncodedOrigin.LeftTop:
+                canvas.Translate(0, outputHeight);
+                canvas.RotateDegrees(270);
+                canvas.Scale(-1, 1);
+                break;
+
+            case SKEncodedOrigin.RightBottom:
+                canvas.Translate(outputWidth, 0);
+                canvas.RotateDegrees(90);
+                canvas.Scale(-1, 1);
+                break;
+        }
+
+        canvas.DrawBitmap(source, 0, 0);
+        canvas.Flush();
+        return rotated;
     }
 
     private static string? Clean(string? value)
@@ -452,4 +612,278 @@ public class ProfessionalService(Client supabase, IAuthService auth) : IProfessi
 
         return result.ToString();
     }
+
+    public async Task<Bar?> GetLinkedBarAsync(string professionalAccountId)
+    {
+        if (string.IsNullOrWhiteSpace(professionalAccountId))
+            return null;
+
+        try
+        {
+            var result = await supabase.From<Bar>()
+                .Filter("professional_account_id", Operator.Equals, professionalAccountId)
+                .Limit(1)
+                .Get();
+
+            return result?.Models?.FirstOrDefault();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[ProfessionalService] GetLinkedBar erreur : {ex}");
+            return null;
+        }
+    }
+    public async Task<List<Bar>> GetBarsForProfessionalAsync(string professionalAccountId)
+    {
+        if (string.IsNullOrWhiteSpace(professionalAccountId))
+            return [];
+
+        try
+        {
+            var result = await supabase.From<Bar>()
+                .Filter("professional_account_id", Operator.Equals, professionalAccountId)
+                .Order(x => x.Name, Ordering.Ascending)
+                .Get();
+
+            return result?.Models?.ToList() ?? [];
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[ProfessionalService] GetBarsForProfessional erreur : {ex}");
+            return [];
+        }
+    }
+
+
+    public async Task<List<BarOpeningHour>> GetOpeningHoursForBarAsync(string barId)
+    {
+        if (string.IsNullOrWhiteSpace(barId))
+            return CreateDefaultOpeningHours();
+
+        try
+        {
+            var result = await supabase.From<BarOpeningHour>()
+                .Filter("bar_id", Operator.Equals, barId)
+                .Order(x => x.DayOfWeek, Ordering.Ascending)
+                .Get();
+
+            var hours = result?.Models ?? [];
+            return MergeWithDefaultOpeningHours(barId, hours);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[ProfessionalService] GetOpeningHoursForBar erreur : {ex}");
+            return CreateDefaultOpeningHours(barId);
+        }
+    }
+
+    public async Task<List<BarOpeningHour>> GetOpeningHoursForProfessionalAsync(string professionalAccountId)
+    {
+        try
+        {
+            var bar = await GetLinkedBarAsync(professionalAccountId);
+            if (bar is null || string.IsNullOrWhiteSpace(bar.Id))
+                return CreateDefaultOpeningHours();
+
+            return await GetOpeningHoursForBarAsync(bar.Id);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[ProfessionalService] GetOpeningHoursForProfessional erreur : {ex}");
+            return CreateDefaultOpeningHours();
+        }
+    }
+
+    public async Task<bool> SaveOpeningHoursForProfessionalAsync(string professionalAccountId, IEnumerable<BarOpeningHour> hours)
+    {
+        if (string.IsNullOrWhiteSpace(professionalAccountId))
+            return false;
+
+        try
+        {
+            var bar = await GetLinkedBarAsync(professionalAccountId);
+            if (bar is null || string.IsNullOrWhiteSpace(bar.Id))
+            {
+                var account = await GetCurrentProfessionalAccountAsync();
+                if (account is not null)
+                {
+                    var city = await FindCityByNameAsync(account.CityName);
+                    await CreateOrUpdateLinkedBarAsync(account, city);
+                    bar = await GetLinkedBarAsync(professionalAccountId);
+                }
+            }
+
+            if (bar is null || string.IsNullOrWhiteSpace(bar.Id))
+                return false;
+
+            return await SaveOpeningHoursForBarAsync(bar.Id, hours);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[ProfessionalService] SaveOpeningHoursForProfessional erreur : {ex}");
+            return false;
+        }
+    }
+
+    public async Task<bool> SaveOpeningHoursForBarAsync(string barId, IEnumerable<BarOpeningHour> hours)
+    {
+        if (string.IsNullOrWhiteSpace(barId))
+            return false;
+
+        try
+        {
+            await supabase.From<BarOpeningHour>()
+                .Filter("bar_id", Operator.Equals, barId)
+                .Delete();
+
+            var rows = hours
+                .OrderBy(h => h.DayOfWeek)
+                .Select(h => new BarOpeningHour
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    BarId = barId,
+                    DayOfWeek = h.DayOfWeek,
+                    IsClosed = h.IsClosed,
+                    OpenTime = h.IsClosed ? null : NormalizeTime(h.OpenTime),
+                    CloseTime = h.IsClosed ? null : NormalizeTime(h.CloseTime)
+                })
+                .ToList();
+
+            if (rows.Count > 0)
+                await supabase.From<BarOpeningHour>().Insert(rows);
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[ProfessionalService] SaveOpeningHoursForBar erreur : {ex}");
+            return false;
+        }
+    }
+
+    private static List<BarOpeningHour> CreateDefaultOpeningHours(string barId = "") =>
+    [
+        new() { BarId = barId, DayOfWeek = 1, IsClosed = true },
+        new() { BarId = barId, DayOfWeek = 2, OpenTime = "18:00", CloseTime = "01:00" },
+        new() { BarId = barId, DayOfWeek = 3, OpenTime = "18:00", CloseTime = "01:00" },
+        new() { BarId = barId, DayOfWeek = 4, OpenTime = "18:00", CloseTime = "02:00" },
+        new() { BarId = barId, DayOfWeek = 5, OpenTime = "18:00", CloseTime = "03:00" },
+        new() { BarId = barId, DayOfWeek = 6, OpenTime = "18:00", CloseTime = "03:00" },
+        new() { BarId = barId, DayOfWeek = 7, IsClosed = true }
+    ];
+
+    private static List<BarOpeningHour> MergeWithDefaultOpeningHours(string barId, List<BarOpeningHour> existing)
+    {
+        var defaults = CreateDefaultOpeningHours(barId);
+
+        foreach (var item in defaults)
+        {
+            var saved = existing.FirstOrDefault(h => h.DayOfWeek == item.DayOfWeek);
+            if (saved is null)
+                continue;
+
+            item.Id = saved.Id;
+            item.BarId = saved.BarId;
+            item.IsClosed = saved.IsClosed;
+            item.OpenTime = saved.OpenTime;
+            item.CloseTime = saved.CloseTime;
+        }
+
+        return defaults.OrderBy(h => h.DayOfWeek).ToList();
+    }
+
+    private static string? NormalizeTime(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return null;
+
+        value = value.Trim().Replace("h", ":").Replace("H", ":");
+
+        if (TimeSpan.TryParse(value, CultureInfo.InvariantCulture, out var ts))
+            return $"{(int)ts.TotalHours:00}:{ts.Minutes:00}:00";
+
+        if (value.Length == 5 && value[2] == ':')
+            return value + ":00";
+
+        return value;
+    }
+
+
+    public async Task<BarClaimRequest?> GetMyClaimRequestForBarAsync(string barId)
+    {
+        var userId = auth.GetCurrentUserId();
+        if (string.IsNullOrWhiteSpace(userId) || string.IsNullOrWhiteSpace(barId))
+            return null;
+
+        try
+        {
+            var result = await supabase.From<BarClaimRequest>()
+                .Filter("bar_id", Operator.Equals, barId)
+                .Filter("requester_user_id", Operator.Equals, userId)
+                .Order(x => x.CreatedAt, Ordering.Descending)
+                .Limit(1)
+                .Get();
+
+            return result?.Models?.FirstOrDefault();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[ProfessionalService] GetMyClaimRequestForBar erreur : {ex}");
+            return null;
+        }
+    }
+
+    public async Task<BarClaimRequest?> CreateBarClaimRequestAsync(
+        string barId,
+        string contactName,
+        string role,
+        string phone,
+        string proofMessage)
+    {
+        var userId = auth.GetCurrentUserId();
+        if (string.IsNullOrWhiteSpace(userId) || string.IsNullOrWhiteSpace(barId))
+            return null;
+
+        try
+        {
+            var existing = await GetMyClaimRequestForBarAsync(barId);
+            if (existing is not null && existing.Status is "pending" or "approved")
+                return existing;
+
+            var professionalAccount = await EnsureCurrentProfessionalAccountAsync();
+            if (professionalAccount is null || string.IsNullOrWhiteSpace(professionalAccount.Id))
+                return null;
+
+            var request = new BarClaimRequest
+            {
+                Id = Guid.NewGuid().ToString(),
+                BarId = barId,
+                RequesterUserId = userId,
+                ProfessionalAccountId = professionalAccount.Id,
+                ContactName = Clean(contactName),
+                Role = Clean(role),
+                Phone = Clean(phone),
+                ProofMessage = Clean(proofMessage),
+                Status = "pending"
+            };
+
+            var inserted = await supabase.From<BarClaimRequest>().Insert(request);
+            var saved = inserted?.Models?.FirstOrDefault();
+
+            // Marque la fiche comme revendication en cours. La validation finale reste admin.
+            await supabase.From<Bar>()
+                .Filter("id", Operator.Equals, barId)
+                .Set(b => b.ClaimStatus, "pending")
+                .Set(b => b.UpdatedAt, DateTime.UtcNow)
+                .Update();
+
+            return saved ?? request;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[ProfessionalService] CreateBarClaimRequest erreur : {ex}");
+            return null;
+        }
+    }
+
 }

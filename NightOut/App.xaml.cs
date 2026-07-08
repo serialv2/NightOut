@@ -13,7 +13,9 @@ public partial class App : MauiApp
     private readonly IServiceProvider _services;
     private readonly InviteDeepLinkService _inviteDeepLinks;
     private readonly IPushNotificationService _pushNotifications;
+    private readonly BeaconAutoCheckinService _beaconAutoCheckin;
     private readonly AppShell _shell;
+    private readonly IThemeService _theme;
 
     public App(
         IAuthService auth,
@@ -22,10 +24,15 @@ public partial class App : MauiApp
         HeartbeatService heartbeat,
         InviteDeepLinkService inviteDeepLinks,
         IPushNotificationService pushNotifications,
+        BeaconAutoCheckinService beaconAutoCheckin,
         AppShell shell,
+        IThemeService theme,
         IServiceProvider services)
     {
         InitializeComponent();
+
+        _theme = theme;
+        _theme.Initialize(); // Ajoute ColorsLight ou ColorsDark selon la préférence sauvegardée — DOIT être fait avant tout rendu de page.
 
         _auth = auth;
         _userStatus = userStatus;
@@ -34,6 +41,7 @@ public partial class App : MauiApp
         _services = services;
         _inviteDeepLinks = inviteDeepLinks;
         _pushNotifications = pushNotifications;
+        _beaconAutoCheckin = beaconAutoCheckin;
         _shell = shell;
 
         RegisterGlobalExceptionHandlers();
@@ -80,11 +88,19 @@ public partial class App : MauiApp
         };
     }
 
+    /// <summary>Lit une couleur du thème actif (ColorsLight/ColorsDark) avec repli si non trouvée.</summary>
+    private static Color ThemeColor(string key, string fallbackHex)
+    {
+        if (Current?.Resources.TryGetValue(key, out var value) == true && value is Color c)
+            return c;
+        return Color.FromArgb(fallbackHex);
+    }
+
     private static Page CreateLoadingPage()
     {
         return new ContentPage
         {
-            BackgroundColor = Color.FromArgb("#0A1018"),
+            BackgroundColor = ThemeColor("BgDeep", "#F5F2EE"),
             Content = new VerticalStackLayout
             {
                 Spacing = 18,
@@ -94,16 +110,16 @@ public partial class App : MauiApp
                 {
                     new Label
                     {
-                        Text = "NightOut",
+                        Text = "Spotiz",
                         FontFamily = "PlayfairDisplay-BoldItalic",
                         FontSize = 42,
-                        TextColor = Color.FromArgb("#FFB627"),
+                        TextColor = ThemeColor("Accent", "#CEA358"),
                         HorizontalTextAlignment = TextAlignment.Center
                     },
                     new ActivityIndicator
                     {
                         IsRunning = true,
-                        Color = Color.FromArgb("#FFB627"),
+                        Color = ThemeColor("Accent", "#CEA358"),
                         WidthRequest = 42,
                         HeightRequest = 42
                     }
@@ -121,6 +137,7 @@ public partial class App : MauiApp
             SetRootPage(_shell);
 
             _heartbeat.Start();
+            _beaconAutoCheckin.Start();
 
             try
             {
@@ -146,8 +163,8 @@ public partial class App : MauiApp
 
         SetRootPage(new NavigationPage(loginPage)
         {
-            BarBackgroundColor = Color.FromArgb("#0A1018"),
-            BarTextColor = Color.FromArgb("#F2E8D5")
+            BarBackgroundColor = ThemeColor("BgDeep", "#F5F2EE"),
+            BarTextColor = ThemeColor("TextPrimary", "#37241B")
         });
     }
 
@@ -186,26 +203,16 @@ public partial class App : MauiApp
         if (_auth.GetCurrentUserId() == null)
             return;
 
+        // IMPORTANT Spotiz : écran verrouillé / application en arrière-plan ≠ départ réel.
+        // Avant, on faisait GoOfflineAsync() + CheckOutActiveAsync() ici, donc l'utilisateur
+        // disparaissait immédiatement de la carte et des présences dès que le téléphone se mettait
+        // en veille. Maintenant on arrête seulement le heartbeat local : Supabase gardera la
+        // présence jusqu'à expires_at, prolongé à 1 heure par heartbeat_presence().
         _heartbeat.Stop();
+        _beaconAutoCheckin.Stop();
 
-        Task.Run(async () =>
-        {
-            try
-            {
-                await Task.WhenAll(
-                    _userStatus.GoOfflineAsync(),
-                    _checkin.CheckOutActiveAsync()
-                );
-
-                System.Diagnostics.Debug.WriteLine(
-                    "[App] 😴 OnSleep → GoOffline + Checkout OK");
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine(
-                    $"[App] OnSleep erreur : {ex.Message}");
-            }
-        });
+        System.Diagnostics.Debug.WriteLine(
+            "[App] 😴 OnSleep → heartbeat arrêté, présence conservée temporairement (expiration serveur)");
     }
 
     protected override void OnResume()
@@ -232,6 +239,7 @@ public partial class App : MauiApp
         });
 
         _heartbeat.Start();
+        _beaconAutoCheckin.Start();
 
         MainThread.BeginInvokeOnMainThread(async () =>
         {

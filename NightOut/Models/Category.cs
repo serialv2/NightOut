@@ -20,7 +20,7 @@ public class Category : BaseModel
     public string Icon { get; set; } = string.Empty;
 
     [Column("color")]
-    public string Color { get; set; } = "#FFB627";
+    public string Color { get; set; } = "#CEA358";
 
     [Column("sort_order")]
     public int SortOrder { get; set; }

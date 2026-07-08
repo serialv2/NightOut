@@ -1,0 +1,298 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="NightOut.Views.Events.CreateEphemeralEventPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:vm="clr-namespace:NightOut.ViewModels"
+    xmlns:models="clr-namespace:NightOut.Models"
+    x:DataType="vm:CreateEphemeralEventViewModel"
+    Shell.NavBarIsVisible="False"
+    BackgroundColor="#080D14">
+
+    <Grid RowDefinitions="Auto,*,Auto">
+
+        <Grid Padding="22,48,22,18" ColumnDefinitions="Auto,*,Auto">
+            <Border WidthRequest="46" HeightRequest="46" StrokeShape="RoundRectangle 23" StrokeThickness="0" BackgroundColor="#121B28">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding CancelCommand}" />
+                </Border.GestureRecognizers>
+                <Label Text="‹" FontSize="32" TextColor="#FFB627" HorizontalOptions="Center" VerticalOptions="Center" />
+            </Border>
+
+            <VerticalStackLayout Grid.Column="1" Margin="16,0,0,0" VerticalOptions="Center">
+                <Label Text="Créer une sortie" FontSize="27" FontAttributes="Bold" TextColor="#F5EBDD" />
+                <Label Text="Éphémère, simple et visible autour de toi" FontSize="14" TextColor="#66758A" />
+            </VerticalStackLayout>
+
+            <Border Grid.Column="2" WidthRequest="44" HeightRequest="44" StrokeShape="RoundRectangle 22" StrokeThickness="0" BackgroundColor="#161F2D">
+                <Label Text="🔥" FontSize="18" HorizontalOptions="Center" VerticalOptions="Center" />
+            </Border>
+        </Grid>
+
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout Padding="22,6,22,24" Spacing="18">
+
+                <Border StrokeShape="RoundRectangle 28" Stroke="#2A3345" StrokeThickness="1" BackgroundColor="#111A26" Padding="18">
+                    <Grid RowDefinitions="Auto,Auto,Auto" RowSpacing="12">
+                        <Border StrokeShape="RoundRectangle 999" BackgroundColor="#33FF2D6B" Padding="10,5" HorizontalOptions="Start">
+                            <Label Text="{Binding PreviewBadge}" FontSize="11" FontAttributes="Bold" TextColor="#FF5C9A" />
+                        </Border>
+
+                        <VerticalStackLayout Grid.Row="1" Spacing="4">
+                            <Label Text="{Binding PreviewTitle}" FontSize="24" FontAttributes="Bold" TextColor="#F5EBDD" LineBreakMode="TailTruncation" />
+                            <Label Text="{Binding PreviewSubtitle}" FontSize="14" TextColor="#9AA8B8" />
+                        </VerticalStackLayout>
+
+                        <HorizontalStackLayout Grid.Row="2" Spacing="-8">
+                            <Border WidthRequest="36" HeightRequest="36" StrokeShape="RoundRectangle 18" Stroke="#080D14" StrokeThickness="2" BackgroundColor="#FFB627">
+                                <Label Text="T" TextColor="#080D14" FontAttributes="Bold" HorizontalOptions="Center" VerticalOptions="Center" />
+                            </Border>
+                            <Border WidthRequest="36" HeightRequest="36" StrokeShape="RoundRectangle 18" Stroke="#080D14" StrokeThickness="2" BackgroundColor="#FF6B35">
+                                <Label Text="O" TextColor="White" FontAttributes="Bold" HorizontalOptions="Center" VerticalOptions="Center" />
+                            </Border>
+                            <Border WidthRequest="36" HeightRequest="36" StrokeShape="RoundRectangle 18" Stroke="#080D14" StrokeThickness="2" BackgroundColor="#9B35FF">
+                                <Label Text="+" TextColor="White" FontAttributes="Bold" HorizontalOptions="Center" VerticalOptions="Center" />
+                            </Border>
+                        </HorizontalStackLayout>
+                    </Grid>
+                </Border>
+
+                <Label Text="Informations" FontSize="14" FontAttributes="Bold" TextColor="#516179" />
+
+                <Border StrokeShape="RoundRectangle 24" Stroke="#26364A" StrokeThickness="1" BackgroundColor="#111A26" Padding="16">
+                    <VerticalStackLayout Spacing="14">
+                        <VerticalStackLayout Spacing="6">
+                            <Label Text="Titre" FontSize="12" TextColor="#7A8FA6" />
+                            <Entry Text="{Binding TitleText}" Placeholder="Ex : Apéro improvisé" PlaceholderColor="#516179" TextColor="#F5EBDD" BackgroundColor="Transparent" />
+                        </VerticalStackLayout>
+
+                        <BoxView HeightRequest="1" Color="#1D2A3A" />
+
+                        <VerticalStackLayout Spacing="6">
+                            <Label Text="Description" FontSize="12" TextColor="#7A8FA6" />
+                            <Editor Text="{Binding Description}" Placeholder="Quelques mots pour donner envie..." PlaceholderColor="#516179" TextColor="#F5EBDD" BackgroundColor="Transparent" AutoSize="TextChanges" HeightRequest="92" />
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border StrokeShape="RoundRectangle 24" Stroke="#26364A" StrokeThickness="1" BackgroundColor="#111A26" Padding="16">
+                    <VerticalStackLayout Spacing="12">
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                            <VerticalStackLayout Spacing="3">
+                                <Label Text="Flyer" FontSize="12" TextColor="#7A8FA6" />
+                                <Label Text="Ajoute une image pour donner envie." FontSize="11" TextColor="#516179" />
+                            </VerticalStackLayout>
+
+                            <Border Grid.Column="1"
+                                    StrokeShape="RoundRectangle 16"
+                                    Stroke="#FFB627"
+                                    BackgroundColor="#14FFB627"
+                                    Padding="12,8">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding PickFlyerCommand}" />
+                                </Border.GestureRecognizers>
+                                <Label Text="{Binding FlyerButtonText}"
+                                       FontSize="12"
+                                       FontAttributes="Bold"
+                                       TextColor="#FFB627" />
+                            </Border>
+                        </Grid>
+
+                        <Border IsVisible="{Binding HasFlyer}"
+                                StrokeShape="RoundRectangle 18"
+                                Stroke="#32435A"
+                                StrokeThickness="1"
+                                BackgroundColor="#0B121C"
+                                Padding="0">
+                            <Grid RowDefinitions="150,Auto">
+                                <Image Source="{Binding FlyerPreviewPath}"
+                                       Aspect="AspectFill"
+                                       HeightRequest="150"
+                                       BackgroundColor="#0B121C" />
+
+                                <Grid Grid.Row="1" Padding="12,10" ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                                    <Label Text="{Binding FlyerFileName}"
+                                           FontSize="12"
+                                           TextColor="#F5EBDD"
+                                           LineBreakMode="TailTruncation"
+                                           VerticalOptions="Center" />
+
+                                    <Label Grid.Column="1"
+                                           Text="Retirer"
+                                           FontSize="12"
+                                           FontAttributes="Bold"
+                                           TextColor="#FF6B35"
+                                           VerticalOptions="Center">
+                                        <Label.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding RemoveFlyerCommand}" />
+                                        </Label.GestureRecognizers>
+                                    </Label>
+                                </Grid>
+                            </Grid>
+                        </Border>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Label Text="Visibilité" FontSize="14" FontAttributes="Bold" TextColor="#516179" />
+
+                <Border StrokeShape="RoundRectangle 24" Stroke="#26364A" StrokeThickness="1" BackgroundColor="#111A26" Padding="16">
+                    <VerticalStackLayout Spacing="14">
+                        <VerticalStackLayout Spacing="6">
+                            <Label Text="Qui peut voir cette sortie ?" FontSize="12" TextColor="#7A8FA6" />
+                            <Picker
+                                ItemsSource="{Binding VisibilityOptions}"
+                                SelectedItem="{Binding SelectedVisibility}"
+                                TextColor="#F5EBDD"
+                                Title="Choisir la visibilité"
+                                TitleColor="#516179"
+                                BackgroundColor="Transparent" />
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Spacing="6" IsVisible="{Binding IsGroupVisibility}">
+                            <BoxView HeightRequest="1" Color="#1D2A3A" />
+                            <Label Text="Groupe invité" FontSize="12" TextColor="#7A8FA6" />
+                            <Picker
+                                ItemsSource="{Binding MyGroups}"
+                                SelectedItem="{Binding SelectedGroup}"
+                                ItemDisplayBinding="{Binding DisplayTitle}"
+                                TextColor="#F5EBDD"
+                                Title="Choisir un groupe"
+                                TitleColor="#516179"
+                                BackgroundColor="Transparent" />
+                            <Label Text="Seuls les membres de ce groupe verront la sortie et recevront la notification." FontSize="10" TextColor="#516179" LineHeight="1.2" />
+                        </VerticalStackLayout>
+
+                        <Label
+                            Text="{Binding VisibilityHelpText}"
+                            FontSize="11"
+                            TextColor="#8FA0B4"
+                            LineHeight="1.25" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <Label Text="Lieu" FontSize="14" FontAttributes="Bold" TextColor="#516179" />
+
+                <Border StrokeShape="RoundRectangle 24" Stroke="#26364A" StrokeThickness="1" BackgroundColor="#111A26" Padding="16">
+                    <VerticalStackLayout Spacing="14">
+                        <VerticalStackLayout Spacing="6">
+                            <Label Text="Ville" FontSize="12" TextColor="#7A8FA6" />
+                            <Picker ItemsSource="{Binding Cities}" SelectedItem="{Binding SelectedCity}" ItemDisplayBinding="{Binding Name}" TextColor="#F5EBDD" Title="Choisir une ville" TitleColor="#516179" BackgroundColor="Transparent" />
+                        </VerticalStackLayout>
+
+                        <BoxView HeightRequest="1" Color="#1D2A3A" />
+
+                        <VerticalStackLayout Spacing="6">
+                            <Label Text="Bar référencé" FontSize="12" TextColor="#7A8FA6" />
+                            <Picker
+                                ItemsSource="{Binding CityBars}"
+                                SelectedItem="{Binding SelectedBar}"
+                                ItemDisplayBinding="{Binding SearchDisplayLabel}"
+                                TextColor="#F5EBDD"
+                                Title="{Binding BarPickerTitle}"
+                                TitleColor="#516179"
+                                BackgroundColor="Transparent" />
+                            <Label
+                                Text="Choisis un bar NightOut pour récupérer automatiquement son adresse et sa position sur la carte."
+                                FontSize="10"
+                                TextColor="#516179"
+                                LineHeight="1.2" />
+                        </VerticalStackLayout>
+
+                        <BoxView HeightRequest="1" Color="#1D2A3A" />
+
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                            <VerticalStackLayout Spacing="6">
+                                <Label Text="Lieu libre / nom affiché" FontSize="12" TextColor="#7A8FA6" />
+                                <Entry Text="{Binding PlaceName}" Placeholder="Ex : Le Baron, Grand Place..." PlaceholderColor="#516179" TextColor="#F5EBDD" BackgroundColor="Transparent" />
+                            </VerticalStackLayout>
+
+                            <Border Grid.Column="1"
+                                    StrokeShape="RoundRectangle 16"
+                                    Stroke="#FFB627"
+                                    BackgroundColor="#14FFB627"
+                                    Padding="12,8"
+                                    VerticalOptions="End">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding ClearSelectedBarCommand}" />
+                                </Border.GestureRecognizers>
+                                <Label Text="Lieu libre"
+                                       FontSize="12"
+                                       FontAttributes="Bold"
+                                       TextColor="#FFB627" />
+                            </Border>
+                        </Grid>
+
+                        <BoxView HeightRequest="1" Color="#1D2A3A" />
+
+                        <VerticalStackLayout Spacing="6">
+                            <Label Text="Adresse optionnelle" FontSize="12" TextColor="#7A8FA6" />
+                            <Entry Text="{Binding Address}" Placeholder="Adresse ou quartier" PlaceholderColor="#516179" TextColor="#F5EBDD" BackgroundColor="Transparent" />
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Label Text="Quand ?" FontSize="14" FontAttributes="Bold" TextColor="#516179" />
+
+                <Border StrokeShape="RoundRectangle 24" Stroke="#26364A" StrokeThickness="1" BackgroundColor="#111A26" Padding="16">
+                    <VerticalStackLayout Spacing="14">
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="14">
+                            <VerticalStackLayout Spacing="6">
+                                <Label Text="Date" FontSize="12" TextColor="#7A8FA6" />
+                                <DatePicker Date="{Binding StartDate}" TextColor="#F5EBDD" BackgroundColor="Transparent" />
+                            </VerticalStackLayout>
+
+                            <VerticalStackLayout Grid.Column="1" Spacing="6">
+                                <Label Text="Heure" FontSize="12" TextColor="#7A8FA6" />
+                                <TimePicker Time="{Binding StartTime}" TextColor="#F5EBDD" BackgroundColor="Transparent" />
+                            </VerticalStackLayout>
+                        </Grid>
+
+                        <BoxView HeightRequest="1" Color="#1D2A3A" />
+
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="14">
+                            <VerticalStackLayout Spacing="6">
+                                <Label Text="Durée" FontSize="12" TextColor="#7A8FA6" />
+                                <Picker ItemsSource="{Binding Durations}" SelectedItem="{Binding SelectedDuration}" TextColor="#F5EBDD" Title="Durée" TitleColor="#516179" BackgroundColor="Transparent" />
+                            </VerticalStackLayout>
+
+                            <VerticalStackLayout Grid.Column="1" Spacing="6">
+                                <Label Text="Type" FontSize="12" TextColor="#7A8FA6" />
+                                <Picker ItemsSource="{Binding Categories}" SelectedItem="{Binding SelectedCategory}" TextColor="#F5EBDD" Title="Type" TitleColor="#516179" BackgroundColor="Transparent" />
+                            </VerticalStackLayout>
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border StrokeShape="RoundRectangle 22" BackgroundColor="#1A2535" Stroke="#26364A" Padding="14">
+                    <Label Text="La sortie sera publiée selon la visibilité choisie. Les personnes concernées recevront une notification push et elle disparaîtra automatiquement à la fin de la durée choisie." FontSize="12" TextColor="#8FA0B4" LineHeight="1.25" />
+                </Border>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <Grid Grid.Row="2" Padding="22,10,22,24" BackgroundColor="#080D14">
+            <Border HeightRequest="58" StrokeShape="RoundRectangle 29" StrokeThickness="0">
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="#9B35FF" Offset="0" />
+                        <GradientStop Color="#FF2D6B" Offset="0.55" />
+                        <GradientStop Color="#FF6B35" Offset="1" />
+                    </LinearGradientBrush>
+                </Border.Background>
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding SaveCommand}" />
+                </Border.GestureRecognizers>
+
+                <HorizontalStackLayout HorizontalOptions="Center" VerticalOptions="Center" Spacing="10">
+                    <Label Text="+" FontSize="28" FontAttributes="Bold" TextColor="White" VerticalOptions="Center" />
+                    <Label Text="Publier la sortie" FontSize="16" FontAttributes="Bold" TextColor="White" VerticalOptions="Center" />
+                </HorizontalStackLayout>
+            </Border>
+        </Grid>
+
+        <Grid Grid.RowSpan="3" BackgroundColor="#99000000" IsVisible="{Binding IsBusy}">
+            <ActivityIndicator IsRunning="{Binding IsBusy}" Color="#FFB627" WidthRequest="48" HeightRequest="48" HorizontalOptions="Center" VerticalOptions="Center" />
+        </Grid>
+
+    </Grid>
+</ContentPage>
