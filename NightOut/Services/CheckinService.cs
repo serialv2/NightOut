@@ -1,6 +1,7 @@
 using Newtonsoft.Json;
 using NightOut.Models;
 using Supabase;
+using static Supabase.Postgrest.Constants;
 
 namespace NightOut.Services;
 
@@ -264,22 +265,42 @@ public class CheckinService(Client supabase, IAuthService auth, ICreditService c
 
     private async Task<List<Checkin>> GetActiveCheckinsForUserAsync(string userId)
     {
-        var result = await supabase.From<Checkin>()
-            .Where(c => c.UserId == userId && c.IsActive)
-            .Get();
+        if (string.IsNullOrWhiteSpace(userId))
+            return [];
 
-        return result?.Models ?? [];
+        try
+        {
+            var result = await supabase.From<Checkin>()
+                .Filter("user_id", Operator.Equals, userId)
+                .Filter("is_active", Operator.Equals, "true")
+                .Get();
+
+            return result?.Models?.Where(c => c is not null).ToList() ?? [];
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[Checkin] Lecture check-ins actifs erreur : {ex.Message}");
+            return [];
+        }
     }
 
     private async Task<Checkin?> GetLatestActiveCheckinForUserAsync(string userId)
     {
-        var active = await GetActiveCheckinsForUserAsync(userId);
-        return SelectLatestActiveCheckin(active);
+        try
+        {
+            var active = await GetActiveCheckinsForUserAsync(userId);
+            return SelectLatestActiveCheckin(active);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[Checkin] Check-in actif ignore : {ex.Message}");
+            return null;
+        }
     }
 
     private static Checkin? SelectLatestActiveCheckin(IEnumerable<Checkin> active)
         => active
-            .Where(c => c.IsActive)
+            .Where(c => c is not null && c.IsActive)
             .OrderByDescending(c => c.CheckedInAt)
             .FirstOrDefault();
 
@@ -312,6 +333,7 @@ public class CheckinService(Client supabase, IAuthService auth, ICreditService c
         {
             var active = await GetActiveCheckinsForUserAsync(userId);
             var toClose = active
+                .Where(c => c is not null)
                 .Where(c => string.IsNullOrWhiteSpace(keepCheckinId) || c.Id != keepCheckinId)
                 .ToList();
 
