@@ -999,6 +999,13 @@ public partial class MapViewModel(
                 (DateTime.UtcNow - _lastDeclinedUtc).TotalMinutes < RepromptCooldownMinutes)
                 return;
 
+            ActiveCheckin = await checkinService.GetActiveCheckinAsync();
+            if (ActiveCheckin != null)
+            {
+                await EvaluateExitAsync(lat, lng);
+                return;
+            }
+
             // Ne pas interrompre l'utilisateur pendant qu'il consulte la fiche d'un autre bar.
             // La popup réapparaîtra dès qu'il ferme la fiche ou ouvre celle du bon bar.
             if (IsBottomSheetVisible && SelectedBar?.Id != nearest.Id)
@@ -1039,9 +1046,15 @@ public partial class MapViewModel(
         try
         {
             var checkedOutBarId = ActiveCheckin.BarId;
-            await checkinService.CheckOutAsync(ActiveCheckin.Id);
+            var checkedOutCheckinId = ActiveCheckin.Id;
+            await checkinService.CheckOutAsync(checkedOutCheckinId);
             await userStatusService.GoOfflineAsync();
-            ApplyBarPresenceDelta(checkedOutBarId, -1);
+
+            if (string.Equals(ActiveCheckin?.Id, checkedOutCheckinId, StringComparison.OrdinalIgnoreCase))
+            {
+                ActiveCheckin = null;
+                ApplyBarPresenceDelta(checkedOutBarId, -1);
+            }
         }
         catch (Exception ex)
         {
@@ -1083,6 +1096,7 @@ public partial class MapViewModel(
             {
                 // Le RPC renvoie parfois bar_id non mappé : on le force depuis la valeur connue.
                 if (string.IsNullOrEmpty(checkin.BarId)) checkin.BarId = bar.Id;
+                previousBarId = ActiveCheckin?.BarId;
                 ActiveCheckin = checkin;   // réassignation => recalcul de CanPostMedia avec le bon BarId
                 IfCheckinMovedUpdatePresence(previousBarId, bar.Id);
                 await ShowToastAsync("📍 Tes amis savent que tu es là !");
@@ -1258,6 +1272,7 @@ public partial class MapViewModel(
             if (IsSelectedBarActiveCheckin && ActiveCheckin != null)
             {
                 var checkedOutBarId = ActiveCheckin.BarId;
+                var checkedOutCheckinId = ActiveCheckin.Id;
 
                 var checkedOut = await checkinService.CheckOutAsync(ActiveCheckin.Id);
                 if (!checkedOut)
@@ -1266,9 +1281,14 @@ public partial class MapViewModel(
                     return;
                 }
 
+                var notificationAlreadyHandled =
+                    !string.Equals(ActiveCheckin?.Id, checkedOutCheckinId, StringComparison.OrdinalIgnoreCase);
+
                 ActiveCheckin = null;
                 await userStatusService.GoOfflineAsync();
-                ApplyBarPresenceDelta(checkedOutBarId, -1);
+
+                if (!notificationAlreadyHandled)
+                    ApplyBarPresenceDelta(checkedOutBarId, -1);
 
                 // Évite que la détection auto repropose ce bar immédiatement après un
                 // check-out manuel (l'utilisateur vient de choisir de partir).
@@ -1324,6 +1344,7 @@ public partial class MapViewModel(
                     if (checkin != null)
                     {
                         if (string.IsNullOrEmpty(checkin.BarId)) checkin.BarId = SelectedBar.Id;
+                        previousBarId = ActiveCheckin?.BarId;
                         ActiveCheckin = checkin;   // recalcule CanPostMedia => boutons visibles
                         IfCheckinMovedUpdatePresence(previousBarId, SelectedBar.Id);
                         await ShowToastAsync("📍 Tes amis savent que tu es là !");

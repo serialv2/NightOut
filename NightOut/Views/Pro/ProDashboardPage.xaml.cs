@@ -25,7 +25,19 @@ public partial class ProDashboardPage : ContentPage
     {
         base.OnAppearing();
         if (BindingContext is ProDashboardViewModel vm)
-            _ = vm.OnAppearingAsync();
+            _ = SafeOnAppearingAsync(vm);
+    }
+
+    private static async Task SafeOnAppearingAsync(ProDashboardViewModel vm)
+    {
+        try
+        {
+            await vm.OnAppearingAsync();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[ProDashboardPage] OnAppearing erreur : {ex}");
+        }
     }
 
     private async void OnBackTapped(object sender, TappedEventArgs e)

@@ -242,7 +242,7 @@ public partial class ProDashboardViewModel(
 
         var bars = await professionalService.GetBarsForProfessionalAsync(_account.Id);
 
-        foreach (var bar in bars.OrderBy(b => b.Name))
+        foreach (var bar in bars.Where(b => b is not null).OrderBy(b => b.Name ?? string.Empty))
             MyBars.Add(bar);
 
         OnPropertyChanged(nameof(MyBars));
@@ -255,7 +255,17 @@ public partial class ProDashboardViewModel(
 
         if (barToSelect is not null)
         {
-            await SelectBarInternalAsync(barToSelect);
+            try
+            {
+                await SelectBarInternalAsync(barToSelect);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[ProDashboardViewModel] Selection bar erreur : {ex}");
+                StartNewEstablishmentInternal(clearName: false);
+                SetDefaultOpeningHours();
+                await ShowToastAsync("Espace pro ouvert, mais impossible de charger le bar selectionne.");
+            }
         }
         else
         {
@@ -312,7 +322,7 @@ public partial class ProDashboardViewModel(
         _selectedBarId = bar.Id;
         IsCreatingNewEstablishment = false;
         EstablishmentModeText = "Établissement sélectionné";
-        SelectedBarName = bar.Name;
+        SelectedBarName = string.IsNullOrWhiteSpace(bar.Name) ? "Etablissement" : bar.Name;
 
         DisplayName = bar.Name ?? string.Empty;
         Phone = bar.Phone ?? string.Empty;
@@ -334,8 +344,8 @@ public partial class ProDashboardViewModel(
 
         LogoUrl = bar.LogoUrl ?? string.Empty;
         CoverUrl = bar.CoverUrl ?? string.Empty;
-        Latitude = bar.Latitude.ToString(CultureInfo.InvariantCulture);
-        Longitude = bar.Longitude.ToString(CultureInfo.InvariantCulture);
+        Latitude = bar.Latitude == 0 ? string.Empty : bar.Latitude.ToString(CultureInfo.InvariantCulture);
+        Longitude = bar.Longitude == 0 ? string.Empty : bar.Longitude.ToString(CultureInfo.InvariantCulture);
         IsAddressVerified = true;
         HasAddressValidationMessage = false;
         AddressValidationMessage = string.Empty;
@@ -431,7 +441,15 @@ public partial class ProDashboardViewModel(
         if (bar is null)
             return;
 
-        await SelectBarInternalAsync(bar);
+        try
+        {
+            await SelectBarInternalAsync(bar);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[ProDashboardViewModel] SelectBar erreur : {ex}");
+            await ShowToastAsync("Impossible de charger cet etablissement.");
+        }
     }
 
     [RelayCommand]

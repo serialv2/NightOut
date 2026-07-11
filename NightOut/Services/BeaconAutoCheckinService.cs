@@ -10,7 +10,6 @@ public sealed class BeaconAutoCheckinService : IDisposable
     private static readonly TimeSpan ScanInterval = TimeSpan.FromSeconds(10);
     private static readonly TimeSpan ScanDuration = TimeSpan.FromSeconds(8);
     private static readonly TimeSpan ObservationTtl = TimeSpan.FromMinutes(2);
-    private static readonly TimeSpan SameBeaconCooldown = TimeSpan.FromHours(2);
     private static readonly TimeSpan SameBeaconAttemptCooldown = TimeSpan.FromSeconds(30);
     private static readonly TimeSpan DiagnosticToastCooldown = TimeSpan.FromSeconds(45);
 
@@ -21,7 +20,6 @@ public sealed class BeaconAutoCheckinService : IDisposable
     private readonly IAuthService _auth;
     private readonly IUserStatusService _userStatus;
     private readonly Dictionary<BeaconKey, BeaconObservation> _observations = [];
-    private readonly Dictionary<BeaconKey, DateTime> _lastCheckinUtc = [];
     private readonly Dictionary<BeaconKey, DateTime> _lastCheckinAttemptUtc = [];
 
     private PeriodicTimer? _timer;
@@ -191,8 +189,8 @@ public sealed class BeaconAutoCheckinService : IDisposable
         if (candidate is null)
             return;
 
-        if (_lastCheckinUtc.TryGetValue(candidate.Key, out var last) &&
-            now - last < SameBeaconCooldown)
+        var activeCheckin = await _checkins.GetActiveCheckinAsync();
+        if (activeCheckin is not null)
         {
             return;
         }
@@ -226,7 +224,6 @@ public sealed class BeaconAutoCheckinService : IDisposable
             return;
         }
 
-        _lastCheckinUtc[candidate.Key] = now;
         _observations.Remove(candidate.Key);
 
         await _userStatus.GoOutAsync(checkin.BarId);

@@ -15,6 +15,18 @@ public partial class ProStatsPage : ContentPage
         base.OnAppearing();
 
         if (BindingContext is ProStatsViewModel vm)
-            _ = vm.OnAppearingAsync();
+            _ = SafeOnAppearingAsync(vm);
+    }
+
+    private static async Task SafeOnAppearingAsync(ProStatsViewModel vm)
+    {
+        try
+        {
+            await vm.OnAppearingAsync();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[ProStatsPage] OnAppearing erreur : {ex}");
+        }
     }
 }

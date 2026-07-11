@@ -18,12 +18,22 @@ public partial class ProStatsViewModel(
     public ObservableCollection<OfficialEvent> Events { get; } = [];
     public ObservableCollection<OfficialEvent> AllEvents { get; } = [];
     public ObservableCollection<ProEventDemographicStats> DemographicStats { get; } = [];
+    public ObservableCollection<BarPresenceDailyStat> PresenceDailyStats { get; } = [];
+    public ObservableCollection<BarPresenceHourlyStat> PresenceHourlyStats { get; } = [];
 
     [ObservableProperty] private Bar? _selectedBar;
     [ObservableProperty] private bool _showAllEstablishments = true;
     [ObservableProperty] private string _proName = "Espace professionnel";
     [ObservableProperty] private string _statusLabel = string.Empty;
     [ObservableProperty] private string _statsScopeLabel = "Tous les établissements";
+
+    [ObservableProperty] private int _presenceCurrent;
+    [ObservableProperty] private int _presenceVisits;
+    [ObservableProperty] private int _presenceUniqueVisitors;
+    [ObservableProperty] private int _presenceRepeatVisitors;
+    [ObservableProperty] private double _presenceAverageDurationMinutes;
+    [ObservableProperty] private string _presenceSourcesLabel = "Aucune donnee";
+    [ObservableProperty] private string _presencePeakHourLabel = "Aucun pic detecte";
 
     [ObservableProperty] private int _barProfileViewTotal;
     [ObservableProperty] private int _barProfileViewFemale;
@@ -47,6 +57,10 @@ public partial class ProStatsViewModel(
     public int TotalGoingAll => AllEvents.Sum(e => e.GoingCount);
     public int TotalMaybeAll => AllEvents.Sum(e => e.MaybeCount);
     public int TotalCheckedInAll => AllEvents.Sum(e => e.CheckedInCount);
+    public bool HasPresenceStats => PresenceVisits > 0 || PresenceCurrent > 0;
+    public string PresenceAverageDurationLabel => PresenceAverageDurationMinutes <= 0
+        ? "A confirmer"
+        : $"{PresenceAverageDurationMinutes:0.#} min";
 
     public int TotalEvents => Events.Count;
     public int TotalGoing => Events.Sum(e => e.GoingCount);
@@ -162,7 +176,7 @@ public partial class ProStatsViewModel(
         OnPropertyChanged(nameof(SelectedBarStatsSubtitle));
 
         if (!ShowAllEstablishments)
-            _ = LoadStatsScopeAsync();
+            _ = SafeLoadStatsScopeAsync();
     }
 
     partial void OnShowAllEstablishmentsChanged(bool value)
@@ -175,7 +189,7 @@ public partial class ProStatsViewModel(
         OnPropertyChanged(nameof(SelectedBarStatsSubtitle));
         OnPropertyChanged(nameof(IsSingleEstablishmentScope));
 
-        _ = LoadStatsScopeAsync();
+        _ = SafeLoadStatsScopeAsync();
     }
 
     public override async Task OnAppearingAsync()
@@ -251,6 +265,8 @@ public partial class ProStatsViewModel(
 
         Events.Clear();
         DemographicStats.Clear();
+        PresenceDailyStats.Clear();
+        PresenceHourlyStats.Clear();
 
         var selectedBarId = ShowAllEstablishments ? null : SelectedBar?.Id;
         StatsScopeLabel = ShowAllEstablishments
@@ -260,6 +276,7 @@ public partial class ProStatsViewModel(
         var events = await officialEventService.GetMyOfficialEventsAsync(selectedBarId);
         var demographics = await officialEventService.GetMyEventDemographicStatsAsync(selectedBarId);
         var profileViews = await barDetailService.GetBarProfileViewStatsAsync(selectedBarId);
+        var presenceStats = await LoadPresenceStatsAsync(selectedBarId);
 
         foreach (var item in events.OrderByDescending(e => e.StartAt))
             Events.Add(item);
@@ -272,7 +289,119 @@ public partial class ProStatsViewModel(
         BarProfileViewMale = profileViews.Male;
         BarProfileViewUnknown = profileViews.Unknown;
 
+        ApplyPresenceStats(presenceStats);
+
         RefreshComputedProperties();
+    }
+
+    private async Task SafeLoadStatsScopeAsync(bool loadAllCache = false)
+    {
+        try
+        {
+            await LoadStatsScopeAsync(loadAllCache);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[ProStatsViewModel] LoadStatsScope erreur : {ex}");
+            await ShowToastAsync("Impossible de charger ces statistiques.");
+        }
+    }
+
+    private async Task<BarPresenceStats> LoadPresenceStatsAsync(string? selectedBarId)
+    {
+        if (!string.IsNullOrWhiteSpace(selectedBarId))
+            return await SafeLoadPresenceStatsForBarAsync(selectedBarId);
+
+        var aggregate = new BarPresenceStats();
+        var sources = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+        var hourly = new Dictionary<int, int>();
+        var daily = new Dictionary<DateTime, BarPresenceDailyStat>();
+        var durationWeightedTotal = 0d;
+        var durationWeight = 0;
+
+        foreach (var bar in MyBars.Where(b => !string.IsNullOrWhiteSpace(b.Id)))
+        {
+            var stats = await SafeLoadPresenceStatsForBarAsync(bar.Id);
+            aggregate.CurrentPresent += stats.CurrentPresent;
+            aggregate.VisitsTotal += stats.VisitsTotal;
+            aggregate.UniqueVisitors += stats.UniqueVisitors;
+            aggregate.RepeatVisitors += stats.RepeatVisitors;
+
+            if (stats.AverageDurationMinutes > 0 && stats.VisitsTotal > 0)
+            {
+                durationWeightedTotal += stats.AverageDurationMinutes * stats.VisitsTotal;
+                durationWeight += stats.VisitsTotal;
+            }
+
+            foreach (var source in stats.CheckinSources ?? new Dictionary<string, int>())
+                sources[source.Key] = sources.GetValueOrDefault(source.Key) + source.Value;
+
+            foreach (var item in stats.Hourly ?? new List<BarPresenceHourlyStat>())
+                hourly[item.Hour] = hourly.GetValueOrDefault(item.Hour) + item.Total;
+
+            foreach (var item in stats.Daily ?? new List<BarPresenceDailyStat>())
+            {
+                var day = item.Day.Date;
+                if (!daily.TryGetValue(day, out var existing))
+                {
+                    existing = new BarPresenceDailyStat { Day = day };
+                    daily[day] = existing;
+                }
+
+                existing.Total += item.Total;
+                existing.UniqueVisitors += item.UniqueVisitors;
+            }
+        }
+
+        aggregate.AverageDurationMinutes = durationWeight > 0
+            ? Math.Round(durationWeightedTotal / durationWeight, 1)
+            : 0;
+        aggregate.CheckinSources = sources;
+        aggregate.Hourly = hourly
+            .Select(pair => new BarPresenceHourlyStat { Hour = pair.Key, Total = pair.Value })
+            .OrderBy(item => item.Hour)
+            .ToList();
+        aggregate.Daily = daily.Values.OrderBy(item => item.Day).ToList();
+
+        return aggregate;
+    }
+
+    private async Task<BarPresenceStats> SafeLoadPresenceStatsForBarAsync(string barId)
+    {
+        try
+        {
+            return await barDetailService.GetBarPresenceStatsAsync(barId) ?? new BarPresenceStats();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[ProStatsViewModel] Presence stats erreur ({barId}) : {ex}");
+            return new BarPresenceStats();
+        }
+    }
+
+    private void ApplyPresenceStats(BarPresenceStats? stats)
+    {
+        stats ??= new BarPresenceStats();
+        stats.CheckinSources ??= new Dictionary<string, int>();
+        stats.Hourly ??= new List<BarPresenceHourlyStat>();
+        stats.Daily ??= new List<BarPresenceDailyStat>();
+
+        PresenceCurrent = stats.CurrentPresent;
+        PresenceVisits = stats.VisitsTotal;
+        PresenceUniqueVisitors = stats.UniqueVisitors;
+        PresenceRepeatVisitors = stats.RepeatVisitors;
+        PresenceAverageDurationMinutes = stats.AverageDurationMinutes;
+
+        PresenceSourcesLabel = BuildSourceLabel(stats.CheckinSources);
+        PresencePeakHourLabel = BuildPeakHourLabel(stats.Hourly);
+
+        PresenceDailyStats.Clear();
+        foreach (var item in stats.Daily.OrderByDescending(x => x.Day).Take(7).OrderBy(x => x.Day))
+            PresenceDailyStats.Add(item);
+
+        PresenceHourlyStats.Clear();
+        foreach (var item in stats.Hourly.OrderByDescending(x => x.Total).Take(6).OrderBy(x => x.Hour))
+            PresenceHourlyStats.Add(item);
     }
 
     [RelayCommand]
@@ -298,6 +427,8 @@ public partial class ProStatsViewModel(
         OnPropertyChanged(nameof(TotalGoingAll));
         OnPropertyChanged(nameof(TotalMaybeAll));
         OnPropertyChanged(nameof(TotalCheckedInAll));
+        OnPropertyChanged(nameof(HasPresenceStats));
+        OnPropertyChanged(nameof(PresenceAverageDurationLabel));
         OnPropertyChanged(nameof(TotalEvents));
         OnPropertyChanged(nameof(TotalGoing));
         OnPropertyChanged(nameof(TotalMaybe));
@@ -338,6 +469,40 @@ public partial class ProStatsViewModel(
             .Where(x => x.Count > 0)
             .Select(x => $"{x.Label} {Math.Round((double)x.Count / total * 100)}%"));
     }
+
+    private static string BuildSourceLabel(Dictionary<string, int> sources)
+    {
+        if (sources.Count == 0 || sources.Values.Sum() <= 0)
+            return "Aucune donnee";
+
+        return string.Join(" - ", sources
+            .Where(pair => pair.Value > 0)
+            .OrderByDescending(pair => pair.Value)
+            .Select(pair => $"{NormalizeSourceLabel(pair.Key)} {pair.Value}"));
+    }
+
+    private static string BuildPeakHourLabel(IEnumerable<BarPresenceHourlyStat> hourly)
+    {
+        var peak = hourly
+            .OrderByDescending(item => item.Total)
+            .FirstOrDefault();
+
+        if (peak is null || peak.Total <= 0)
+            return "Aucun pic detecte";
+
+        return $"Pic vers {peak.Hour:00}h ({peak.Total} visite{(peak.Total > 1 ? "s" : "")})";
+    }
+
+    private static string NormalizeSourceLabel(string? source)
+        => source switch
+        {
+            "beacon" => "Beacon",
+            "gps" => "GPS",
+            "manual" => "Bouton",
+            "admin" => "Admin",
+            "import" => "Historique",
+            _ => string.IsNullOrWhiteSpace(source) ? "Autre" : source
+        };
 
     private static string BuildDominantLabel(params (string Label, int Count)[] values)
     {

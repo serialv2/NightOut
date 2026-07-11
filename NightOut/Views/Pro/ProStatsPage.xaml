@@ -63,6 +63,47 @@
                     <Label Text="{Binding SelectedBarStatsSubtitle}" FontFamily="DMSans-Regular" FontSize="12" TextColor="{DynamicResource TextSecondary}"/>
                 </VerticalStackLayout>
 
+                <Label Text="PRESENCE REELLE" FontFamily="DMSans-SemiBold" FontSize="13" TextColor="{DynamicResource TextMuted}" Margin="0,10,0,0"/>
+
+                <Border BackgroundColor="{DynamicResource BgElevated}" Stroke="{DynamicResource Border}" StrokeThickness="1" StrokeShape="RoundRectangle 20" Padding="16">
+                    <VerticalStackLayout Spacing="12">
+                        <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" ColumnSpacing="10" RowSpacing="10">
+                            <VerticalStackLayout Grid.Row="0" Grid.Column="0" Spacing="2">
+                                <Label Text="{Binding PresenceCurrent}" TextColor="{DynamicResource Accent}" FontSize="26" FontFamily="DMSans-Bold"/>
+                                <Label Text="Presents maintenant" TextColor="{DynamicResource TextSecondary}" FontSize="12"/>
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Grid.Row="0" Grid.Column="1" Spacing="2">
+                                <Label Text="{Binding PresenceVisits}" TextColor="{DynamicResource Accent}" FontSize="26" FontFamily="DMSans-Bold"/>
+                                <Label Text="Visites sur 30 jours" TextColor="{DynamicResource TextSecondary}" FontSize="12"/>
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Grid.Row="1" Grid.Column="0" Spacing="2">
+                                <Label Text="{Binding PresenceUniqueVisitors}" TextColor="{DynamicResource TextPrimary}" FontSize="22" FontFamily="DMSans-SemiBold"/>
+                                <Label Text="Visiteurs uniques" TextColor="{DynamicResource TextSecondary}" FontSize="12"/>
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Grid.Row="1" Grid.Column="1" Spacing="2">
+                                <Label Text="{Binding PresenceAverageDurationLabel}" TextColor="{DynamicResource TextPrimary}" FontSize="22" FontFamily="DMSans-SemiBold"/>
+                                <Label Text="Temps moyen" TextColor="{DynamicResource TextSecondary}" FontSize="12"/>
+                            </VerticalStackLayout>
+                        </Grid>
+                        <Label Text="{Binding PresencePeakHourLabel}" TextColor="{DynamicResource TextPrimary}" FontSize="14"/>
+                        <Label Text="{Binding PresenceSourcesLabel, StringFormat='Sources : {0}'}" TextColor="{DynamicResource TextSecondary}" FontSize="12"/>
+                        <Label Text="{Binding PresenceRepeatVisitors, StringFormat='Retours visiteurs : {0}'}" TextColor="{DynamicResource TextSecondary}" FontSize="12"/>
+                    </VerticalStackLayout>
+                </Border>
+
+                <CollectionView ItemsSource="{Binding PresenceDailyStats}" IsVisible="{Binding HasPresenceStats}">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="models:BarPresenceDailyStat">
+                            <Border BackgroundColor="{DynamicResource BgElevated}" Stroke="{DynamicResource Border}" StrokeThickness="1" StrokeShape="RoundRectangle 14" Padding="12" Margin="0,4">
+                                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                                    <Label Text="{Binding DayLabel}" TextColor="{DynamicResource TextPrimary}" FontFamily="DMSans-SemiBold"/>
+                                    <Label Grid.Column="1" Text="{Binding Total, StringFormat='{0} visites'}" TextColor="{DynamicResource Accent}" FontFamily="DMSans-SemiBold"/>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
                 <Border BackgroundColor="{DynamicResource BgElevated}" Stroke="{DynamicResource Border}" StrokeThickness="1" StrokeShape="RoundRectangle 20" Padding="16">
                     <VerticalStackLayout Spacing="12">
                         <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" ColumnSpacing="10" RowSpacing="10">

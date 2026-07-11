@@ -33,6 +33,15 @@ public class CheckinService(Client supabase, IAuthService auth, ICreditService c
                 return null;
             }
 
+            step = "checkin_actif";
+            var activeBefore = await GetLatestActiveCheckinForUserAsync(userId);
+            if (IsSameBar(activeBefore, barId))
+            {
+                await CloseDuplicateActiveCheckinsAsync(userId, activeBefore.Id);
+                NotifyActiveCheckinChanged(activeBefore);
+                return activeBefore;
+            }
+
             step = "appel_rpc";
             var response = await supabase.Rpc("check_in", new
             {
@@ -60,15 +69,20 @@ public class CheckinService(Client supabase, IAuthService auth, ICreditService c
                 step = "nettoyage_doublons";
                 await CloseDuplicateActiveCheckinsAsync(userId, checkin.Id);
 
-                try
+                if (!IsSameCheckin(activeBefore, checkin))
                 {
-                    step = "credits";
-                    await credits.AddMyCreditsByRuleAsync("checkin", checkin.Id, "checkin", 50);
+                    try
+                    {
+                        step = "credits";
+                        await credits.AddMyCreditsByRuleAsync("checkin", checkin.Id, "checkin", 50);
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"[Checkin] Credits check-in erreur : {ex.Message}");
+                    }
                 }
-                catch (Exception ex)
-                {
-                    System.Diagnostics.Debug.WriteLine($"[Checkin] Credits check-in erreur : {ex.Message}");
-                }
+
+                NotifyActiveCheckinChanged(checkin);
             }
             else
             {
@@ -103,6 +117,8 @@ public class CheckinService(Client supabase, IAuthService auth, ICreditService c
                 return null;
             }
 
+            var activeBefore = await GetLatestActiveCheckinForUserAsync(userId);
+
             var response = await supabase.Rpc("check_in_by_beacon", new
             {
                 p_user_id = userId,
@@ -127,13 +143,16 @@ public class CheckinService(Client supabase, IAuthService auth, ICreditService c
 
             await CloseDuplicateActiveCheckinsAsync(userId, checkin.Id);
 
-            try
+            if (!IsSameCheckin(activeBefore, checkin))
             {
-                await credits.AddMyCreditsByRuleAsync("checkin", checkin.Id, "checkin", 50);
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"[Checkin] Credits beacon erreur : {ex.Message}");
+                try
+                {
+                    await credits.AddMyCreditsByRuleAsync("checkin", checkin.Id, "checkin", 50);
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[Checkin] Credits beacon erreur : {ex.Message}");
+                }
             }
 
             NotifyActiveCheckinChanged(checkin);
@@ -151,14 +170,35 @@ public class CheckinService(Client supabase, IAuthService auth, ICreditService c
     {
         try
         {
+            try
+            {
+                await supabase.Rpc("check_out", new
+                {
+                    p_checkin_id = checkinId,
+                    p_checkout_source = "manual"
+                });
+
+                NotifyActiveCheckinChanged(null);
+                return true;
+            }
+            catch (Exception rpcEx)
+            {
+                System.Diagnostics.Debug.WriteLine($"[Checkin] RPC check_out indisponible, fallback update direct : {rpcEx.Message}");
+            }
+
             await supabase.From<Checkin>()
                 .Where(c => c.Id == checkinId)
                 .Set(c => c.IsActive,     false)
                 .Set(c => c.CheckedOutAt, DateTime.UtcNow)
                 .Update();
+            NotifyActiveCheckinChanged(null);
             return true;
         }
-        catch { return false; }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[Checkin] CheckOut erreur : {ex.Message}");
+            return false;
+        }
     }
 
     /// <summary>
@@ -175,11 +215,27 @@ public class CheckinService(Client supabase, IAuthService auth, ICreditService c
             // Guard : vérifie que la session Supabase est active avant d'écrire
             if (supabase.Auth?.CurrentSession == null) return false;
 
+            try
+            {
+                await supabase.Rpc("check_out_active", new
+                {
+                    p_checkout_source = "app_inactive"
+                });
+
+                NotifyActiveCheckinChanged(null);
+                return true;
+            }
+            catch (Exception rpcEx)
+            {
+                System.Diagnostics.Debug.WriteLine($"[Checkin] RPC check_out_active indisponible, fallback update direct : {rpcEx.Message}");
+            }
+
             await supabase.From<Checkin>()
                 .Where(c => c.UserId == userId && c.IsActive)
                 .Set(c => c.IsActive, false)
                 .Set(c => c.CheckedOutAt, DateTime.UtcNow)
                 .Update();
+            NotifyActiveCheckinChanged(null);
             return true;
         }
         catch (Exception ex)
@@ -196,7 +252,7 @@ public class CheckinService(Client supabase, IAuthService auth, ICreditService c
             if (userId == null) return null;
 
             var active = await GetActiveCheckinsForUserAsync(userId);
-            var latest = active.OrderByDescending(c => c.CheckedInAt).FirstOrDefault();
+            var latest = SelectLatestActiveCheckin(active);
 
             if (latest != null)
                 await CloseDuplicateActiveCheckinsAsync(userId, latest.Id);
@@ -214,6 +270,29 @@ public class CheckinService(Client supabase, IAuthService auth, ICreditService c
 
         return result?.Models ?? [];
     }
+
+    private async Task<Checkin?> GetLatestActiveCheckinForUserAsync(string userId)
+    {
+        var active = await GetActiveCheckinsForUserAsync(userId);
+        return SelectLatestActiveCheckin(active);
+    }
+
+    private static Checkin? SelectLatestActiveCheckin(IEnumerable<Checkin> active)
+        => active
+            .Where(c => c.IsActive)
+            .OrderByDescending(c => c.CheckedInAt)
+            .FirstOrDefault();
+
+    private static bool IsSameBar(Checkin? checkin, string barId)
+        => checkin is not null
+           && !string.IsNullOrWhiteSpace(checkin.BarId)
+           && string.Equals(checkin.BarId, barId, StringComparison.OrdinalIgnoreCase);
+
+    private static bool IsSameCheckin(Checkin? left, Checkin? right)
+        => left is not null
+           && right is not null
+           && !string.IsNullOrWhiteSpace(left.Id)
+           && string.Equals(left.Id, right.Id, StringComparison.OrdinalIgnoreCase);
 
     private void NotifyActiveCheckinChanged(Checkin? checkin)
     {

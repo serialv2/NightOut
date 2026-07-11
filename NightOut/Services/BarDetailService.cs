@@ -324,6 +324,32 @@ public class BarDetailService(Supabase.Client supabase, IAuthService auth) : IBa
         }
     }
 
+    public async Task<BarPresenceStats> GetBarPresenceStatsAsync(string barId, DateTime? from = null, DateTime? to = null)
+    {
+        if (string.IsNullOrWhiteSpace(barId))
+            return new BarPresenceStats();
+
+        try
+        {
+            var resp = await supabase.Rpc("get_bar_presence_stats", new
+            {
+                p_bar_id = barId,
+                p_from = (from ?? DateTime.UtcNow.AddDays(-30)).ToUniversalTime(),
+                p_to = (to ?? DateTime.UtcNow).ToUniversalTime()
+            });
+
+            if (string.IsNullOrWhiteSpace(resp?.Content))
+                return new BarPresenceStats();
+
+            return JsonConvert.DeserializeObject<BarPresenceStats>(resp.Content) ?? new BarPresenceStats();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[BarDetailService] GetBarPresenceStats erreur : {ex.Message}");
+            return new BarPresenceStats();
+        }
+    }
+
     public void SubscribeToPresence(string barId, Action onChanged)
     {
         UnsubscribePresence();

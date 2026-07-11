@@ -17,6 +17,7 @@ public interface IBarDetailService
     Task<List<BarOpeningHour>> GetOpeningHoursAsync(string barId);
     Task TrackBarProfileViewAsync(string barId);
     Task<BarProfileViewStats> GetBarProfileViewStatsAsync(string? barId = null);
+    Task<BarPresenceStats> GetBarPresenceStatsAsync(string barId, DateTime? from = null, DateTime? to = null);
     /// <summary>
     /// S'abonne aux changements de présence (user_statuses) du bar.
     /// Le callback est déclenché dès qu'un utilisateur change de statut
