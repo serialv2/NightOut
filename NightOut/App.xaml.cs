@@ -16,6 +16,8 @@ public partial class App : MauiApp
     private readonly BeaconAutoCheckinService _beaconAutoCheckin;
     private readonly AppShell _shell;
     private readonly IThemeService _theme;
+    private static readonly TimeSpan BackgroundGracePeriod = TimeSpan.FromMinutes(10);
+    private CancellationTokenSource? _backgroundGraceCts;
 
     public App(
         IAuthService auth,
@@ -196,6 +198,55 @@ public partial class App : MauiApp
         }
     }
 
+    private void ScheduleBackgroundGraceStop()
+    {
+        CancelBackgroundGraceStop();
+
+        _backgroundGraceCts = new CancellationTokenSource();
+        var token = _backgroundGraceCts.Token;
+
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                await Task.Delay(BackgroundGracePeriod, token);
+
+                if (token.IsCancellationRequested)
+                    return;
+
+                _heartbeat.Stop();
+                _beaconAutoCheckin.Stop();
+
+                System.Diagnostics.Debug.WriteLine("[App] Background grace expiree : heartbeat et beacon arretes.");
+            }
+            catch (OperationCanceledException)
+            {
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[App] Background grace erreur : {ex.Message}");
+            }
+        }, token);
+
+        System.Diagnostics.Debug.WriteLine("[App] Background grace activee pour 10 minutes.");
+    }
+
+    private void CancelBackgroundGraceStop()
+    {
+        try
+        {
+            _backgroundGraceCts?.Cancel();
+            _backgroundGraceCts?.Dispose();
+        }
+        catch
+        {
+        }
+        finally
+        {
+            _backgroundGraceCts = null;
+        }
+    }
+
     protected override void OnSleep()
     {
         base.OnSleep();
@@ -208,8 +259,7 @@ public partial class App : MauiApp
         // disparaissait immédiatement de la carte et des présences dès que le téléphone se mettait
         // en veille. Maintenant on arrête seulement le heartbeat local : Supabase gardera la
         // présence jusqu'à expires_at, prolongé à 1 heure par heartbeat_presence().
-        _heartbeat.Stop();
-        _beaconAutoCheckin.Stop();
+        ScheduleBackgroundGraceStop();
 
         System.Diagnostics.Debug.WriteLine(
             "[App] 😴 OnSleep → heartbeat arrêté, présence conservée temporairement (expiration serveur)");
@@ -219,14 +269,23 @@ public partial class App : MauiApp
     {
         base.OnResume();
 
-        if (_auth.GetCurrentUserId() == null)
-            return;
+        CancelBackgroundGraceStop();
 
         Task.Run(async () =>
         {
             try
             {
+                var restored = await _auth.RestoreSessionAsync();
+                if (!restored || _auth.GetCurrentUserId() == null)
+                {
+                    System.Diagnostics.Debug.WriteLine("[App] OnResume session absente : retour connexion.");
+                    MainThread.BeginInvokeOnMainThread(ShowLoginPage);
+                    return;
+                }
+
                 await _userStatus.GoOnlineAsync();
+                _heartbeat.Start();
+                _beaconAutoCheckin.Start();
 
                 System.Diagnostics.Debug.WriteLine(
                     "[App] 🌅 OnResume → GoOnline OK");
@@ -237,9 +296,6 @@ public partial class App : MauiApp
                     $"[App] OnResume erreur : {ex.Message}");
             }
         });
-
-        _heartbeat.Start();
-        _beaconAutoCheckin.Start();
 
         MainThread.BeginInvokeOnMainThread(async () =>
         {

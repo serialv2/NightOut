@@ -8,15 +8,19 @@ namespace NightOut.Models;
 public class Profile : BaseModel
 {
     [PrimaryKey("id", false)]
+    [JsonProperty("id")]
     public string Id { get; set; } = string.Empty;
 
     [Column("username")]
+    [JsonProperty("username")]
     public string Username { get; set; } = string.Empty;
 
     [Column("display_name")]
+    [JsonProperty("display_name")]
     public string? DisplayName { get; set; }
 
     [Column("avatar_url")]
+    [JsonProperty("avatar_url")]
     public string? AvatarUrl { get; set; }
 
     [Column("bio")]
@@ -72,6 +76,7 @@ public class Profile : BaseModel
     public bool IsPrivate { get; set; }
 
     [Column("secret_mode")]
+    [JsonProperty("secret_mode")]
     public bool SecretMode { get; set; }
 
     [Column("nights_out")]
@@ -86,10 +91,12 @@ public class Profile : BaseModel
     [JsonIgnore]
     public City? City { get; set; }
     [Column("open_to_meet")]
+    [JsonProperty("open_to_meet")]
     public bool OpenToMeet { get; set; }
 
     // ── Carte amis / visibilité position ─────────────────────────
     [Column("share_location_with_friends")]
+    [JsonProperty("share_location_with_friends")]
     public bool ShareLocationWithFriends { get; set; } = true;
 
     [Column("last_latitude")]

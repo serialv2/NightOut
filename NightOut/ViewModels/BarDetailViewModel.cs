@@ -142,7 +142,7 @@ public partial class BarDetailViewModel(
     [ObservableProperty]
     private bool _isTogglingFollow;
 
-    public string FollowButtonText => IsFollowingBar ? "🔕 Ne plus suivre" : "🔔 Suivre";
+    public string FollowButtonText => IsFollowingBar ? "Ne plus suivre" : "Suivre";
 
     public Color FollowButtonBackgroundColor => IsFollowingBar
         ? Color.FromArgb("#EFEBE4")
@@ -161,10 +161,19 @@ public partial class BarDetailViewModel(
     // ── Fil d'activité ───────────────────────────────────────────
     public ObservableCollection<BarActivityItem> Feed { get; } = [];
     public ObservableCollection<Profile> FriendsHere { get; } = [];
+    public ObservableCollection<BarPresentUserItem> PresentUsers { get; } = [];
     public ObservableCollection<OfficialEvent> UpcomingOfficialEvents { get; } = [];
     public ObservableCollection<EphemeralEvent> UpcomingBarEphemeralEvents { get; } = [];
     public ObservableCollection<BarOpeningHour> OpeningHours { get; } = [];
     public ObservableCollection<BarReward> Rewards { get; } = [];
+
+    public bool HasPresentUsers => PresentUsers.Count > 0;
+    public string PresentUsersCountLabel => PresentUsers.Count switch
+    {
+        0 => "Aucun utilisateur visible pour le moment",
+        1 => "1 utilisateur visible dans ce bar",
+        _ => $"{PresentUsers.Count} utilisateurs visibles dans ce bar"
+    };
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HasCurrentOfficialEvent))]
@@ -287,6 +296,7 @@ public partial class BarDetailViewModel(
         var statsTask = barDetailService.GetBarStatsAsync(barId);
         var feedTask = barDetailService.GetActivityFeedAsync(barId);
         var friendsTask = barDetailService.GetFriendsAtBarAsync(barId);
+        var presentUsersTask = barDetailService.GetPresentUsersAtBarAsync(barId);
         var checkinTask = checkinService.GetActiveCheckinAsync();
         var isFollowingTask = officialEventService.IsFollowingBarAsync(barId);
         var followersCountTask = officialEventService.GetBarFollowersCountAsync(barId);
@@ -300,6 +310,7 @@ public partial class BarDetailViewModel(
             statsTask,
             feedTask,
             friendsTask,
+            presentUsersTask,
             checkinTask,
             isFollowingTask,
             followersCountTask,
@@ -329,6 +340,12 @@ public partial class BarDetailViewModel(
         OnPropertyChanged(nameof(ClaimButtonStrokeColor));
         OnPropertyChanged(nameof(ClaimButtonTextColor));
 
+        var currentUserId = authService.GetCurrentUserId();
+        var existingFriendships = await LoadCurrentUserFriendshipsAsync(currentUserId);
+        var knownUserIds = BuildKnownUserIds(currentUserId, existingFriendships);
+
+        ApplyPresentUsers(await presentUsersTask, currentUserId, existingFriendships);
+
         // Amis présents
         var friends = await friendsTask;
         FriendsHere.Clear();
@@ -344,32 +361,7 @@ public partial class BarDetailViewModel(
         ActiveCheckin = checkin;
 
         // Fil d'activité — masquer le bouton "+" pour les relations existantes
-        var currentUserId = authService.GetCurrentUserId();
         var items = await feedTask;
-
-        var knownUserIds = new HashSet<string>();
-        if (currentUserId != null)
-        {
-            try
-            {
-                var existingFriendships = await friendService.GetAllFriendshipsAsync(currentUserId);
-
-                foreach (var f in existingFriendships)
-                {
-                    var status = f.Status?.ToLowerInvariant() ?? string.Empty;
-
-                    // On masque le bouton uniquement si on est déjà amis ou si une demande est déjà en attente
-                    // dans un sens ou dans l'autre. Si la demande a été refusée, le bouton doit rester visible
-                    // pour permettre de refaire une demande.
-                    if (status is "accepted" or "pending")
-                        knownUserIds.Add(f.RequesterId == currentUserId ? f.AddresseeId : f.RequesterId);
-                }
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"[BarDetailVM] Erreur chargement relations : {ex.Message}");
-            }
-        }
 
         Feed.Clear();
         foreach (var item in items)
@@ -404,6 +396,60 @@ public partial class BarDetailViewModel(
 
         OnPropertyChanged(nameof(Rewards));
         OnPropertyChanged(nameof(HasRewards));
+    }
+
+    private async Task<List<Friendship>> LoadCurrentUserFriendshipsAsync(string? currentUserId)
+    {
+        if (string.IsNullOrWhiteSpace(currentUserId))
+            return [];
+
+        try
+        {
+            return await friendService.GetAllFriendshipsAsync(currentUserId);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[BarDetailVM] Erreur chargement relations : {ex.Message}");
+            return [];
+        }
+    }
+
+    private static HashSet<string> BuildKnownUserIds(string? currentUserId, IEnumerable<Friendship> friendships)
+    {
+        var known = new HashSet<string>();
+        if (string.IsNullOrWhiteSpace(currentUserId))
+            return known;
+
+        foreach (var f in friendships)
+        {
+            var status = f.Status?.ToLowerInvariant() ?? string.Empty;
+            if (status is "accepted" or "pending")
+                known.Add(f.RequesterId == currentUserId ? f.AddresseeId : f.RequesterId);
+        }
+
+        return known;
+    }
+
+    private void ApplyPresentUsers(List<Profile> profiles, string? currentUserId, List<Friendship> friendships)
+    {
+        PresentUsers.Clear();
+
+        var visibleProfiles = profiles
+            .Where(p => !string.IsNullOrWhiteSpace(p.Id))
+            .Where(p => !p.SecretMode && p.ShareLocationWithFriends)
+            .GroupBy(p => p.Id)
+            .Select(g => g.First())
+            .OrderByDescending(p => p.Id == currentUserId)
+            .ThenByDescending(p => p.OpenToMeet)
+            .ThenBy(p => p.DisplayNameOrUsername)
+            .ToList();
+
+        foreach (var profile in visibleProfiles)
+            PresentUsers.Add(BarPresentUserItem.FromProfile(profile, currentUserId, friendships));
+
+        OnPropertyChanged(nameof(PresentUsers));
+        OnPropertyChanged(nameof(HasPresentUsers));
+        OnPropertyChanged(nameof(PresentUsersCountLabel));
     }
 
     private void UpdateOpenStatus()
@@ -569,6 +615,9 @@ public partial class BarDetailViewModel(
             {
                 var (present, media) = await barDetailService.GetBarStatsAsync(_bar!.Id);
                 var friends = await barDetailService.GetFriendsAtBarAsync(_bar!.Id);
+                var presentUsers = await barDetailService.GetPresentUsersAtBarAsync(_bar!.Id);
+                var currentUserId = authService.GetCurrentUserId();
+                var friendships = await LoadCurrentUserFriendshipsAsync(currentUserId);
                 MainThread.BeginInvokeOnMainThread(() =>
                 {
                     PresentCount = present;
@@ -578,8 +627,7 @@ public partial class BarDetailViewModel(
                     FriendsCount = friends.Count;
                     OnPropertyChanged(nameof(HasFriendsHere));
                     OnPropertyChanged(nameof(FriendsHerePlusLabel));
-        OnPropertyChanged(nameof(HasFriendsHere));
-        OnPropertyChanged(nameof(FriendsHerePlusLabel));
+                    ApplyPresentUsers(presentUsers, currentUserId, friendships);
                 });
             }
             catch (Exception ex)
@@ -794,6 +842,29 @@ public partial class BarDetailViewModel(
                 "Impossible d'envoyer la demande d'ami pour le moment.",
                 "OK");
         }
+    }
+
+    [RelayCommand]
+    private async Task RequestFriendFromPresentUserAsync(BarPresentUserItem? item)
+    {
+        if (item == null || !item.CanRequestFriend)
+            return;
+
+        var previousState = item.RelationshipState;
+        item.RelationshipState = BarPresentRelationshipState.Pending;
+
+        var ok = await friendService.SendFriendRequestAsync(item.UserId);
+        if (ok)
+        {
+            await ShowToastAsync($"Demande envoyee a {item.DisplayName}");
+            return;
+        }
+
+        item.RelationshipState = previousState;
+        await Shell.Current.DisplayAlert(
+            "Demande non envoyee",
+            "Impossible d'envoyer la demande d'ami pour le moment.",
+            "OK");
     }
 
 
@@ -1111,5 +1182,101 @@ public partial class BarDetailViewModel(
             item.IsLiked = result;
             item.LikeCount = result ? item.LikeCount + 1 : Math.Max(0, item.LikeCount - 1);
         }
+    }
+}
+
+public enum BarPresentRelationshipState
+{
+    None,
+    Self,
+    Pending,
+    Friend
+}
+
+public partial class BarPresentUserItem : ObservableObject
+{
+    public string UserId { get; init; } = string.Empty;
+    public string DisplayName { get; init; } = string.Empty;
+    public string Username { get; init; } = string.Empty;
+    public string AvatarUrl { get; init; } = string.Empty;
+    public string Initials { get; init; } = "?";
+    public bool OpenToMeet { get; init; }
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsSelf))]
+    [NotifyPropertyChangedFor(nameof(CanRequestFriend))]
+    [NotifyPropertyChangedFor(nameof(Subtitle))]
+    [NotifyPropertyChangedFor(nameof(RelationshipLabel))]
+    [NotifyPropertyChangedFor(nameof(RelationshipButtonBackground))]
+    [NotifyPropertyChangedFor(nameof(RelationshipButtonTextColor))]
+    private BarPresentRelationshipState _relationshipState;
+
+    public bool HasAvatar => !string.IsNullOrWhiteSpace(AvatarUrl);
+    public bool IsSelf => RelationshipState == BarPresentRelationshipState.Self;
+    public bool CanRequestFriend => RelationshipState == BarPresentRelationshipState.None;
+
+    public string Subtitle => IsSelf
+        ? "Toi, actuellement ici"
+        : OpenToMeet
+            ? "Ouvert aux rencontres"
+            : "Present dans le bar";
+
+    public string RelationshipLabel => RelationshipState switch
+    {
+        BarPresentRelationshipState.Self => "Vous",
+        BarPresentRelationshipState.Friend => "Ami",
+        BarPresentRelationshipState.Pending => "Envoyee",
+        _ => "Demander"
+    };
+
+    public Color RelationshipButtonBackground => RelationshipState switch
+    {
+        BarPresentRelationshipState.None => Color.FromArgb("#CEA358"),
+        BarPresentRelationshipState.Pending => Color.FromArgb("#EFEBE4"),
+        BarPresentRelationshipState.Friend => Color.FromArgb("#10659B4B"),
+        _ => Color.FromArgb("#F3EFEA")
+    };
+
+    public Color RelationshipButtonTextColor => RelationshipState switch
+    {
+        BarPresentRelationshipState.None => Color.FromArgb("#F5F2EE"),
+        BarPresentRelationshipState.Friend => Color.FromArgb("#659B4B"),
+        _ => Color.FromArgb("#775C46")
+    };
+
+    public static BarPresentUserItem FromProfile(Profile profile, string? currentUserId, IEnumerable<Friendship> friendships)
+    {
+        var state = GetRelationshipState(profile.Id, currentUserId, friendships);
+        return new BarPresentUserItem
+        {
+            UserId = profile.Id,
+            DisplayName = profile.DisplayNameOrUsername,
+            Username = string.IsNullOrWhiteSpace(profile.Username) ? profile.DisplayNameOrUsername : $"@{profile.Username}",
+            AvatarUrl = profile.AvatarUrl ?? string.Empty,
+            Initials = profile.Initials,
+            OpenToMeet = profile.OpenToMeet,
+            RelationshipState = state
+        };
+    }
+
+    private static BarPresentRelationshipState GetRelationshipState(string userId, string? currentUserId, IEnumerable<Friendship> friendships)
+    {
+        if (string.IsNullOrWhiteSpace(currentUserId))
+            return BarPresentRelationshipState.None;
+
+        if (userId == currentUserId)
+            return BarPresentRelationshipState.Self;
+
+        var friendship = friendships.FirstOrDefault(f =>
+            (f.RequesterId == currentUserId && f.AddresseeId == userId) ||
+            (f.RequesterId == userId && f.AddresseeId == currentUserId));
+
+        var status = friendship?.Status?.ToLowerInvariant() ?? string.Empty;
+        return status switch
+        {
+            "accepted" => BarPresentRelationshipState.Friend,
+            "pending" => BarPresentRelationshipState.Pending,
+            _ => BarPresentRelationshipState.None
+        };
     }
 }

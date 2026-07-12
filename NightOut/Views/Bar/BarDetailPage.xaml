@@ -139,7 +139,7 @@
                         <!-- Action principale fiche bar : les actions pratiques restent sur la vignette carte -->
                         <Grid ColumnDefinitions="*,2.2*,*">
                             <Button Grid.Column="1"
-                                    Text="★ Suivre"
+                                    Text="{Binding FollowButtonText}"
                                     Command="{Binding ToggleFollowBarCommand}"
                                     BackgroundColor="{Binding FollowButtonBackgroundColor}"
                                     TextColor="{Binding FollowButtonTextColor}"
@@ -235,8 +235,8 @@
                                                                 HeightRequest="185"
                                                                 Format="QrCode"
                                                                 Value="{Binding RewardIntentQrPayload}"
-                                                                ForegroundColor="{DynamicResource BgDeep}"
-                                                                BackgroundColor="{DynamicResource TextPrimary}"
+                                                                ForegroundColor="Black"
+                                                                BackgroundColor="White"
                                                                 HorizontalOptions="Center" />
 
                                     <Label Text="Code secours"
@@ -306,7 +306,7 @@
                     </Border>
                 </VerticalStackLayout>
 
-                <!-- ONGLET RÉEL AMBIANCE / INFOS -->
+                <!-- ONGLET REEL AMBIANCE / PRESENTS -->
                 <Grid Margin="20,0,20,18" HeightRequest="58" ColumnDefinitions="*,*"
                       IsVisible="{Binding IsBusy, Converter={StaticResource Inv}}">
                     <Border Grid.ColumnSpan="2" BackgroundColor="{DynamicResource BgCard}" Stroke="{DynamicResource Border}" StrokeThickness="1" StrokeShape="RoundRectangle 18" />
@@ -318,10 +318,10 @@
                                HorizontalOptions="Center" VerticalOptions="Center" />
                     </Border>
 
-                    <!-- Infos active -->
+                    <!-- Presents active -->
                     <Border Grid.Column="1" BackgroundColor="{DynamicResource BgDeep}" Stroke="{DynamicResource Accent}" StrokeThickness="1" StrokeShape="RoundRectangle 18"
                             IsVisible="{Binding IsInfosTabSelected}">
-                        <Label Text="ⓘ Infos" TextColor="{DynamicResource Accent}" FontFamily="DMSans-Bold" FontSize="15"
+                        <Label Text="Présents" TextColor="{DynamicResource Accent}" FontFamily="DMSans-Bold" FontSize="15"
                                HorizontalOptions="Center" VerticalOptions="Center" />
                     </Border>
 
@@ -338,7 +338,7 @@
                         <Grid.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding SelectInfosTabCommand}" />
                         </Grid.GestureRecognizers>
-                        <Label Text="ⓘ Infos" TextColor="{DynamicResource TextPrimary}" FontFamily="DMSans-Bold" FontSize="15"
+                        <Label Text="Présents" TextColor="{DynamicResource TextPrimary}" FontFamily="DMSans-Bold" FontSize="15"
                                HorizontalOptions="Center" VerticalOptions="Center"
                                IsVisible="{Binding IsInfosTabSelected, Converter={StaticResource Inv}}" />
                     </Grid>
@@ -589,74 +589,63 @@
                         Command="{Binding RefreshCommand}"
                         IsVisible="{Binding IsBusy, Converter={StaticResource Inv}}" />
                 </VerticalStackLayout>
-
-                <!-- INFOS PRATIQUES / ÉVÉNEMENTS : onglet séparé -->
+                <!-- UTILISATEURS PRESENTS -->
                 <VerticalStackLayout x:Name="InfosSection" Spacing="14" Padding="20,0,20,0" IsVisible="{Binding IsInfosTabSelected}">
                     <Border Padding="18" BackgroundColor="{DynamicResource BgDeep}" Stroke="{DynamicResource Border}" StrokeThickness="1" StrokeShape="RoundRectangle 24">
                         <VerticalStackLayout Spacing="16">
-                            <Label Text="Infos pratiques" TextColor="{DynamicResource TextPrimary}" FontFamily="DMSans-Bold" FontSize="21" />
-                            <Grid ColumnDefinitions="28,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto" RowSpacing="14">
-                                <Label Text="⌖" TextColor="{DynamicResource TextPrimary}" FontSize="19" />
-                                <Label Grid.Column="1" Text="{Binding BarAddress}" TextColor="{DynamicResource TextPrimary}" FontSize="15" />
-
-                                <Label Grid.Row="1" Text="◷" TextColor="{DynamicResource Accent}" FontSize="19" />
-                                <Label Grid.Row="1" Grid.Column="1" Text="{Binding OpenStatusText}" TextColor="{DynamicResource TextPrimary}" FontSize="15" />
-
-                                <Label Grid.Row="2" Text="☎" TextColor="{DynamicResource TextPrimary}" FontSize="18" IsVisible="{Binding HasPhone}" />
-                                <Label Grid.Row="2" Grid.Column="1" Text="{Binding BarPhone}" TextColor="{DynamicResource TextPrimary}" FontSize="15" IsVisible="{Binding HasPhone}" />
-
-                                <Label Grid.Row="3" Text="◎" TextColor="{DynamicResource Error}" FontSize="18" IsVisible="{Binding HasInstagram}" />
-                                <Label Grid.Row="3" Grid.Column="1" Text="{Binding BarInstagram}" TextColor="{DynamicResource TextPrimary}" FontSize="15" IsVisible="{Binding HasInstagram}" />
-
-                                <Label Grid.Row="4" Text="⌁" TextColor="{DynamicResource TextPrimary}" FontSize="18" IsVisible="{Binding HasWebsite}" />
-                                <Label Grid.Row="4" Grid.Column="1" Text="{Binding BarWebsite}" TextColor="{DynamicResource TextPrimary}" FontSize="15" IsVisible="{Binding HasWebsite}" />
-                            </Grid>
-
-                            <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="10" Margin="0,8,0,0">
-                                <Button Text="➤\nItinéraire" Command="{Binding GoToMapsCommand}" BackgroundColor="{DynamicResource BgElevated}" TextColor="{DynamicResource TextPrimary}" CornerRadius="18" HeightRequest="72" />
-                                <Button Grid.Column="1" Text="☎\nAppeler" Command="{Binding CallBarCommand}" BackgroundColor="{DynamicResource BgElevated}" TextColor="{DynamicResource TextPrimary}" CornerRadius="18" HeightRequest="72" />
-                                <Button Grid.Column="2" Text="◎\nInstagram" Command="{Binding OpenInstagramCommand}" BackgroundColor="{DynamicResource BgElevated}" TextColor="{DynamicResource TextPrimary}" CornerRadius="18" HeightRequest="72" IsVisible="{Binding HasInstagram}" />
-                                <Button Grid.Column="3" Text="⌁\nSite" Command="{Binding OpenWebsiteCommand}" BackgroundColor="{DynamicResource BgElevated}" TextColor="{DynamicResource TextPrimary}" CornerRadius="18" HeightRequest="72" IsVisible="{Binding HasWebsite}" />
-                            </Grid>
-                        </VerticalStackLayout>
-                    </Border>
-
-                    <Border Padding="18" BackgroundColor="{DynamicResource BgDeep}" Stroke="{DynamicResource Border}" StrokeThickness="1" StrokeShape="RoundRectangle 24" IsVisible="{Binding HasDescription}">
-                        <VerticalStackLayout Spacing="8">
-                            <Label Text="À propos" TextColor="{DynamicResource TextPrimary}" FontFamily="DMSans-Bold" FontSize="19" />
-                            <Label Text="{Binding BarDescription}" TextColor="{DynamicResource TextPrimary}" FontSize="15" LineBreakMode="WordWrap" />
-                        </VerticalStackLayout>
-                    </Border>
-
-                    <Border Padding="18" BackgroundColor="{DynamicResource BgDeep}" Stroke="{DynamicResource Border}" StrokeThickness="1" StrokeShape="RoundRectangle 24" IsVisible="{Binding HasAnyOfficialEvents}">
-                        <VerticalStackLayout Spacing="14">
                             <Grid ColumnDefinitions="*,Auto">
-                                <Label Text="Événements à venir" TextColor="{DynamicResource TextPrimary}" FontFamily="DMSans-Bold" FontSize="21" />
-                                <Label Grid.Column="1" Text="Voir tout" TextColor="{DynamicResource Accent}" FontSize="14" VerticalOptions="Center" />
+                                <VerticalStackLayout Spacing="3">
+                                    <Label Text="Ici maintenant" TextColor="{DynamicResource TextPrimary}" FontFamily="DMSans-Bold" FontSize="22" />
+                                    <Label Text="{Binding PresentUsersCountLabel}" TextColor="{DynamicResource TextSecondary}" FontSize="13" />
+                                </VerticalStackLayout>
+                                <Border Grid.Column="1" Padding="10,6" BackgroundColor="{DynamicResource AccentSoft}" StrokeThickness="0" StrokeShape="RoundRectangle 16">
+                                    <Label Text="Visible" TextColor="{DynamicResource Accent}" FontFamily="DMSans-Bold" FontSize="11" />
+                                </Border>
                             </Grid>
 
-                            <CollectionView ItemsSource="{Binding UpcomingOfficialEvents}" SelectionMode="None" HeightRequest="250">
+                            <CollectionView ItemsSource="{Binding PresentUsers}" SelectionMode="None" IsVisible="{Binding HasPresentUsers}">
                                 <CollectionView.ItemTemplate>
-                                    <DataTemplate x:DataType="models:OfficialEvent">
+                                    <DataTemplate x:DataType="vm:BarPresentUserItem">
                                         <Border Margin="0,0,0,10" Padding="12" BackgroundColor="{DynamicResource BgCard}" Stroke="{DynamicResource Border}" StrokeThickness="1" StrokeShape="RoundRectangle 18">
-                                            <Border.GestureRecognizers>
-                                                <TapGestureRecognizer Command="{Binding BindingContext.OpenOfficialEventCommand, Source={x:Reference PageRoot}}" CommandParameter="{Binding .}" />
-                                            </Border.GestureRecognizers>
-                                            <Grid ColumnDefinitions="72,*" ColumnSpacing="12">
-                                                <Border WidthRequest="72" HeightRequest="72" StrokeThickness="0" StrokeShape="RoundRectangle 14" BackgroundColor="{DynamicResource BgElevated}">
-                                                    <Image Source="{Binding FlyerUrl}" Aspect="AspectFill" />
+                                            <Grid ColumnDefinitions="52,*,Auto" ColumnSpacing="12">
+                                                <Border WidthRequest="48" HeightRequest="48" BackgroundColor="{DynamicResource BgElevated}" Stroke="{DynamicResource Border}" StrokeThickness="1" StrokeShape="RoundRectangle 24">
+                                                    <Grid>
+                                                        <Image Source="{Binding AvatarUrl}" Aspect="AspectFill" IsVisible="{Binding HasAvatar}" />
+                                                        <Label Text="{Binding Initials}" TextColor="{DynamicResource Accent}" FontFamily="DMSans-Bold" FontSize="15" HorizontalOptions="Center" VerticalOptions="Center" IsVisible="{Binding HasAvatar, Converter={StaticResource Inv}}" />
+                                                    </Grid>
                                                 </Border>
-                                                <VerticalStackLayout Grid.Column="1" Spacing="3" VerticalOptions="Center">
-                                                    <Label Text="{Binding ShortDateLabel}" TextColor="{DynamicResource Accent}" FontSize="12" FontFamily="DMSans-Bold" />
-                                                    <Label Text="{Binding Title}" TextColor="{DynamicResource TextPrimary}" FontSize="16" FontFamily="DMSans-Bold" />
-                                                    <Label Text="{Binding BarDisplay}" TextColor="{DynamicResource TextPrimary}" FontSize="13" />
-                                                    <Label Text="{Binding GoingCount, StringFormat='{0} participants intéressés'}" TextColor="{DynamicResource TextSecondary}" FontSize="12" />
+
+                                                <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                                    <Label Text="{Binding DisplayName}" TextColor="{DynamicResource TextPrimary}" FontFamily="DMSans-Bold" FontSize="15" LineBreakMode="TailTruncation" />
+                                                    <Label Text="{Binding Username}" TextColor="{DynamicResource TextMuted}" FontSize="12" LineBreakMode="TailTruncation" />
+                                                    <Label Text="{Binding Subtitle}" TextColor="{DynamicResource TextSecondary}" FontSize="12" />
                                                 </VerticalStackLayout>
+
+                                                <Button Grid.Column="2"
+                                                        Text="{Binding RelationshipLabel}"
+                                                        Command="{Binding BindingContext.RequestFriendFromPresentUserCommand, Source={x:Reference PageRoot}}"
+                                                        CommandParameter="{Binding .}"
+                                                        IsEnabled="{Binding CanRequestFriend}"
+                                                        BackgroundColor="{Binding RelationshipButtonBackground}"
+                                                        TextColor="{Binding RelationshipButtonTextColor}"
+                                                        FontFamily="DMSans-Bold"
+                                                        FontSize="12"
+                                                        CornerRadius="16"
+                                                        Padding="12,0"
+                                                        HeightRequest="34"
+                                                        VerticalOptions="Center" />
                                             </Grid>
                                         </Border>
                                     </DataTemplate>
                                 </CollectionView.ItemTemplate>
                             </CollectionView>
+
+                            <Border Padding="18" BackgroundColor="{DynamicResource BgCard}" Stroke="{DynamicResource Border}" StrokeThickness="1" StrokeShape="RoundRectangle 18" IsVisible="{Binding HasPresentUsers, Converter={StaticResource Inv}}">
+                                <VerticalStackLayout Spacing="6" HorizontalOptions="Center">
+                                    <Label Text="Personne de visible pour le moment" TextColor="{DynamicResource TextPrimary}" FontFamily="DMSans-Bold" FontSize="16" HorizontalTextAlignment="Center" />
+                                    <Label Text="Les utilisateurs en mode fantôme ou sans partage social ne sont jamais affichés ici." TextColor="{DynamicResource TextSecondary}" FontSize="12" HorizontalTextAlignment="Center" />
+                                </VerticalStackLayout>
+                            </Border>
                         </VerticalStackLayout>
                     </Border>
                 </VerticalStackLayout>
@@ -664,3 +653,5 @@
         </ScrollView>
     </Grid>
 </ContentPage>
+
+

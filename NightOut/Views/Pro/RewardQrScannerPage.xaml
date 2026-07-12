@@ -13,20 +13,24 @@
             BarcodesDetected="OnBarcodesDetected"
             IsDetecting="False" />
 
-        <BoxView BackgroundColor="{DynamicResource SecretOverlayOff}"/>
+        <BoxView BackgroundColor="{DynamicResource SecretOverlayOff}"
+                 Opacity="0.35"
+                 InputTransparent="True"/>
 
-        <Grid RowDefinitions="Auto,*,Auto" Padding="20,50,20,30">
+        <Grid RowDefinitions="Auto,*,Auto"
+              Padding="20,50,20,30">
             <Grid Grid.Row="0" ColumnDefinitions="44,*" ColumnSpacing="12">
                 <Border Grid.Column="0"
                         BackgroundColor="{DynamicResource BgElevated}"
                         StrokeThickness="0"
                         StrokeShape="RoundRectangle 14"
                         WidthRequest="44"
-                        HeightRequest="44">
+                        HeightRequest="44"
+                        InputTransparent="False">
                     <Border.GestureRecognizers>
                         <TapGestureRecognizer Tapped="OnCloseTapped"/>
                     </Border.GestureRecognizers>
-                    <Label Text="←"
+                    <Label Text="&lt;"
                            FontSize="20"
                            TextColor="{DynamicResource TextPrimary}"
                            HorizontalOptions="Center"
@@ -34,7 +38,7 @@
                 </Border>
 
                 <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
-                    <Label Text="Scanner une récompense"
+                    <Label Text="Scanner une recompense"
                            FontFamily="DMSans-SemiBold"
                            FontSize="20"
                            TextColor="{DynamicResource TextPrimary}"/>
@@ -49,7 +53,7 @@
                     HeightRequest="260"
                     HorizontalOptions="Center"
                     VerticalOptions="Center"
-                    BackgroundColor="{DynamicResource AccentDim}"
+                    BackgroundColor="Transparent"
                     Stroke="{DynamicResource Accent}"
                     StrokeThickness="3"
                     StrokeShape="RoundRectangle 28">
@@ -57,6 +61,7 @@
                     <Label Text="QR"
                            FontFamily="DMSans-Bold"
                            FontSize="34"
+                           Opacity="0.35"
                            TextColor="{DynamicResource TextSecondary}"
                            HorizontalOptions="Center"
                            VerticalOptions="Center"/>
@@ -69,7 +74,7 @@
                     StrokeThickness="1"
                     StrokeShape="RoundRectangle 18"
                     Padding="14">
-                <Label Text="Le débit des points se fait seulement après validation serveur."
+                <Label Text="Le debit des points se fait seulement apres validation serveur."
                        FontSize="12"
                        TextColor="{DynamicResource TextSecondary}"
                        HorizontalTextAlignment="Center"/>

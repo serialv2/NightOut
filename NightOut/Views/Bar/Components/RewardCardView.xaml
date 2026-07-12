@@ -87,8 +87,8 @@
                                                 HeightRequest="185"
                                                 Format="QrCode"
                                                 Value="{Binding Source={x:Reference RewardRoot}, Path=RewardIntentQrPayload}"
-                                                ForegroundColor="{DynamicResource BgDeep}"
-                                                BackgroundColor="{DynamicResource TextPrimary}"
+                                                ForegroundColor="Black"
+                                                BackgroundColor="White"
                                                 HorizontalOptions="Center" />
 
                     <Label Text="Code secours"

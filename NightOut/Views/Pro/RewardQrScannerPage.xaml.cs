@@ -1,5 +1,5 @@
-using NightOut.Services;
 using CommunityToolkit.Mvvm.Messaging;
+using NightOut.Services;
 using ZXing.Net.Maui;
 
 namespace NightOut.Views.Pro;
@@ -23,8 +23,8 @@ public partial class RewardQrScannerPage : ContentPage
         if (status != PermissionStatus.Granted)
         {
             await DisplayAlert(
-                "Caméra refusée",
-                "Autorise la caméra pour scanner le QR code, ou utilise la saisie manuelle du code.",
+                "Camera refusee",
+                "Autorise la camera pour scanner le QR code, ou utilise la saisie manuelle du code.",
                 "OK");
             await Shell.Current.GoToAsync("..");
             return;
@@ -32,11 +32,13 @@ public partial class RewardQrScannerPage : ContentPage
 
         BarcodeReader.Options = new BarcodeReaderOptions
         {
-            Formats = BarcodeFormats.TwoDimensional,
+            Formats = BarcodeFormat.QrCode,
             AutoRotate = true,
             Multiple = false
         };
 
+        BarcodeReader.IsDetecting = false;
+        await Task.Delay(300);
         BarcodeReader.IsDetecting = true;
     }
 

@@ -21,12 +21,6 @@ public class AuthService(Client supabase) : IAuthService
 
     public async Task<bool> RestoreSessionAsync()
     {
-        if (IsLoggedIn)
-        {
-            _currentProfile = await GetCurrentProfileAsync();
-            return true;
-        }
-
         try
         {
             var accessToken = await Microsoft.Maui.Storage.SecureStorage.Default.GetAsync(SavedAccessTokenKey);
@@ -55,12 +49,12 @@ public class AuthService(Client supabase) : IAuthService
             var password = await Microsoft.Maui.Storage.SecureStorage.Default.GetAsync(SavedPasswordKey);
 
             if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
-                return false;
+                return IsLoggedIn;
 
             var session = await supabase.Auth.SignIn(email, password);
 
             if (session?.User == null)
-                return false;
+                return IsLoggedIn;
 
             await SaveSessionTokensAsync(session.AccessToken, session.RefreshToken);
 
@@ -71,8 +65,15 @@ public class AuthService(Client supabase) : IAuthService
         {
             System.Diagnostics.Debug.WriteLine($"[Auth] RestoreSessionAsync credentials erreur : {ex.Message}");
             RemoveSavedCredentials();
-            return false;
         }
+
+        if (IsLoggedIn)
+        {
+            _currentProfile = await GetCurrentProfileAsync();
+            return true;
+        }
+
+        return false;
     }
 
     // ─────────────────────────────────────────────────────────────
